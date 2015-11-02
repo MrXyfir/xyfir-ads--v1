@@ -2,7 +2,7 @@
 
 var config = require('../../config').nodemailer;
 
-export = (email, subject, message) => {
+export = (email: string, subject: string, message: string) => {
 
     require('nodemailer').createTransport({
         service: config.service,
