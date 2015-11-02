@@ -3,5 +3,6 @@ var account = require('../../../controllers/api/publishers/account');
 router.route('/')
     .get(account.info)
     .put(account.update);
+router.post('/register', account.register);
 module.exports = router;
 //# sourceMappingURL=account.js.map
