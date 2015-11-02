@@ -1,6 +1,9 @@
 /// <reference path="../typings/nodemailer/nodemailer.d.ts" />
+
 var config = require('../../config').nodemailer;
-module.exports = function (email, subject, message) {
+
+export = (email, subject, message) => {
+
     require('nodemailer').createTransport({
         service: config.service,
         auth: config.auth
@@ -9,7 +12,9 @@ module.exports = function (email, subject, message) {
         to: email,
         subject: "Xyfir Ads - " + subject,
         html: message
-    }, function (err, info) {
+    },
+    function (err, info) {
         return;
     });
-};
+
+}
