@@ -1,0 +1,49 @@
+var Button = require('../forms/Button');
+
+module.exports = React.createClass({
+
+    register: function() {
+        var data = {
+            name: this.refs.name.value,
+            email: this.refs.email.value,
+            application: this.refs.info.value
+        };
+
+        ajax({
+            url: 'api/publishers/account/register',
+            method: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function(response) { alert(response.message); }
+        });
+    },
+
+    render: function() {
+        return (
+            <div className="home-register-publisher">
+                <h3>Publisher Application</h3>
+                <p>
+                    Interested in utilizing Xyfir Ads on your site or app? Not all publishers who apply will be accepted, but it can't hurt to try. Once you apply a staff member will manually approve or deny your application. If you're denied, you can apply again every 3 months.
+                </p>
+                <p>
+	                <b>Information we're looking for in your application:</b>
+	                <br />
+                    a brief description of and links to sites, apps, or other service that you plan to integrate Xyfir Ads with
+	                <br />
+                    current and estimated unique and total views, downloads, etc
+	                <br />
+                    categories your service(s) target
+	                <br />
+                    any information you believe will help improve your application
+                </p>
+
+                <input type="text" placeholder="Name or Business" ref="name" />
+                <input type="text" placeholder="Contanct Email" ref="email" />
+                <textarea ref="info" defaultValue="Publisher application"></textarea>
+
+                <Button type="primary" onClick={this.register}>Register</Button>
+            </div>
+        );
+    }
+
+});

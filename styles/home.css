@@ -1,0 +1,24 @@
+.home-section-dashboards > .link-lg {
+    display: block;
+    margin: auto;
+    margin-top: 1em;
+}
+
+.subtitle {
+    margin-top: -1em;
+    color: $gray;
+}
+
+.home-section-advertisers > h3, .home-section-publishers > h3, .home-section-developers > h3 {
+    margin-bottom: -0.6em;
+}
+
+.header-doc-resources {
+    margin-bottom: 0.35em!important;
+}
+
+.home-register-publisher, .home-register-advertiser {
+    background-color: #f7f7f7;
+    padding: 1em;
+    border: 1px solid #f0f0f0
+}

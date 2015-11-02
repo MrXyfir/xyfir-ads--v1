@@ -1,0 +1,8 @@
+.ntvs_analysis.dat
+node_modules/
+config.js
+*.njsproj
+*.sln
+public/
+obj/
+.vs/

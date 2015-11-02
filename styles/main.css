@@ -1,0 +1,173 @@
+/* MISC */
+* {
+	line-height: 142%;
+	font-family: "Source Sans Pro",Calibri,Candara,sans-serif;
+	text-align: center;
+}
+hr {
+	border: 0;
+    height: 1px;
+	margin: 2em;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+ol {
+	width: 12em;
+	margin: 2em auto;
+}
+
+/* FOOTER */
+.footer {
+	border-top: solid .13em $lblack;
+	padding-top: 1em;
+	margin-top: 5em;
+	margin-left: 6em;
+	width: 80%;
+}
+.footer > a {
+	margin: auto 0.5em;
+}
+.footer > span {
+	display: block;
+	margin-top: 0.5em;
+}
+
+/* LOGO */
+.logo {
+	border-bottom: solid 0.13em $lblack;
+	width: 80%;
+	margin: auto;
+	margin-bottom: 2em;
+	padding-bottom: 1em;
+}
+.logo > .logo-xyfir {
+	font-size: 275%;
+	font-weight: 700;
+	color: $lblack;
+	display: block;
+	margin-bottom: -0.15em;
+}
+.logo > .logo-ads {
+	font-size: 225%;
+	color: $blue;
+	border-top: solid;
+}
+
+/* ALERTS */
+.alert {
+	display: block;
+	margin: 2em auto;
+	padding: 0.5em;
+	width: 80%;
+	color: #fff;
+}
+.alert-info {
+	background-color: #e5f3fb;
+	color: $black;
+}
+.alert-success {
+	background-color: $lblue;
+}
+.alert-error {
+	background-color: $danger;
+}
+.alert-warning {
+	background-color: #fa6800;
+}
+
+
+/* LINKS */
+a {
+	color: $blue;
+	text-decoration: none;
+}
+a:hover {
+	color: #0099ff;
+}
+a:focus {
+	color: $lblack;
+}
+.link-lg {
+	font-size: 125%;
+}
+
+/* BUTTONS */
+input[type=submit], button, .btn {
+	height: 3.142em;
+	min-width: 7em;
+	color:#fff;
+	padding: 5px 10px;
+	border: 0;
+	text-transform: uppercase;
+	border-radius: 0.15em;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+}
+.btn-sm {
+	height: 2.142em;
+	min-width: 5em;
+}
+.btn-lg {
+	font-size: 140%;
+}
+.btn-primary {
+	background-color: #2652ec;
+}
+.btn-primary:hover {
+	background-color: #5a94f1; 
+}
+.btn-secondary {
+	background-color: $gray;
+}
+.btn-secondary:hover {
+	background-color: $lgray;
+}
+.btn-danger {
+	background-color: $danger;
+}
+.btn-danger:hover {
+	background-color: $ldanger;
+}
+input[type=submit]:focus, button:focus {
+	background-color: $lblack;
+}
+
+/* FORMS */
+input[type=text], input[type=password], input[type=email], input[type=number], input[type=tel] {
+	height: 1.571em;
+}
+input[type=text], input[type=password], input[type=email], input[type=tel] {
+	width: 16em;
+}
+input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=number]:focus, input[type=tel]:focus, textarea:focus, select:focus {
+	border-color: $gray;
+	outline: none;
+}
+input[type=text], input[type=password], input[type=email], input[type=number], input[type=tel], textarea, select {
+	padding: 4px 8px;
+	color: $lblack;
+	border: 1px solid $llgray;
+	background-color: rgba(255,255,255,.8);
+	display: block;
+	margin: 1em auto;
+}
+input[type=text].input-error, input[type=password].input-error, input[type=email].input-error, input[type=number].input-error, input[type=tel].input-error, input[type=search].input-error, textarea.input-error {
+	border-color: $ddanger;
+}
+p.input-error {
+	color: $ddanger;
+}
+textarea {
+	width: 20em;
+	height: 7em;
+}
+
+/* LARGE FORMS */
+.form-large-body > input[type=text], .form-large-body > input[type=password], .form-large-body > input[type=email], .form-large-body > input[type=tel] {
+	height: 1.5em;
+	width: 18em;
+	font-size: 125%;
+	margin: 1em auto;
+}
+.form-large-header > p {
+	margin-top: -1em;
+}

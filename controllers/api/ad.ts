@@ -1,0 +1,7 @@
+export = {
+    
+    pricing: (req, res) => {
+
+    }
+
+};
