@@ -9,13 +9,21 @@ module.exports = React.createClass({
             application: this.refs.info.value
         };
 
-        ajax({
-            url: 'api/publishers/account/register',
-            method: 'POST',
-            dataType: 'json',
-            data: data,
-            success: function(response) { alert(response.message); }
-        });
+        if (data.name.length > 25)
+            alert('Name cannot be over 25 characters.');
+        else if (data.email.length > 50)
+            alert('Email cannot be over 50 characters.');
+        else if (data.application.length > 1500)
+            alert('Application cannot be over 1,500 characters.');
+        else {
+            ajax({
+                url: 'api/publishers/account/register',
+                method: 'POST',
+                dataType: 'json',
+                data: data,
+                success: function (response) { alert(response.message); }
+            });
+        }
     },
 
     render: function() {
