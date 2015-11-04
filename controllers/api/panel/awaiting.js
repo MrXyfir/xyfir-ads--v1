@@ -48,7 +48,7 @@ module.exports = {
                     try {
                         connection.beginTransaction(function (err) {
                             // Add refund to user's funds
-                            sql = "UPDATE users SET ad_funds = ad_funds + ? WHERE user_id = ?";
+                            sql = "UPDATE advertisers SET funds = funds + ? WHERE user_id = ?";
                             connection.query(sql, [refund, rows[0].owner], function (e, r) {
                                 if (e)
                                     connection.rollback(function () { throw e; });
