@@ -49,8 +49,54 @@ export = {
             );
 
             // Refund cost of advertisement - 10% (minimum $10)
-            
-            // Move ad to ended_ads and set denied bool to true
+            db(connection => {
+                connection.query("SELECT funds, owner FROM ads WHERE id = ?", [req.body.advertiser], (err, rows) => {
+                    var refund: number = 0;
+                    var sql: string = "";
+
+                    // Determine refund amount
+                    if (rows[0].funds > 10) {
+                        refund = (rows[0].funds * 0.10) < 10 ? 10 : rows[0].funds * 0.10
+                        refund = rows[0].funds - refund;
+                    }
+
+                    try {
+                        connection.beginTransaction(err => {
+                            // Add refund to user's funds
+                            sql = "UPDATE users SET ad_funds = ad_funds + ? WHERE user_id = ?";
+                            connection.query(sql, [refund, rows[0].owner], (e, r) => {
+                                if (e) connection.rollback(() => { throw e; });
+
+                                // Move relevant data from ads -> ads_ended
+                                sql = "INSERT INTO ads_ended SELECT "
+                                + "id, name, pay_type, cost, autobid, available, approved, ad_type, ut_age, "
+                                + "ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords, ct_sites, info, owner "
+                                + "FROM ads WHERE id = ?";
+                                connection.query(sql, [req.body.advertiser], (e, r) => {
+                                    if (e) connection.rollback(() => { throw e; });
+
+                                    // Delete row from ads
+                                    sql = "DELETE FROM ads WHERE id = ?";
+                                    connection.query(sql, [req.body.advertiser], (e, r) => {
+                                        if (e)
+                                            connection.rollback(() => { connection.release(); throw e; });
+                                        else {
+                                            connection.commit(err => {
+                                                if (e) connection.rollback(() => { throw e; });
+                                                else connection.release();
+                                            });
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    }
+                    catch (err) {
+                        connection.release();
+                        res.json({ error: true, message: err.toString() });
+                    }
+                });
+            });
         }
 
     },

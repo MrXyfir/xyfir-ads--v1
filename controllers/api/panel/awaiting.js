@@ -35,6 +35,55 @@ module.exports = {
         else {
             // Send denial email to advertiser
             email(req.body.email, "Advertising Campaign - Denied", "Your campaign was denied for the following reason: " + req.body.reason);
+            // Refund cost of advertisement - 10% (minimum $10)
+            db(function (connection) {
+                connection.query("SELECT funds, owner FROM ads WHERE id = ?", [req.body.advertiser], function (err, rows) {
+                    var refund = 0;
+                    var sql = "";
+                    // Determine refund amount
+                    if (rows[0].funds > 10) {
+                        refund = (rows[0].funds * 0.10) < 10 ? 10 : rows[0].funds * 0.10;
+                        refund = rows[0].funds - refund;
+                    }
+                    try {
+                        connection.beginTransaction(function (err) {
+                            // Add refund to user's funds
+                            sql = "UPDATE users SET ad_funds = ad_funds + ? WHERE user_id = ?";
+                            connection.query(sql, [refund, rows[0].owner], function (e, r) {
+                                if (e)
+                                    connection.rollback(function () { throw e; });
+                                // Move relevant data from ads -> ads_ended
+                                sql = "INSERT INTO ads_ended SELECT "
+                                    + "id, name, pay_type, cost, autobid, available, approved, ad_type, ut_age, "
+                                    + "ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords, ct_sites, info, owner "
+                                    + "FROM ads WHERE id = ?";
+                                connection.query(sql, [req.body.advertiser], function (e, r) {
+                                    if (e)
+                                        connection.rollback(function () { throw e; });
+                                    // Delete row from ads
+                                    sql = "DELETE FROM ads WHERE id = ?";
+                                    connection.query(sql, [req.body.advertiser], function (e, r) {
+                                        if (e)
+                                            connection.rollback(function () { connection.release(); throw e; });
+                                        else {
+                                            connection.commit(function (err) {
+                                                if (e)
+                                                    connection.rollback(function () { throw e; });
+                                                else
+                                                    connection.release();
+                                            });
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    }
+                    catch (err) {
+                        connection.release();
+                        res.json({ error: true, message: err.toString() });
+                    }
+                });
+            });
         }
     },
     approve: function (req, res) {
