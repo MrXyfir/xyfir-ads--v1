@@ -1,3 +1,4 @@
+/// <reference path="../../../typings/stripe/stripe.d.ts" />
 var db = require("../../../lib/db");
 module.exports = {
     info: function (req, res) {
@@ -5,6 +6,48 @@ module.exports = {
     update: function (req, res) {
     },
     addFunds: function (req, res) {
+        if (req.body.amount < 10) {
+            res.json({ error: true, message: "You cannot add less than $10.00 in funds." });
+            return;
+        }
+        var stripeKey = require("../../../config").stripe;
+        // Attempt to charge user's card
+        require("stripe")(stripeKey).charges.create({
+            amount: req.body.amount * 100,
+            currency: "usd",
+            source: req.body.stripeToken,
+            description: "Xyfir Ads - Add Funds: $" + req.body.amount
+        }, function (err, charge) {
+            if (err) {
+                res.json({ error: true, message: "There was an error processing your card." });
+                return;
+            }
+            db(function (cn) {
+                var sql;
+                // Add funds to user's account
+                sql = "UPDATE advertisers SET funds = funds + ? WHERE user_id = ?";
+                cn.query(sql, [req.body.amount, req.session.uid], function (e, r) {
+                    if (e) {
+                        cn.release();
+                        res.json({ error: true, message: "An unknown error occured. Please contact support." });
+                        return;
+                    }
+                    // Add transaction to payments table
+                    var data = {
+                        id: charge.id,
+                        user_id: req.session.uid,
+                        received: true,
+                        amount: req.body.amount,
+                        tstamp: new Date()
+                    };
+                    sql = "INSERT INTO payments SET ?";
+                    cn.query(sql, data, function (e, r) {
+                        cn.release();
+                        res.json({ error: false, message: "$" + req.body.amount + " added to available funds." });
+                    });
+                });
+            });
+        });
     },
     register: function (req, res) {
         if (!req.session.uid)
