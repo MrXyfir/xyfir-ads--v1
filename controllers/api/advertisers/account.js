@@ -56,13 +56,20 @@ module.exports = {
             res.json({ error: true, message: "You are already a advertiser." });
         else {
             // Set advertiser boolean to true
-            db(function (connection) {
-                connection.query("UPDATE users SET advertiser = 1 WHERE user_id = ?", [req.session.uid], function (err, result) {
-                    connection.release();
-                    if (err)
+            db(function (cn) {
+                cn.query("INSERT INTO advertisers SET ?", { user_id: req.session.uid }, function (e, r) {
+                    if (e) {
+                        cn.release();
                         res.json({ error: true, message: "An unkown error occured. Please try again." });
-                    else
-                        res.json({ error: false, message: "" });
+                        return;
+                    }
+                    cn.query("UPDATE users SET advertiser = 1 WHERE user_id = ?", [req.session.uid], function (e, r) {
+                        cn.release();
+                        if (e)
+                            res.json({ error: true, message: "An unkown error occured. Please try again." });
+                        else
+                            res.json({ error: false, message: "" });
+                    });
                 });
             });
         }
