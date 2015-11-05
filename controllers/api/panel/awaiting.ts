@@ -111,11 +111,14 @@ export = {
             );
             
             db(connection => {
-                // Set publisher boolean to true in users
-                connection.query("UPDATE users SET publisher = 1 WHERE user_id = ?", [req.body.publisher], (e, r) => {
-                    // Delete application from awaiting_publishers
-                    connection.query("DELETE FROM awaiting_publishers WHERE user_id = ?", [req.body.publisher], (e, r) => {
-                        connection.release();
+                // Create row in publishers for user
+                connection.query("INSERT INTO publishers SET ?", { user_id: req.body.publisher }, (e, r) => {
+                    // Set publisher boolean to true in users
+                    connection.query("UPDATE users SET publisher = 1 WHERE user_id = ?", [req.body.publisher], (e, r) => {
+                        // Delete application from awaiting_publishers
+                        connection.query("DELETE FROM awaiting_publishers WHERE user_id = ?", [req.body.publisher], (e, r) => {
+                            connection.release();
+                        });
                     });
                 });
             });

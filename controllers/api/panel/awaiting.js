@@ -92,11 +92,14 @@ module.exports = {
             email(req.body.email, "Publisher Application - Approved", "Congratulations, your application was approved! You can now login to your publisher's dashboard: "
                 + "<a href='https://ads.xyfir.com/publishers/'>Publisher Dashboard</a>");
             db(function (connection) {
-                // Set publisher boolean to true in users
-                connection.query("UPDATE users SET publisher = 1 WHERE user_id = ?", [req.body.publisher], function (e, r) {
-                    // Delete application from awaiting_publishers
-                    connection.query("DELETE FROM awaiting_publishers WHERE user_id = ?", [req.body.publisher], function (e, r) {
-                        connection.release();
+                // Create row in publishers for user
+                connection.query("INSERT INTO publishers SET ?", { user_id: req.body.publisher }, function (e, r) {
+                    // Set publisher boolean to true in users
+                    connection.query("UPDATE users SET publisher = 1 WHERE user_id = ?", [req.body.publisher], function (e, r) {
+                        // Delete application from awaiting_publishers
+                        connection.query("DELETE FROM awaiting_publishers WHERE user_id = ?", [req.body.publisher], function (e, r) {
+                            connection.release();
+                        });
                     });
                 });
             });
