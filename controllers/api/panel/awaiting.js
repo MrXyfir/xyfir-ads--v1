@@ -54,8 +54,9 @@ module.exports = {
                                     connection.rollback(function () { throw e; });
                                 // Move relevant data from ads -> ads_ended
                                 sql = "INSERT INTO ads_ended SELECT "
-                                    + "id, name, pay_type, cost, autobid, available, approved, ad_type, ut_age, "
-                                    + "ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords, ct_sites, info, owner "
+                                    + "id, name, pay_type, cost, autobid, available, approved, ad_type, ad_title, "
+                                    + "ad_description, ad_link, ad_media, ut_age, ut_countries, ut_regions, "
+                                    + "ut_genders, ct_categories, ct_keywords, ct_sites, info, owner "
                                     + "FROM ads WHERE id = ?";
                                 connection.query(sql, [req.body.advertiser], function (e, r) {
                                     if (e)
