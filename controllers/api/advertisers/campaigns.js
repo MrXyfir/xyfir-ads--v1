@@ -1,7 +1,177 @@
+var db = require("../../../lib/db");
 module.exports = {
-    getAll: function (req, res) {
-    },
+    /*
+        POST api/advertisers/campaign
+        REQUIRED
+            ut_genders ut_countries ut_regions ut_age
+            ct_category ct_keywords ct_sites
+            a_requested a_paytype a_media a_type
+            a_descriptions a_title a_type a_link
+            c_availability c_name f_allocated
+        OPTIONAL
+            f_autobid f_bid f_daily
+        RETURN
+            { error: bool, message: string }
+    */
     create: function (req, res) {
-    }
+        var response = { error: false, message: "" };
+        // Validate data
+        if (!req.body.c_name.match(/^\w{3,25}$/))
+            response = { error: true, message: "Invalid campaign name" };
+        else if (['1', '2', '3', '4'].indexOf(req.body.a_type) == -1)
+            response = { error: true, message: "Invalid ad type selection" };
+        else if (req.body.a_paytype != 1 && req.body.a_paytype != 2)
+            response = { error: true, message: "Invalid pay-per-action selected" };
+        else if (req.body.a_type == 4 && req.body.a_paytype == 1)
+            response = { error: true, message: "Video ads cannot be pay-per-click" };
+        else if (!req.body.a_link.match(/^https?:\/\//))
+            response = { error: true, message: "Link must begin with https:// or http://" };
+        else if (!req.body.c_availability.match(/^(\d{10}-(\d{10})?,?){1,10}$/))
+            response = { error: true, message: "Invalid availability ranges" };
+        else if (!req.body.ut_genders.match(/^[0123,]{1,5}$/))
+            response = { error: true, message: "Invalid targeted user genders" };
+        else if (!req.body.ut_age.match(/^[0123456,]{1,11}$/))
+            response = { error: true, message: "Invalid targeted user age ranges" };
+        else if (!req.body.ct_keywords.match(/^[\w ,]{0,1500}$/))
+            response = { error: true, message: "Invalid keyword(s) length or character" };
+        else if (!req.body.ut_countries.match(/^([A-Z]{2},?){1,50}|\*$/))
+            response = { error: true, message: "Invalid target countries list (limit 50 countries)" };
+        else if (!req.body.ut_regions.match(/^([\w\d\s,\|]{1,1000})|\*$/))
+            response = { error: true, message: "Invalid target regions (limit 1,000 characters)" };
+        else if (!require("../../../lib/category/validator")(req.body.ct_category, true))
+            response = { error: true, message: "Invalid category selected" };
+        else if (!req.body.ct_sites.match(/^([\w\d.,]){5,225}|\*$/))
+            response = { error: true, message: "Invalid target sites format / length (limit 225 characters)" };
+        else if (req.body.f_allocated < 10.00)
+            response = { error: true, message: "You must allocate at least $10.00 for campaign" };
+        else if (!req.body.a_title.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{5,25}$/))
+            response = { error: true, message: "Invalid ad title characters or length" };
+        else if (!req.body.a_description.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{5,150}$/))
+            response = { error: true, message: "Invalid ad description characters or length" };
+        else if (req.body.a_media && !req.body.a_media.match(/^(\d:https?:\/\/[\w\d-\/.]{10,80},?){1,5}$/))
+            response = { error: true, message: "Invalid image / video source(s)" };
+        // Short text ads verification
+        if (req.body.a_type == 2) {
+            if (req.body.a_title.length > 15)
+                response = { error: true, message: "Short text ad titles cannot be longer than 15 characters" };
+            else if (req.body.a_description.length > 40)
+                response = { error: true, message: "Short text ad descriptions cannot be longer than 40 characters" };
+        }
+        else if (req.body.a_type == 3) {
+        }
+        else if (req.body.a_type == 4) {
+        }
+        // Bid validation
+        if (req.body.f_autobid) {
+            if (req.body.f_daily > req.body.f_allocated)
+                response = { error: true, message: "Daily allocated funds limit cannot be greater than total allocated" };
+            if (req.body.f_daily < 0.50)
+                response = { error: true, message: "Daily allocated funds limit cannot be less than $0.50" };
+            next();
+        }
+        else {
+            require("../../../lib/ad/price")(req.body.a_type, req.body.f_type, req.body.ct_category, function (info) {
+                // Ensure user's bid price >= category's base price
+                if (req.body.f_bid < info.base)
+                    response = { error: true, message: "Bid price is lower than category's base price" };
+                // Ensure their allocated funds can pay for requested clicks and 
+                if (req.body.f_bid * req.body.a_requested > req.body.f_allocated)
+                    response = { error: true, message: "Not enough allocated funds to pay for requested actions on ad" };
+                next();
+            });
+        }
+        var next = function () { return db(function (cn) {
+            var sql = "SELECT funds FROM advertisers WHERE user_id = ?";
+            cn.query(sql, [req.session.uid], function (err, rows) {
+                // Check if user has enough funds
+                if (err || rows.length == 0)
+                    response = { error: true, message: "An unknown error occured" };
+                else if (rows[0].funds < req.body.f_allocated)
+                    response = { error: true, message: "You do not have enough funds in your account" };
+                // Cancel if an error occured in any of the above validation
+                if (response.error) {
+                    cn.release();
+                    res.json(response);
+                    return;
+                }
+                // Setup object to insert into table
+                var data = {
+                    name: req.body.c_name,
+                    cost: req.body.f_autobid ? 0 : req.body.f_bid,
+                    funds: req.body.f_allocated,
+                    owner: req.session.uid,
+                    ut_age: req.body.ut_age,
+                    autobid: req.body.f_autobid ? true : false,
+                    ad_type: req.body.a_type,
+                    ad_title: req.body.a_title,
+                    ad_media: req.body.a_media,
+                    approved: false,
+                    ct_sites: req.body.ct_sites,
+                    pay_type: req.body.a_paytype,
+                    requested: req.body.a_requested,
+                    available: req.body.available,
+                    ut_genders: req.body.ut_genders,
+                    ut_regions: req.body.ut_regions,
+                    ct_keywords: req.body.ct_keywords,
+                    daily_funds: req.body.f_daily ? req.body.f_daily : 0,
+                    ut_countries: req.body.ut_countries,
+                    ct_categories: req.body.ct_categories
+                };
+                req.body = null, response = null;
+                // Finalize campaign creation process
+                cn.beginTransaction(function (err) {
+                    if (err) {
+                        cn.release();
+                        res.json({ error: true, message: "An unknown error occured" });
+                        return;
+                    }
+                    // Remove allocated funds from advertiser's account
+                    sql = "UPDATE advertisers SET funds = funds - ? WHERE user_id = ?";
+                    cn.query(sql, [data.funds, data.owner], function (e, r) {
+                        if (e) {
+                            cn.rollback(function () { return cn.release(); });
+                            res.json({ error: true, message: "An unknown error occured" });
+                            return;
+                        }
+                        // Create row in database for ad
+                        sql = "INSERT INTO ads SET ?";
+                        cn.query(sql, data, function (e, r) {
+                            data = null;
+                            if (e) {
+                                cn.rollback(function () { return cn.release(); });
+                                res.json({ error: true, message: "An unknown error occured" });
+                                return;
+                            }
+                            var ad = r.insertID;
+                            // Create blank ad_report for current date
+                            sql = "INSERT INTO ad_reports (id, day) VALUES ('" + ad + "', CURDATE())";
+                            cn.query(sql, function (e, r) {
+                                cn.commit(function (err) {
+                                    if (err) {
+                                        cn.rollback(function () { return cn.release(); });
+                                        res.json({ error: true, message: "An unknown error occured" });
+                                        return;
+                                    }
+                                    sql = "SELECT email FROM users WHERE user_id = ?";
+                                    cn.query(sql, [req.session.uid], function (err, rows) {
+                                        cn.release();
+                                        // Email user about campaign creation
+                                        require("../../../lib/email")(rows[0].email, "Ad Campaign Created", "You have successfully created a new ad campaign."
+                                            + "<br /><br />"
+                                            + "<a href='https://ads.xyfir.com/advertisers/campaign/" + ad + "'>View Details</a>"
+                                            + "<br /><br />"
+                                            + "You will receive an email when your campaign is approved or denied.");
+                                        res.json({ error: false, message: "Campaign created successfully" });
+                                    }); // grab user's email
+                                }); // commit transaction
+                            }); // create blank ad_report
+                        }); // insert ad into ads
+                    }); // remove funds
+                }); // begin transac
+            }); // grab funds
+        }); }; // next()
+    },
+    getAll: function (req, res) {
+    } // getAll()
 };
 //# sourceMappingURL=campaigns.js.map
