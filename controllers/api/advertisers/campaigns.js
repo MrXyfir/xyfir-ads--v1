@@ -1,7 +1,7 @@
 var db = require("../../../lib/db");
 module.exports = {
     /*
-        POST api/advertisers/campaign
+        POST api/advertisers/campaigns
         REQUIRED
             ut_genders ut_countries ut_regions ut_age
             ct_category ct_keywords ct_sites
@@ -171,7 +171,27 @@ module.exports = {
             }); // grab funds
         }); }; // next()
     },
+    /*
+        GET api/advertisers/campaigns
+        RETURN
+            {campaigns: [
+                {
+                    id, name, funds, dailyFunds, dailyFundsUsed,
+                    requested, provided, payType, approved
+                }
+            ]}
+    */
     getAll: function (req, res) {
+        db(function (cn) {
+            var sql;
+            sql = "SELECT id, name, funds, daily_funds as dailyFunds, daily_funds_used as dailyFundsUsed, "
+                + "pay_type as payType, requested, provided, approved "
+                + "FROM ads WHERE owner = ?";
+            cn.query(sql, [req.session.uid], function (err, rows) {
+                cn.release();
+                res.json({ campaigns: rows });
+            });
+        });
     } // getAll()
 };
 //# sourceMappingURL=campaigns.js.map

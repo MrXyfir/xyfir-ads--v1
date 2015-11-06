@@ -3,7 +3,7 @@
 export = {
 
     /*
-        POST api/advertisers/campaign
+        POST api/advertisers/campaigns
         REQUIRED
             ut_genders ut_countries ut_regions ut_age
             ct_category ct_keywords ct_sites
@@ -199,8 +199,30 @@ export = {
 
     }, // create()
 
-    getAll: (req, res) => {
 
+    /*
+        GET api/advertisers/campaigns
+        RETURN
+            {campaigns: [
+                {
+                    id, name, funds, dailyFunds, dailyFundsUsed,
+                    requested, provided, payType, approved
+                }
+            ]}
+    */
+    getAll: (req, res) => {
+        db(cn => {
+            var sql: string;
+
+            sql = "SELECT id, name, funds, daily_funds as dailyFunds, daily_funds_used as dailyFundsUsed, "
+                + "pay_type as payType, requested, provided, approved "
+                + "FROM ads WHERE owner = ?";
+            cn.query(sql, [req.session.uid], (err, rows) => {
+                cn.release();
+
+                res.json({ campaigns: rows });
+            });
+        });
     } // getAll()
 
 };
