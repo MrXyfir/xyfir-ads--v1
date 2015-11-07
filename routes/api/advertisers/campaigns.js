@@ -11,5 +11,6 @@ router.route('/:id')
 router.put('/:id/funds', campaign.funds);
 router.put('/:id/budget', campaign.budget);
 router.put('/:id/bidding', campaign.bidding);
+router.get('/:id/reports', campaign.reports);
 module.exports = router;
 //# sourceMappingURL=campaigns.js.map
