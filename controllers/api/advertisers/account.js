@@ -1,10 +1,11 @@
 /// <reference path="../../../typings/stripe/stripe.d.ts" />
 var db = require("../../../lib/db");
 module.exports = {
-    info: function (req, res) {
-    },
-    update: function (req, res) {
-    },
+    /*
+        POST api/advertisers/account/funds
+        RETURN
+            { error: bool, message: string }
+    */
     addFunds: function (req, res) {
         if (req.body.amount < 10) {
             res.json({ error: true, message: "You cannot add less than $10.00 in funds." });
@@ -49,6 +50,11 @@ module.exports = {
             });
         });
     },
+    /*
+        POST api/advertisers/account/register
+        RETURN
+            { error: bool, message: string }
+    */
     register: function (req, res) {
         if (!req.session.uid)
             res.json({ error: true, message: "You must login to Xyfir Ads with your Xyfir Account." });
@@ -73,6 +79,27 @@ module.exports = {
                 });
             });
         }
+    },
+    /*
+        GET api/advertisers/account
+        RETURN
+            { funds: number }
+    */
+    info: function (req, res) {
+        db(function (cn) {
+            cn.query("SELECT funds FROM advertiser WHERE user_id = ?", [req.session.uid], function (err, rows) {
+                cn.release();
+                res.json({ funds: rows[0].funds });
+            });
+        });
+    },
+    /*
+        PUT api/advertisers/account
+        RETURN
+            null
+    */
+    update: function (req, res) {
+        // Placeholder
     }
 };
 //# sourceMappingURL=account.js.map
