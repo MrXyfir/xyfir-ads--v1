@@ -17,11 +17,15 @@ module.exports = {
                     categories: string, keywords: string, sites: string
                 }
             }
+        DESCRIPTION
+            Returns all non-report information for campaign
+            *Can return campaigns that have ended
     */
     getSingle: function (req, res) {
         // Attempt to grab data for campaign
         db(function (cn) {
-            cn.query("SELECT * FROM ads WHERE id = ?", [req.params.id], function (err, rows) {
+            var sql = "SELECT * FROM ads WHERE id = ? AND owner = ?";
+            cn.query(sql, [req.params.id, req.session.uid], function (err, rows) {
                 if (err) {
                     cn.release();
                     res.json({});
@@ -29,7 +33,8 @@ module.exports = {
                 }
                 // Check if ad is in ads_ended
                 if (rows.length == 0) {
-                    cn.query("SELECT * FROM ads_ended WHERE id = ?", [req.params.id], function (err, rows) {
+                    sql = "SELECT * FROM ads_ended WHERE id = ? AND owner = ?";
+                    cn.query(sql, [req.params.id, req.session.uid], function (err, rows) {
                         cn.release();
                         if (err || rows.length == 0)
                             res.json({});
@@ -78,12 +83,62 @@ module.exports = {
         DELETE api/advertisers/campaigns/:id
         RETURN
             { error: bool, message: string }
+        DESCRIPTION
+            Move ad from ads table to ads_ended
+            Delete any clicks from clicks table
+            *Any funds in campaign are lost
+            *Reports stay available
     */
     remove: function (req, res) {
-        // ** Move campaign to ads_ended
-        // ** Delete all rows relating to ad in clicks table
-        // ** Delete all rows relating to ad in ad_reports
-        // ** Add any remaining funds to advertiser's account
+        db(function (cn) {
+            var sql;
+            cn.beginTransaction(function (err) {
+                if (err) {
+                    cn.release();
+                    res.json({ error: true, message: "An unkown error occured." });
+                    return;
+                }
+                // Move campaign to ads_ended
+                sql = "INSERT INTO ads_ended SELECT "
+                    + "id, name, pay_type, cost, autobid, available, approved, ad_type, ad_title, "
+                    + "ad_description, ad_link, ad_media, ut_age, ut_countries, ut_regions, "
+                    + "ut_genders, ct_categories, ct_keywords, ct_sites, info, owner "
+                    + "FROM ads WHERE id = ?";
+                cn.query(sql, [req.params.id, req.session.uid], function (err, result) {
+                    if (err) {
+                        cn.rollback(function () { return cn.release(); });
+                        res.json({ error: true, message: "An unkown error occured." });
+                        return;
+                    }
+                    // Delete ad from ads table
+                    sql = "DELETE FROM ads WHERE id = ? AND owner = ?";
+                    cn.query(sql, [req.params.id, req.session.uid], function (err, result) {
+                        if (err) {
+                            cn.rollback(function () { return cn.release(); });
+                            res.json({ error: true, message: "An unkown error occured." });
+                            return;
+                        }
+                        // Delete all rows relating to ad in clicks table
+                        sql = "DELETE FROM clicks WHERE ad_id = ? AND owner = ?";
+                        cn.query(sql, [req.params.id, req.session.uid], function (err, result) {
+                            if (err) {
+                                cn.rollback(function () { return cn.release(); });
+                                res.json({ error: true, message: "An unkown error occured." });
+                                return;
+                            }
+                            cn.commit(function (err) {
+                                if (err) {
+                                    cn.rollback(function () { return cn.release(); });
+                                    res.json({ error: true, message: "An unkown error occured." });
+                                    return;
+                                }
+                                res.json({ error: false, message: "Campaign ended successfully." });
+                            }); // commit transaction
+                        }); // delete from clicks
+                    }); // delete from ads
+                }); // moved to ads_ended
+            }); // start transaction
+        }); // db()
     },
     /*
         PUT api/advertisers/campaigns/:id/funds
