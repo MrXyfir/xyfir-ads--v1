@@ -132,6 +132,7 @@ module.exports = {
                                     res.json({ error: true, message: "An unkown error occured." });
                                     return;
                                 }
+                                cn.release();
                                 res.json({ error: false, message: "Campaign ended successfully." });
                             }); // commit transaction
                         }); // delete from clicks
@@ -148,6 +149,108 @@ module.exports = {
             { error: bool, message: string }
     */
     funds: function (req, res) {
+        db(function (cn) {
+            var sql;
+            // Add funds to the campaign from user's account
+            if (req.body.action == "add") {
+                sql = "SELECT funds FROM advertisers WHERE user_id = ?";
+                cn.query(sql, [req.session.uid], function (err, rows) {
+                    if (err || rows.length == 0) {
+                        res.json({ error: true, message: "An unkown error occured" });
+                        return;
+                    }
+                    // Check if user's funds are >= amount
+                    if (rows[0].funds < req.body.amount) {
+                        cn.release();
+                        res.json({ error: true, message: "Not enough funds in account" });
+                        return;
+                    }
+                    cn.beginTransaction(function (err) {
+                        if (err) {
+                            cn.release();
+                            res.json({ error: true, message: "An unkown error occured" });
+                            return;
+                        }
+                        // Subtract amount from user's funds
+                        sql = "UPDATE advertisers SET funds = funds - ? WHERE user_id = ?";
+                        cn.query(sql, [req.body.amount, req.session.uid], function (err, result) {
+                            if (err) {
+                                cn.rollback(function () { return cn.release(); });
+                                res.json({ error: true, message: "An unkown error occured" });
+                                return;
+                            }
+                            // Add amount to campaign's funds
+                            sql = "UPDATE ads SET funds = funds + ? WHERE id = ?";
+                            cn.query(sql, [req.body.amount, req.params.id], function (err, result) {
+                                if (err) {
+                                    cn.rollback(function () { return cn.release(); });
+                                    res.json({ error: true, message: "An unkown error occured" });
+                                    return;
+                                }
+                                cn.commit(function (err) {
+                                    if (err) {
+                                        cn.rollback(function () { return cn.release(); });
+                                        res.json({ error: true, message: "An unkown error occured" });
+                                        return;
+                                    }
+                                    cn.release();
+                                    res.json({ error: false, message: "Funds successfully transferred to campaign" });
+                                }); // commit transaction
+                            }); // add funds to campaign
+                        }); // remove funds from account
+                    }); // begin transaction
+                }); // get user's funds
+            }
+            else {
+                sql = "SELECT funds FROM ads WHERE id = ? AND owner = ?";
+                cn.query(sql, [req.params.id, req.session.uid], function (err, rows) {
+                    if (err || rows.length == 0) {
+                        res.json({ error: true, message: "An unkown error occured" });
+                        return;
+                    }
+                    // Check if campaign's funds are >= amount
+                    if (rows[0].funds < req.body.amount) {
+                        cn.release();
+                        res.json({ error: true, message: "Not enough funds in campaign" });
+                        return;
+                    }
+                    cn.beginTransaction(function (err) {
+                        if (err) {
+                            cn.release();
+                            res.json({ error: true, message: "An unkown error occured" });
+                            return;
+                        }
+                        // Subtract amount from campaign's funds
+                        sql = "UPDATE ads SET funds = funds - ? WHERE id = ?";
+                        cn.query(sql, [req.body.amount, req.params.id], function (err, result) {
+                            if (err) {
+                                cn.rollback(function () { return cn.release(); });
+                                res.json({ error: true, message: "An unkown error occured" });
+                                return;
+                            }
+                            // Add amount to user's funds
+                            sql = "UPDATE advertisers SET funds = funds + ? WHERE user_id = ?";
+                            cn.query(sql, [req.body.amount, req.session.uid], function (err, result) {
+                                if (err) {
+                                    cn.rollback(function () { return cn.release(); });
+                                    res.json({ error: true, message: "An unkown error occured" });
+                                    return;
+                                }
+                                cn.commit(function (err) {
+                                    if (err) {
+                                        cn.rollback(function () { return cn.release(); });
+                                        res.json({ error: true, message: "An unkown error occured" });
+                                        return;
+                                    }
+                                    cn.release();
+                                    res.json({ error: false, message: "Funds successfully transferred from campaign" });
+                                }); // commit transaction
+                            }); // add funds to user's account
+                        }); // remove funds from campaign
+                    }); // begin transaction
+                }); // get campaign's funds
+            }
+        });
     },
     /*
         PUT api/advertisers/campaigns/:id/bidding
