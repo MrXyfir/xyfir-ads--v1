@@ -347,31 +347,118 @@ export = {
     },
 
     /*
-        PUT api/advertisers/campaigns/:id/bidding
+        PUT api/advertisers/campaigns/:id/bid
         OPTIONAL
             autobid: bool, bid: number
         RETURN
             { error: bool, message: string }
+        DESCRIPTION
+            Validate and update campaign's bid
+            *Generates bid price if autobid == true
     */
-    bidding: (req, res) => {
+    bid: (req, res) => {
+        db(cn => {
+            var sql: string;
 
+            // Validate and update campaign's bid (cost)
+            if (req.body.bid) {
+                // Grab needed information for campaign
+                sql = "SELECT ad_type, pay_type, category, requested, funds, autobid "
+                    + "FROM ads WHERE id = ? AND owner = ?";
+                cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
+
+                    if (err || rows.length == 0) {
+                        cn.release();
+                        res.json({ error: true, message: "An unknown error occured" });
+                        return;
+                    }
+
+                    var campaign = rows[0]; rows = null;
+
+                    // Grab ad type in category's pricing information
+                    require("../../../lib/ad/price")
+                    (campaign.ad_type, campaign.pay_type, campaign.ct_categories, info => {
+                        // Ensure user's new bid is >= base price
+                        if (req.body.bid >= info.base) {
+                            cn.release();
+                            res.json({ error: true, message: "Bid must be greater than base price: $" + info.base });
+                            return;
+                        }
+                        
+                        // Ensure user can pay for requested with funds in campaign at bid
+                        if (campaign.requested * req.body.bid > campaign.funds) {
+                            cn.release();
+                            res.json({ error: true, message: "Minimum funds in campaign required: $" + req.body.bid + " * " + campaign.requested });
+                            return;
+                        }
+
+                        // Update bid (cost) for campaign and set autobid = false, if true
+                        sql = "UPDATE ads SET cost = ?" + (campaign.autobid ? ", autobid = 0" : "") + " WHERE id = ?";
+                        cn.query(sql, [req.body.bid, req.params.id], (err, result) => {
+                            cn.release();
+
+                            if (err) res.json({ error: true, message: "An unknown error occured" });
+                            else res.json({ error: false, message: "Bid updated successfully" });
+                        }); // update bid cost
+                    }); // grab ad/cat info
+                }); // grab campaign info
+            }
+            // Generate and set campaign's autobid and cost
+            else if (req.body.autobid) {
+                // Check if campaign already has autobid set true
+                sql = "SELECT autobid FROM ads WHERE id = ? AND owner = ?";
+                cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
+
+                    if (err || rows.length == 0) {
+                        cn.release();
+                        res.json({ error: true, message: "An unknown error occured" });
+                        return;
+                    }
+
+                    // Generate and set campaign's autobid cost
+                    require("../../../lib/ad/price")(req.params.id, cn, err => {
+                        if (err) {
+                            cn.release();
+                            res.json({ error: true, message: "An unknown error occured" });
+                            return;
+                        }
+
+                        // Set autobid = true for campaign
+                        sql = "UPDATE ads SET autobid = ? WHERE id = ?";
+                        cn.query(sql, [true, req.params.id], (err, result) => {
+                            cn.release();
+                            res.json({ error: false, message: "Autobid successfully enabled" });
+                        });
+                    }); // generate bid
+                }); // check autobid
+            }
+            else {
+                cn.release();
+                res.json({ error: true, message: "" });
+            }
+        });
     },
 
     /*
         GET api/advertisers/campaigns/:id/reports
         OPTIONAL
-            reportStart: number, reportEnd: number
+            start: string, end: string
         RETURN
             {reports: [
                 {
                     
                 }
             ]}
+        DESCRIPTION
+            Generates a report for a campaign over a specific time frame
+            *Returns daily, weekly, and monthly reports by default
+            *start and end are date strings (2020-7-20)
     */
     reports: (req, res) => {
         // Create a report object for specific time range
-        if (req.query.reportStart && req.query.reportEnd) {
-
+        if (req.query.start && req.query.end) {
+            // Check if start == end: Grab that day's report
+            // Else: Generate one report for all days
         }
         // Return multiple reports over default times
         // Daily, weekly, monthly

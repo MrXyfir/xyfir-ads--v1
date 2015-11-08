@@ -8,9 +8,9 @@ router.route('/:id')
     .get(campaign.getSingle)
     .put(campaign.update)
     .delete(campaign.remove);
+router.put('/:id/bid', campaign.bid);
 router.put('/:id/funds', campaign.funds);
 router.put('/:id/budget', campaign.budget);
-router.put('/:id/bidding', campaign.bidding);
 router.get('/:id/reports', campaign.reports);
 module.exports = router;
 //# sourceMappingURL=campaigns.js.map
