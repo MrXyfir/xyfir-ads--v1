@@ -133,10 +133,29 @@ export = {
                 + "<a href='" + campaign + "'>Your Approved Campaign</a>"
             );
 
-            // Set approved bool to true in ads
-            db(connection => {
-                connection.query("UPDATE ads SET approved = 1 WHERE id = ?", [req.body.advertisement], (err, result) => {
-                    connection.release();
+            db(cn => {
+                cn.query("SELECT autobid FROM ads WHERE id = ?", [req.body.advertisement], (err, rows) => {
+                    // Generate bid if campaign has autobid enabled
+                    if (!!rows[0].autobid) {
+                        require("../../../lib/ad/autobid")(req.body.advertisement, cn, err => {
+                            if (err) {
+                                cn.release();
+                                res.json({ error: true });
+                                return;
+                            }
+
+                            finish();
+                        });
+                    }
+                    else {
+                        finish();
+                    }
+
+                    // Set approved bool to true in ads
+                    var finish = () => cn.query("UPDATE ads SET approved = 1 WHERE id = ?", [req.body.advertisement], (e, r) => {
+                        cn.release();
+                        res.json({ error: false });
+                    });
                 });
             });
         }

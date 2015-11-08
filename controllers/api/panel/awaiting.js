@@ -110,10 +110,27 @@ module.exports = {
             // Email user notice of approval
             email(req.body.email, "Advertising Campaign - Approved", "Congratulations, your advertising campaign was approved! View your campaign here: "
                 + "<a href='" + campaign + "'>Your Approved Campaign</a>");
-            // Set approved bool to true in ads
-            db(function (connection) {
-                connection.query("UPDATE ads SET approved = 1 WHERE id = ?", [req.body.advertisement], function (err, result) {
-                    connection.release();
+            db(function (cn) {
+                cn.query("SELECT autobid FROM ads WHERE id = ?", [req.body.advertisement], function (err, rows) {
+                    // Generate bid if campaign has autobid enabled
+                    if (!!rows[0].autobid) {
+                        require("../../../lib/ad/autobid")(req.body.advertisement, cn, function (err) {
+                            if (err) {
+                                cn.release();
+                                res.json({ error: true });
+                                return;
+                            }
+                            finish();
+                        });
+                    }
+                    else {
+                        finish();
+                    }
+                    // Set approved bool to true in ads
+                    var finish = function () { return cn.query("UPDATE ads SET approved = 1 WHERE id = ?", [req.body.advertisement], function (e, r) {
+                        cn.release();
+                        res.json({ error: false });
+                    }); };
                 });
             });
         }
