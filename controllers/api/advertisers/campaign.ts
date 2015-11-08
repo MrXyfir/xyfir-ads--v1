@@ -161,6 +161,8 @@ export = {
             action: string, amount: number
         RETURN
             { error: bool, message: string }
+        DESCRIPTION
+            Add or remove funds to or from campaign from or to account
     */
     funds: (req, res) => {
         db(cn => {
@@ -224,7 +226,7 @@ export = {
             }
             // Remove funds from the campaign to user's account
             else {
-                sql = "SELECT funds FROM ads WHERE id = ? AND owner = ?";
+                sql = "SELECT funds, daily_funds, daily_funds_used FROM ads WHERE id = ? AND owner = ?";
                 cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
                     if (err || rows.length == 0) {
                         res.json({ error: true, message: "An unkown error occured" });
@@ -235,6 +237,20 @@ export = {
                     if (rows[0].funds < req.body.amount) {
                         cn.release();
                         res.json({ error: true, message: "Not enough funds in campaign" });
+                        return;
+                    }
+
+                    // Check if new amount could still cover daily_funds
+                    if (rows[0].funds - req.body.amount < rows[0].funds) {
+                        cn.release();
+                        res.json({ error: true, message: "Modified campaign balance would not be able to cover daily budget" });
+                        return;
+                    }
+
+                    // Check if new amount could pay for funds used in daily budget
+                    if (rows[0].funds - req.body.amount < rows[0].daily_funds_used) {
+                        cn.release();
+                        res.json({ error: true, message: "Modified campaign balance would not be able to cover funds owed" });
                         return;
                     }
 
@@ -282,6 +298,55 @@ export = {
     },
 
     /*
+        PUT api/advertisers/campaigns/:id/budget
+        REQUIRED
+            dailyBudget: number
+        RETURN
+            { error: bool, message: string }
+        DESCRIPTION
+            Validates and updates a campaign's daily budget
+    */
+    budget: (req, res) => {
+        // Check if daily budget >= minimum amount
+        if (req.body.dailyBudget < 0.50) {
+            res.json({ error: true, message: "Daily allocated funds must be greater than or equal to $0.50" });
+            return;
+        }
+
+        db(cn => {
+            var sql: string;
+            
+            sql = "SELECT funds FROM ads WHERE id = ? AND owner = ?";
+            cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
+                if (err || rows.length == 0) {
+                    cn.release();
+                    res.json({ error: true, message: "An unkown error occured" });
+                    return;
+                }
+
+                // Check if campaign's current funds are >= daily budget
+                if (rows[0].funds < req.body.dailyBudget) {
+                    cn.release();
+                    res.json({ error: true, message: "Campaign does not have enough funds to cover daily budget" });
+                    return;
+                }
+
+                // Update daily funds, subtract any funds used today from funds, reset funds used today
+                sql = "UPDATE ads SET daily_funds = ?, funds = funds - daily_funds_used, "
+                    + "daily_funds_used = 0 WHERE id = ?";
+                cn.query(sql, [req.body.dailyBudget, req.params.id], (err, result) => {
+                    cn.release();
+
+                    if (err)
+                        res.json({ error: true, message: "An unkown error occured" });
+                    else
+                        res.json({ error: false, message: "Daily allocated funds updated successfully" });
+                }); // update daily_funds
+            }); // grab campaign funds
+        }); // db()
+    },
+
+    /*
         PUT api/advertisers/campaigns/:id/bidding
         OPTIONAL
             autobid: bool, bid: number
@@ -289,17 +354,6 @@ export = {
             { error: bool, message: string }
     */
     bidding: (req, res) => {
-
-    },
-
-    /*
-        PUT api/advertisers/campaigns/:id/budget
-        REQUIRED
-            dailyBudget: number
-        RETURN
-            { error: bool, message: string }
-    */
-    budget: (req, res) => {
 
     },
 
