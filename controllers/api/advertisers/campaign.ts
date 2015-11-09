@@ -441,30 +441,72 @@ export = {
 
     /*
         GET api/advertisers/campaigns/:id/reports
-        OPTIONAL
-            start: string, end: string
+        REQUIRED
+            dates: "2015-07-20|2015-07-20:2015-07-30"
         RETURN
-            {reports: [
-                {
-                    
-                }
-            ]}
+            {
+                clicks: number, views: number, cost: number, publishers: string,
+                dem_age: string, dem_gender: string, dem_geo: string,
+            }
         DESCRIPTION
             Generates a report for a campaign over a specific time frame
-            *Returns daily, weekly, and monthly reports by default
-            *start and end are date strings (2020-7-20)
     */
     reports: (req, res) => {
-        // Create a report object for specific time range
-        if (req.query.start && req.query.end) {
-            // Check if start == end: Grab that day's report
-            // Else: Generate one report for all days
-        }
-        // Return multiple reports over default times
-        // Daily, weekly, monthly
-        else {
+        db(cn => {
+            var sql: string;
 
-        }
+            // Generate a report for a single day
+            if (req.query.dates.match(/^\d{4}-\d{2}-\d{2}$/)) {
+
+                sql = "SELECT * FROM ad_reports WHERE id = ? AND day = ?";
+                cn.query(sql, [req.params.id, req.query.dates], (err, rows) => {
+                    cn.release();
+                    res.json(rows[0]);
+                });
+            }
+
+            // Generate a report over multiple days
+            else if (req.query.dates.match(/^(\d{4}-\d{2}-\d{2}:?){2}$/)) {
+                // Setup variables
+                var dates: string[] = req.query.dates.split(':');
+                var report = {
+                    clicks: 0, views: 0, cost: 0, publishers: "",
+                    dem_age: "", dem_gender: "", dem_geo: ""
+                };
+
+                sql = "SELECT * FROM ad_reports WHERE id = ? AND day BETWEEN ? AND ?";
+                var query = cn.query(sql, [dates[0], dates[1]]);
+                var mergeList = require("../../../lib/merge/list");
+                var mergeObject = require("../../../lib/merge/object");
+
+                query
+                .on("error", err => {
+                    cn.end();
+                    cn.release();
+                    res.json({});
+                    return;
+                })
+                .on("result", row => {
+                    cn.pause();
+                    
+                    // Add values of new row to total
+                    report.clicks += row.clicks;
+                    report.views += row.views;
+                    report.cost += row.cost;
+
+                    // Merge lists / objects
+                    report.dem_gender = mergeList(report.dem_gender, row.dem_gender);
+                    report.dem_geo = mergeObject(report.dem_geo, row.dem_geo);
+                    report.dem_age = mergeList(report.dem_age, row.dem_age);
+
+                    cn.resume();
+                })
+                .on("end", () => {
+                    cn.release();
+                    res.json(report);
+                });
+            }
+        });
     },
 
     /*
