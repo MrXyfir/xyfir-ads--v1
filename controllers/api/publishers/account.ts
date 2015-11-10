@@ -2,14 +2,15 @@
 
 export = {
 
-    info: (req, res) => {
-
-    },
-
-    update: (req, res) => {
-
-    },
-
+    /*
+        POST api/publishers/account/register
+        REQUIRED
+            name: string, email: string, application: string
+        RETURN
+            { message: string }
+        DESCRIPTION
+            Allows a user to submit a publisher application
+    */
     register: (req, res) => {
         if (!req.session.uid)
             res.json({ message: "You must login to Xyfir Ads with your Xyfir Account." });
@@ -22,11 +23,14 @@ export = {
         else if (req.body.application.length > 1500)
             res.json({ message: "Application cannot be more than 1500 characters long." });
         else {
-            db(connection => {
-                connection.query("SELECT * FROM awaiting_publishers WHERE user_id = ?", [req.session.uid], (err, rows) => {
+            db(cn => {
+                var sql: string;
+
+                sql = "SELECT * FROM awaiting_publishers WHERE user_id = ?";
+                cn.query(sql, [req.session.uid], (err, rows) => {
                     if (rows.length > 0) {
                         res.json({ message: "You already have an application awaiting review." });
-                        connection.release();
+                        cn.release();
                     }
                     else {
                         // Add application to awaiting_publishers
@@ -35,18 +39,27 @@ export = {
                             email: req.body.email, application: req.body.application
                         };
 
-                        connection.query("INSERT INTO awaiting_publishers SET ?", data, (err, result) => {
-                            connection.release();
+                        sql = "INSERT INTO awaiting_publishers SET ?";
+                        cn.query(sql, data, (err, result) => {
+                            cn.release();
 
                             if (err)
                                 res.json({ message: "An unkown error occured. Please try again." });
                             else
-                                res.json({ message: "Your application has been submit successfully." 
+                                res.json({ message: "Your application has been submit successfully." });
                         });
                     }
                 });
             });
         }
+    },
+
+    info: (req, res) => {
+
+    },
+
+    update: (req, res) => {
+
     }
 
 }
