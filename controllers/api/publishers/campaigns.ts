@@ -16,7 +16,7 @@ export = {
         var response = { error: false, message: "Campaign created successfully" };
 
         // Validate provided data
-        if (!req.body.match(/^\w{3,25}$/))
+        if (!req.body.name.match(/^\w{3,25}$/))
             response = { error: true, message: "Invalid campaign name format or length" };
         else if (!req.body.keywords.match(/^[\w ,]{0,1599}$/))
             response = { error: true, message: "Invalid keywords format or length" };
