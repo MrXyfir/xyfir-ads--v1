@@ -10,6 +10,10 @@
 
     remove: (req, res) => {
 
+    },
+
+    reports: (req, res) => {
+
     }
 
 };

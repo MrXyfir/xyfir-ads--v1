@@ -9,5 +9,6 @@ router.route('/:id')
     .get(campaign.getSingle)
     .put(campaign.update)
     .delete(campaign.remove);
+router.get('/:id/reports', campaign.reports);
 
 export = router;
