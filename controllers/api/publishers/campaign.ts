@@ -53,7 +53,35 @@ export = {
             All pending/confirmed earnings are lost
     */
     remove: (req, res) => {
+        var sql: string, response = { error: true, message: "An unkown error occured" };
 
+        sql = "DELETE FROM pubs WHERE id = ? AND owner = ?";
+        db(cn => cn.query(sql, [req.params.id, req.session.uid], (err, result) => {
+            if (err) {
+                cn.release();
+                res.json(response);
+                return;
+            }
+
+            sql = "DELETE FROM clicks WHERE pub_id = ?";
+            cn.query(sql, [req.params.id], (err, result) => {
+                if (err) {
+                    cn.release();
+                    res.json(response);
+                    return;
+                }
+
+                sql = "DELETE FROM pub_reports WHERE id = ?";
+                cn.query(sql, [req.params.id], (err, result) => {
+                    cn.release();
+
+                    if (err)
+                        res.json(response);
+                    else
+                        res.json({ error: false, message: "Campaign successfully deleted" });
+                });
+            });
+        }));
     },
 
     /*
