@@ -8,7 +8,7 @@
 import express = require('express');
 import session = require('express-session');
 import parser = require('body-parser');
-import config = require('./config');
+var config = require('./config');
 var app = express();
 
 /* Serve Static Files */
@@ -19,6 +19,23 @@ app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
 
 /* Sessions */
+var sessionStore = require('express-mysql-session')({
+    host: config.database.host,
+    port: config.database.port,
+    user: config.database.user,
+    password: config.database.password,
+    database: config.database.database,
+    useConnectionPooling: true
+});
+app.use(session({
+    secret: config.secrets.session,
+    store: sessionStore,
+    saveUninitialized: true,
+    resave: true,
+    cookie: {
+        httpOnly: false
+    }
+}));
 
 /* View Engine */
 app.set('view engine', 'jade');
