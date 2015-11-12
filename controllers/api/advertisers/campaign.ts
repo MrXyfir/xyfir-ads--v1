@@ -475,7 +475,7 @@ export = {
                 };
 
                 sql = "SELECT * FROM ad_reports WHERE id = ? AND day BETWEEN ? AND ?";
-                var query = cn.query(sql, [dates[0], dates[1]]);
+                var query = cn.query(sql, [req.params.id, dates[0], dates[1]]);
                 var mergeList = require("../../../lib/merge/list");
                 var mergeObject = require("../../../lib/merge/object");
 
