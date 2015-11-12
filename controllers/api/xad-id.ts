@@ -5,6 +5,8 @@ export = {
 
     /*
         POST api/xad-id/:xacc
+        REQUIRED
+            secret: string
         RETURN
             { error: boolean }
         DESCRIPTION
@@ -71,9 +73,28 @@ export = {
 
     /*
         GET api/xad-id/:xacc/:xad
+        REQUIRED
+            secret: string
+        RETURN
+            { info: json-string }
+        DESCRIPTION
+            Returns stringified info JSON object where xacc and xad
     */
     info: (req, res) => {
+        var sql: string;
 
+        if (secret != req.query.secret) {
+            res.json({ error: true });
+            return;
+        }
+
+        sql = "SELECT info FROM xad_ids WHERE xad_id = ? AND xacc_uid = ?";
+        db(cn => cn.query(sql, [req.params.xad, req.params.xacc], (err, rows) => {
+            cn.release();
+
+            if (err || !rows.length) res.json({ info: "" });
+            else res.json({ info: rows[0].info });
+        }));
     },
 
     update: (req, res) => {
