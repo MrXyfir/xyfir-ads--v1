@@ -495,9 +495,9 @@ export = {
                     report.cost += row.cost;
 
                     // Merge lists / objects
-                    report.dem_gender = mergeList(report.dem_gender, row.dem_gender);
+                    report.dem_gender = mergeList(report.dem_gender.split(','), row.dem_gender.split(','));
+                    report.dem_age = mergeList(report.dem_age.split(','), row.dem_age.split(','));
                     report.dem_geo = mergeObject(report.dem_geo, row.dem_geo);
-                    report.dem_age = mergeList(report.dem_age, row.dem_age);
 
                     cn.resume();
                 })
