@@ -97,8 +97,29 @@ export = {
         }));
     },
 
+    /*
+        PUT api/xad-id/:xacc/:xad
+        REQUIRED
+            secret: string, info: json-string
+        RETURN
+            { error: boolean }
+        DESCRIPTION
+            Updates info object-string where xacc and xad
+            *All validation is done by Xyfir Accounts
+    */
     update: (req, res) => {
+        var sql: string;
 
+        if (secret != req.body.secret || !req.body.info) {
+            res.json({ error: true });
+            return;
+        }
+
+        sql = "UPDATE xad_ids SET info = ? WHERE xad_id = ? AND xacc_uid = ?";
+        db(cn => cn.query(sql, [req.body.info, req.params.xad, req.params.xacc], (err, result) => {
+            cn.release();
+            res.json({ error: !!err });
+        }));
     }
 
 };
