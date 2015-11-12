@@ -1,5 +1,8 @@
-export = (callback) => {
-    require('mysql').createPool(require('../config').database).getConnection((err, connection) => {
-        callback(connection);
+import mysql = require('mysql');
+var conf = require("../config").database;
+
+export = callback => {
+    mysql.createPool(conf).getConnection((err, cn) => {
+        callback(cn);
     });
 };
