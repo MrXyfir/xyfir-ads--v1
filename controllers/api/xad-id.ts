@@ -1,4 +1,5 @@
-﻿import db = require("../../lib/db");
+﻿import secret = require("../../config").secrets.xadid;
+import db = require("../../lib/db");
 
 export = {
 
@@ -11,6 +12,11 @@ export = {
     */
     create: (req, res) => {
         var sql: string;
+
+        if (secret != req.body.secret) {
+            res.json({ error: true });
+            return;
+        }
 
         db(cn => {
             // Check if account already has an xad-id
@@ -63,6 +69,9 @@ export = {
         });
     },
 
+    /*
+        GET api/xad-id/:xacc/:xad
+    */
     info: (req, res) => {
 
     },
