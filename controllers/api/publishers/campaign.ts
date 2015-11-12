@@ -1,4 +1,5 @@
 ﻿import mergeObject = require("../../../lib/merge/object");
+import mergeList = require("../../../lib/merge/list");
 import db = require("../../../lib/db");
 
 export = {
@@ -144,7 +145,63 @@ export = {
             Generates a report for a campaign over a specific time frame
     */
     reports: (req, res) => {
+        db(cn => {
+            var sql: string;
 
+            // Generate a report for a single day
+            if (req.query.dates.match(/^\d{4}-\d{2}-\d{2}$/)) {
+
+                sql = "SELECT clicks, views, earnings, earnings_temp as pending, ads "
+                + "FROM pub_reports WHERE id = ? AND day = ?";
+                cn.query(sql, [req.params.id, req.query.dates], (err, rows) => {
+                    cn.release();
+                    res.json(rows[0]);
+                });
+            }
+
+            // Generate a report over multiple days
+            else if (req.query.dates.match(/^(\d{4}-\d{2}-\d{2}:?){2}$/)) {
+                // Setup variables
+                var dates: string[] = req.query.dates.split(':');
+                var report = {
+                    clicks: 0, views: 0, earnings: 0, pending: "", ads: ""
+                };
+
+                sql = "SELECT clicks, views, earnings, earnings_temp as pending, ads "
+                + "FROM pub_reports WHERE id = ? AND day BETWEEN ? AND ? ";
+                var query = cn.query(sql, [req.params.id, dates[0], dates[1]]);
+
+                query // Loop through each row
+                    .on("error", err => {
+                        cn.end();
+                        cn.release();
+                        res.json({});
+                        return;
+                    })
+                    .on("result", row => {
+                        cn.pause();
+                    
+                        // Add values of new row to total
+                        report.earnings += row.earnings;
+                        report.pending += row.pending;
+                        report.clicks += row.clicks;
+                        report.views += row.views;
+
+                        // Merge top ad campaign lists
+                        report.ads = mergeList(report.ads.split(','), row.ads.split(','));
+
+                        cn.resume();
+                    })
+                    .on("end", () => {
+                        cn.release();
+                        res.json(report);
+                    });
+            }
+
+            else {
+                res.json({});
+            }
+        });
     }
 
 };
