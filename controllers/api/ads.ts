@@ -35,6 +35,7 @@ export = (req, res) => {
         req.query = null;
 
         q.speed = !q.speed ? 0 : q.speed;
+        q.count = !q.count ? 1 : q.count;
 
         db(connection => {
             cn = connection;
@@ -56,6 +57,7 @@ export = (req, res) => {
             pub = rows[0];
 
             if (q.categories) pub.categories += ',' + q.categories;
+            if (q.keywords) pub.keywords += ',' + q.keywords;
 
             // ** Grab user's country and region codes
             // user = { country: string, region: string }
@@ -80,8 +82,8 @@ export = (req, res) => {
         // Select approved ads where advertiser wants more views or clicks,
         // has enough funds to pay cost, daily funds hasn't reached limit,
         // and targetted sites are empty or pub's site is listed
-        sql = "SELECT pay_type, cost, available, ad_type, ad_title, ad_description, ad_link, ad_media, "
-            + "ut_age, ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords FROM ads"
+        sql = "SELECT id, pay_type, cost, available, ad_type, ad_title, ad_description, ad_media, "
+            + "ut_age, ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords FROM ads "
             + "WHERE approved = 1 AND requested > provided AND funds > cost "
             + "AND IF(ct_sites = '', 1, INSTR(ct_site, '" + pub.site + "') > 0) "
             + "AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used) AND ad_type ";
@@ -106,9 +108,11 @@ export = (req, res) => {
     /* Filter Out Irrelevant Ads */
     var filterAds = (): void => {
         // Variables needed for each row
-        var available: string[], avail: string[], isAvailable: boolean;
         var time: number = Math.round(new Date().getTime() / 1000), score: number;
-        var age: number, gender: number;
+        var age: number, gender: number, countries: string[], regions: string[];
+        var available: string[], avail: string[], isAvailable: boolean;
+        var pubKeywords: string[], adKeywords: string[];
+        var tAd: IAd, lowestScore: number;
 
         var query = cn.query(sql);
         query // Loop through each row
@@ -183,9 +187,87 @@ export = (req, res) => {
             // Score how well ad's category target matches publisher's categories
             score += categoryMatch(pub.categories.split(','), ad.ct_categories);
 
-            // ** // countries / regions, keywords
+            // Score country / regions match
+            if (ad.ut_countries == '*') {
+                score += 2;
+            }
+            else {
+                countries = ad.ut_countries.split(',');
 
-            // ** If number of ads with higher scores < ?count, add ad to ads
+                // Check if user is in a targeted country
+                for (var i: number = 0; i < countries.length; i++) {
+                    if (countries[i] == user.country) {
+                        // Get array of regions within user's country
+                        regions = ad.ut_regions.split('|')[i].split(',');
+
+                        // Check if user is in a targeted region within targeted country
+                        for (var j: number = 0; i < regions.length; i++) {
+                            if (regions[j] == user.region) {
+                                score += 2;
+                                break;
+                            }
+                        }
+
+                        score += 2;
+                        break;
+                    }
+                }
+            }
+
+            // Score how well ad's / pub's keywords match
+            adKeywords = ad.ct_keywords.split(',');
+            pubKeywords = pub.keywords.split(',');
+            for (var i: number = 0; i < adKeywords.length; i++) {
+                // Check for exact keyword match
+                if (pubKeywords.indexOf(adKeywords[i]) > -1)
+                    score += 2;
+                // Check for partial match
+                else if (pub.keywords.indexOf(ad.ct_keywords) > -1)
+                    score++;
+            }
+
+            /* Determine whether ad should have chance of return based on score */
+            // Publisher wants more ads than we've found: add no matter what
+            if (ads.length < q.count) {
+                addAd();
+            }
+            // We've already found enough ads to meet publisher's count
+            // Check if we have enough ads with score higher or equal than ad
+            else {
+                // Find lowest score
+                for (var i: number = 0; i < ads.length; i++) {
+                    if (ads[i].score < lowestScore) lowestScore = ads[i].score;
+                }
+
+                // Current ad's score is greater than lowest
+                if (score > lowestScore) {
+                    // Remove an ad where score is <= lowest
+                    for (var i: number = 0; i < ads.length; i++) {
+                        if (ads[i].score <= lowestScore) {
+                            ads.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    addAd();
+                }
+            }
+
+            // Build an IAd object and push it to ads[]
+            var addAd = (): void => {
+                tAd = {
+                    type: ad.ad_type, link: "", title: ad.ad_title,
+                    description: ad.ad_description, score: score
+                };
+
+                if (!!ad.ad_media) tAd.media = ad.ad_media;
+
+                // Build link user will go to when clicking ad
+                tAd.link = "https://ads.xyfir.com/click/?pub=" + q.pubid + "&ad=" + ad.id
+                    + "&score=" + score + "&served=" + time + (q.xadid ? ("&xad=" + q.xadid) : "");
+
+                ads.push(tAd);
+            };
 
             cn.resume();
         };
@@ -193,8 +275,21 @@ export = (req, res) => {
 
     /* Find Ads to Return from Filtered */
     var returnAds = (): void => {
-        // ** If ads.length >= q.count: return ads
-        // ** Else: Randomly choose from highest scoring
+        // More ads found than requested: choose from highest scoring
+        if (ads.length > q.count) {
+            // Order array by descending score
+            ads.sort((a: IAd, b: IAd): number => {
+                if (a.score < b.score) return 1;
+                else if (a.score > b.score) return -1;
+                else return 0;
+            });
+
+            // Delete lowest scoring, extra elements from end of array
+            ads.splice(q.count, ads.length - q.count);
+        }
+
+        res.json({ ads: ads });
+        updateValues();
     };
 
     /* Update Ad/Pub Campaigns/Reports */
