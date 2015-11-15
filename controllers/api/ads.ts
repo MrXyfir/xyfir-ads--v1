@@ -127,6 +127,7 @@ export = (req, res) => {
             returnAds();
         });
 
+        // Determine if ad at row has chance of being returned
         var handleRow = (ad: IAdsRow) => {
             cn.pause();
 
@@ -200,11 +201,16 @@ export = (req, res) => {
                         // Get array of regions within user's country
                         regions = ad.ut_regions.split('|')[i].split(',');
 
-                        // Check if user is in a targeted region within targeted country
-                        for (var j: number = 0; i < regions.length; i++) {
-                            if (regions[j] == user.region) {
-                                score += 2;
-                                break;
+                        if (regions[0] == '*') {
+                            score += 2;
+                        }
+                        else {
+                            // Check if user is in a targeted region within targeted country
+                            for (var j: number = 0; i < regions.length; i++) {
+                                if (regions[j] == user.region) {
+                                    score += 2;
+                                    break;
+                                }
                             }
                         }
 
@@ -256,8 +262,9 @@ export = (req, res) => {
             // Build an IAd object and push it to ads[]
             var addAd = (): void => {
                 tAd = {
-                    type: ad.ad_type, link: "", title: ad.ad_title,
-                    description: ad.ad_description, score: score
+                    type: ad.ad_type, link: "", title: ad.ad_title, score: score,
+                    description: ad.ad_description, id: ad.id,
+                    cost: ad.cost, payType: ad.pay_type
                 };
 
                 if (!!ad.ad_media) tAd.media = ad.ad_media;
@@ -288,13 +295,62 @@ export = (req, res) => {
             ads.splice(q.count, ads.length - q.count);
         }
 
-        res.json({ ads: ads });
-        updateValues();
+        res.json((): any => {
+            var adsTemp: IAd[] = ads;
+
+            // Remove properties publisher doesn't need
+            for (var i: number = 0; i < adsTemp.length; i++) {
+                delete adsTemp[i].payType;
+                delete adsTemp[i].score;
+                delete adsTemp[i].cost;
+                delete adsTemp[i].id;
+            }
+
+            return adsTemp;
+        });
+
+        // Begin updating values for ads in ads[]
+        // Start with ad at ads[0]
+        updateValues(0);
     };
 
     /* Update Ad/Pub Campaigns/Reports */
-    var updateValues = (): void => {
+    // Recursively loops until all returned ads are updated
+    var updateValues = (i: number): void => {
+        // If index in ads[] does not exist: quit
+        if (ads[i] == undefined) {
+            cn.release();
+            return;
+        }
 
+        // Update Ad Campaign
+        // Decrement funds by cost of CPV
+        // Increment requested if CPV
+        // Increment daily_funds_used if daily_funds > 0
+        sql = "UPDATE ads SET "
+            + "funds = CASE WHEN pay_type = 2 THEN funds - cost ELSE funds END, "
+            + "requested = CASE WHEN pay_type = 2 THEN requested + 1 ELSE requested END, "
+            + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
+            + "WHERE id = ?";
+
+        cn.query(sql, [ads[i].id], (err, result) => {
+            // Update ad report: views / cost
+            sql = "UPDATE ad_reports SET views = views + 1, "
+                + "cost = CASE WHEN ? THEN cost + ? ELSE cost END "
+                + "WHERE id = ? AND day = CURDATE()";
+
+            cn.query(sql, [ads[i].payType == 2, ads[i].cost, ads[i].id], (err, rows) => {
+                // Update pub report: views / earnings
+                sql = "UPDATE pub_reports SET views = views + 1, "
+                    + "earnings = CASE WHEN ? THEN earnings + ? ELSE earnings END "
+                    + "WHERE id = ? AND day = CURDATE()";
+
+                cn.query(sql, [ads[i].payType == 2, ads[i].cost, q.pubid], (err, result) => {
+                    // Update values for next add in array
+                    updateValues(i + 1);
+                }); // pub rep
+            }); // ad rep
+        }); // ad camp
     };
 
 };

@@ -1,7 +1,8 @@
 ﻿interface IAd {
     type: number, link: string, title: string,
     description: string, media?: string,
-    score?: number
+    payType?: number, cost?: number,
+    score?: number, id?: number
 }
 
 interface IPub {
