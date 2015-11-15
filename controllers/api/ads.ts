@@ -232,6 +232,15 @@ export = (req, res) => {
                     score++;
             }
 
+            // Finds the lowest score in ads[]
+            var setLowestScore = (): void => {
+                lowestScore = 0;
+                for (var i: number = 0; i < ads.length; i++) {
+                    if (ads[i].score < lowestScore)
+                        lowestScore = ads[i].score;
+                }
+            };
+
             /* Determine whether ad should have chance of return based on score */
             // Publisher wants more ads than we've found: add no matter what
             if (ads.length < q.count) {
@@ -240,10 +249,8 @@ export = (req, res) => {
             // We've already found enough ads to meet publisher's count
             // Check if we have enough ads with score higher or equal than ad
             else {
-                // Find lowest score
-                for (var i: number = 0; i < ads.length; i++) {
-                    if (ads[i].score < lowestScore) lowestScore = ads[i].score;
-                }
+                if (lowestScore == undefined)
+                    setLowestScore();
 
                 // Current ad's score is greater than lowest
                 if (score > lowestScore) {
@@ -251,6 +258,7 @@ export = (req, res) => {
                     for (var i: number = 0; i < ads.length; i++) {
                         if (ads[i].score <= lowestScore) {
                             ads.splice(i, 1);
+                            setLowestScore();
                             break;
                         }
                     }
