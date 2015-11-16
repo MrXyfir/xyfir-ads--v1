@@ -189,9 +189,6 @@ export = (req, res) => {
                     score += 2;
             }
 
-            // Score how well ad's category target matches publisher's categories
-            score += categoryMatch(pub.categories.split(','), ad.ct_categories);
-
             // Score country / regions match
             if (ad.ut_countries == '*') {
                 score += 2;
@@ -224,16 +221,22 @@ export = (req, res) => {
                 }
             }
 
-            // Score how well ad's / pub's keywords match
-            adKeywords = ad.ct_keywords.split(',');
-            pubKeywords = pub.keywords.split(',');
-            for (var i: number = 0; i < adKeywords.length; i++) {
-                // Check for exact keyword match
-                if (pubKeywords.indexOf(adKeywords[i]) > -1)
-                    score += 2;
-                // Check for partial match
-                else if (pub.keywords.indexOf(ad.ct_keywords) > -1)
-                    score++;
+            // Skip category / keyword scoring if speed > 0
+            if (q.speed == 0) {
+                // Score how well ad's category target matches publisher's categories
+                score += categoryMatch(pub.categories.split(','), ad.ct_categories);
+
+                // Score how well ad's / pub's keywords match
+                adKeywords = ad.ct_keywords.split(',');
+                pubKeywords = pub.keywords.split(',');
+                for (var i: number = 0; i < adKeywords.length; i++) {
+                    // Check for exact keyword match
+                    if (pubKeywords.indexOf(adKeywords[i]) > -1)
+                        score += 2;
+                    // Check for partial match
+                    else if (pub.keywords.indexOf(ad.ct_keywords) > -1)
+                        score++;
+                }
             }
 
             // Finds the lowest score in ads[]
@@ -247,7 +250,8 @@ export = (req, res) => {
 
             /* Determine whether ad should have chance of return based on score */
             // Publisher wants more ads than we've found: add no matter what
-            if (ads.length < q.count) {
+            // If we have enough ads but speed > 0: add anyways to save time
+            if (ads.length < q.count || !!q.speed) {
                 addAd();
             }
             // We've already found enough ads to meet publisher's count
@@ -282,8 +286,11 @@ export = (req, res) => {
                 if (!!ad.ad_media) tAd.media = ad.ad_media;
 
                 // Build link user will go to when clicking ad
-                tAd.link = "https://ads.xyfir.com/click/?pub=" + q.pubid + "&ad=" + ad.id
-                    + "&score=" + score + "&served=" + time + (q.xadid ? ("&xad=" + q.xadid) : "");
+                tAd.link = "https://ads.xyfir.com/click/?pub=" + q.pubid
+                    + "&ad=" + ad.id + "&score=" + score + "&served=" + time
+                    + ((q.gender || user.gender) ? ("&g=" + gender) : "")
+                    + ((q.age || user.age) ? ("&a=" + age) : "")
+                    + (q.xadid ? ("&xad=" + q.xadid) : "");
 
                 ads.push(tAd);
             };
