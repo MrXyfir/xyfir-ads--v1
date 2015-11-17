@@ -93,6 +93,6 @@ export = (req, res) => {
         if (path.substr(0, 1) == '/') require("fs").unlink(path, err => { return; });
 
         // Delete file from Cloudinary
-        if (!!cloud) require("../../lib/file/delete")(cloud);
+        if (!!cloud) require("../../lib/file/delete")([cloud]);
     };
 };
