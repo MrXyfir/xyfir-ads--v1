@@ -106,6 +106,9 @@ export = (req, res) => {
         // Make sure ad is of type that publisher is requesting
         sql += q.type ? ("= " + q.type) : ("IN (" + q.types + ")");
 
+        // Ads with higher bids will be checked first
+        sql += " ORDER BY cost DESC";
+
         filterAds();
     };
 
