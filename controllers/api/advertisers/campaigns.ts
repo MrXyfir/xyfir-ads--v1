@@ -51,8 +51,6 @@ export = {
             response = { error: true, message: "Invalid ad title characters or length" };
         else if (!req.body.a_description.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{5,150}$/))
             response = { error: true, message: "Invalid ad description characters or length" };
-        else if (req.body.a_media && !req.body.a_media.match(/^(\d:https?:\/\/[\w\d-\/.]{10,80},?){1,5}$/))
-            response = { error: true, message: "Invalid image / video source(s)" };
 
         // Short text ads verification
         if (req.body.a_type == 2) {
@@ -61,13 +59,19 @@ export = {
             else if (req.body.a_description.length > 40)
                 response = { error: true, message: "Short text ad descriptions cannot be longer than 40 characters" };
         }
-        // ** Image ads verification
-        else if (req.body.a_type == 3) {
+        // Image / video ads verification
+        else if (req.body.a_type == 3 || req.body.a_type == 4) {
+            var temp: string[] = req.body.a_media.split(',');
+            // ** Validate file is in our Cloudinary 'cloud'
+            for (var i: number = 0; i < temp.length; i++) {
+                if (temp[i].indexOf("https://res.cloudinary.com/") != 2) {
+                    response = { error: true, message: "Invalid image / video sources" };
+                    break;
+                }
+            }
 
-        }
-        // ** Video ads verification
-        else if (req.body.a_type == 4) {
-
+            if (temp.length > 5 || req.body.a_media.length > 450)
+                response = { error: true, message: "Invalid image / video source length" };
         }
 
         // Bid validation
