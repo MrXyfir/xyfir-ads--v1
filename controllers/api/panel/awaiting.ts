@@ -50,9 +50,10 @@ export = {
 
             // Refund cost of advertisement - 10% (minimum $10)
             db(connection => {
-                connection.query("SELECT funds, owner FROM ads WHERE id = ?", [req.body.advertiser], (err, rows) => {
-                    var refund: number = 0;
-                    var sql: string = "";
+                var sql: string = "SELECT funds, owner, ad_media FROM ads WHERE id = ?";
+
+                connection.query(sql, [req.body.advertiser], (err, rows) => {
+                    var refund: number = 0, media: string[] = rows[0].ad_media.split(',');
 
                     // Determine refund amount
                     if (rows[0].funds > 10) {
@@ -95,6 +96,21 @@ export = {
                     catch (err) {
                         connection.release();
                         res.json({ error: true, message: err.toString() });
+
+                        // Check if we need to delete content from Cloudinary
+                        if (!!media[0]) {
+                            var ids: string[] = [], temp: string;
+
+                            for (var i: number = 0; i < media.length; i++) {
+                                // Grab id + .ext
+                                temp = media[i].substr(media[i].lastIndexOf('/') + 1);
+                                // Cut off .ext and leave id
+                                temp = temp.substr(0, temp.length - 4);
+                                ids.push(temp);
+                            }
+
+                            require("../../../lib/file/delete")(ids);
+                        }
                     }
                 });
             });
