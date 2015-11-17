@@ -1,6 +1,7 @@
 /// <reference path="../../typings/controllers/api/ads.d.ts" />
 
 import categoryMatch = require("../../lib/category/match");
+import mergeObject = require("../../lib/merge/object");
 import ip2geo = require("../../lib/ip2geo");
 import db = require("../../lib/db");
 
@@ -61,23 +62,21 @@ export = (req, res) => {
             if (q.keywords) pub.keywords += ',' + q.keywords;
 
             // Grab user's country and region codes
-            // info == { country: "", region: "" }
-            ip2geo(req.ip, info => {
-                user = info; info = null;
+            // user == { country: "", region: "" }
+            user = ip2geo(req.ip);
 
-                // Grab user's information from their xad-id
-                if (req.query.xadid && (!req.query.age || !req.query.gender)) {
-                    sql = "SELECT info FROM xad_ids WHERE xad_id = ?";
-                    cn.query(sql, [req.query.xadid], (err, rows) => {
-                        if (!err && !!rows.length)
-                            user = JSON.parse(rows[0].info);
-                        buildQuery();
-                    });
-                }
-                else {
+            // Grab user's information from their xad-id
+            if (req.query.xadid && (!req.query.age || !req.query.gender)) {
+                sql = "SELECT info FROM xad_ids WHERE xad_id = ?";
+                cn.query(sql, [req.query.xadid], (err, rows) => {
+                    if (!err && !!rows.length)
+                        user = mergeObject(user, JSON.parse(rows[0].info));
                     buildQuery();
-                }
-            });
+                });
+            }
+            else {
+                buildQuery();
+            }
         });
     };
 

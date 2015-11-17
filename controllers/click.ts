@@ -22,60 +22,59 @@ export = (req, res) => {
     var adReport: IAdReport, pubReport: IPubReport, geo: IGeo, cn: any, sql: string,
         link: string, cpc: boolean = false, cost: number = 0;
 
-    /* Grab Initial Data */
-    var getData = (): void => {
-        ip2geo(req.ip, (info: IGeo) => {
-            geo = info; info = null;
-            
-            db(connection => {
-                cn = connection;
+    db(connection => {
+        cn = connection;
+        getData();
+    });
 
-                // Grab data we need to update for ad report
-                sql = "SELECT dem_age, dem_gender, dem_geo, publishers FROM ad_reports "
-                    + "WHERE id = ? AND day = CURDATE()";
+    /* Grab Initial Data / Update Ad */
+    var getData = (): void => {
+        geo = ip2geo(req.ip);
+
+        // Grab data we need to update for ad report
+        sql = "SELECT dem_age, dem_gender, dem_geo, publishers FROM ad_reports "
+            + "WHERE id = ? AND day = CURDATE()";
+        cn.query(sql, [req.ad], (err, rows) => {
+            if (err || rows.length == 0) {
+                res.redirect("https://xyfir.com/");
+                return;
+            }
+
+            adReport = rows[0];
+
+            // Grab data we need to update for pub report
+            sql = "SELECT ads FROM pub_reports WHERE id = ? AND day = CURDATE()";
+            cn.query(sql, [req.pub], (err, rows) => {
+                if (err || rows.length == 0) {
+                    res.redirect("https://xyfir.com/");
+                    return;
+                }
+
+                pubReport = rows[0];
+
+                // Grab needed info from ad
+                sql = "SELECT ad_link, pay_type, cost FROM ads WHERE id = ?";
                 cn.query(sql, [req.ad], (err, rows) => {
                     if (err || rows.length == 0) {
                         res.redirect("https://xyfir.com/");
                         return;
                     }
 
-                    adReport = rows[0];
+                    link = rows[0].ad_link;
+                    if (rows[0].pay_type) {
+                        cpc = true, cost = rows[0].cost;
+                    }
 
-                    // Grab data we need to update for pub report
-                    sql = "SELECT ads FROM pub_reports WHERE id = ? AND day = CURDATE()";
-                    cn.query(sql, [req.pub], (err, rows) => {
-                        if (err || rows.length == 0) {
-                            res.redirect("https://xyfir.com/");
-                            return;
-                        }
-
-                        pubReport = rows[0];
-
-                        // Grab needed info from ad
-                        sql = "SELECT ad_link, pay_type, cost FROM ads WHERE id = ?";
-                        cn.query(sql, [req.ad], (err, rows) => {
-                            if (err || rows.length == 0) {
-                                res.redirect("https://xyfir.com/");
-                                return;
-                            }
-
-                            link = rows[0].ad_link;
-                            if (rows[0].pay_type) {
-                                cpc = true, cost = rows[0].cost;
-                            }
-
-                            // Update ad if ad is cost-per-click
-                            sql = "UPDATE ads SET "
-                            + "funds = CASE WHEN pay_type = 1 THEN funds - cost ELSE funds END, "
-                            + "requested = CASE WHEN pay_type = 1 THEN requested + 1 ELSE requested END, "
-                            + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
-                            + "WHERE id = ?";
-                            cn.query(sql, [req.ad], (err, result) => updateReports());
-                        }); // ad link
-                    }); // pub report
-                }); // ad report
-            }); // db(...)
-        }); // ip2geo
+                    // Update ad if ad is cost-per-click
+                    sql = "UPDATE ads SET "
+                    + "funds = CASE WHEN pay_type = 1 THEN funds - cost ELSE funds END, "
+                    + "requested = CASE WHEN pay_type = 1 THEN requested + 1 ELSE requested END, "
+                    + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
+                    + "WHERE id = ?";
+                    cn.query(sql, [req.ad], (err, result) => updateReports());
+                }); // ad link
+            }); // pub report
+        }); // ad report
     };
 
     /* Update Values for Pub/Ad Reports */
