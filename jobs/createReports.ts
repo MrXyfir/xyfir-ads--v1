@@ -23,7 +23,7 @@ export = (fn: any): void => db(cn => {
 
     var createReports = (): void => {
         // Create new ad reports for active campaigns
-        sql = "INSERT INTO ad_reports (id, day) SELECT id, CURDATE() FROM ads";
+        sql = "INSERT INTO ad_reports (id, day) SELECT id, CURDATE() FROM ads WHERE approved = 1";
         cn.query(sql, (err, result) => {
             if (err) {
                 cn.release();
@@ -40,4 +40,5 @@ export = (fn: any): void => db(cn => {
             });
         });
     };
+
 });
