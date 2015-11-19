@@ -48,4 +48,7 @@ app.use('/panel', require('./routes/panel/'));
 app.use('/publishers', require('./routes/publishers'));
 app.use('/advertisers', require('./routes/advertisers'));
 
+/* Start Cron Jobs */
+require("./jobs/start")();
+
 app.listen(config.port, () => console.log('SERVER RUNNING'));
