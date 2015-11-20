@@ -5,6 +5,7 @@ import db = require("../lib/db");
 /*
     Validates clicks in the clicks table
     Modifies costs/earnings for campaigns
+    All clicks in table are from CPC ads
 */
 export = (fn: any): void => db(cn => {
 
@@ -38,18 +39,81 @@ export = (fn: any): void => db(cn => {
         sql = "SELECT * FROM clicks WHERE CURDATE() > clicked AND pub_id = ? AND ip = ?";
         cn.query(sql, [click.pub_id, click.ip], (err, rows: IClick[]) => {
 
-            // Only one click and it's valid
-            if (rows.length == 1 && rows[0].clicked - rows[0].served > 5) {
-                updateFunds(click.pub_id, click.cost, "publish");
+            // There are no other clicks on pub with ip
+            if (rows.length == 1) {
+                if (rows[0].clicked - rows[0].served > 5)
+                    updateFunds(click.pub_id, click.cost, "publish");
+                else
+                    updateFunds(click.ad_id, click.cost, "advert");
+
                 deleteClicks(click.pub_id, click.ip, () => cn.resume());
                 return;
             }
 
-            // ** Modify rows to only contain valid clicks (clicked - server > 5)
-            // ** Modify rows to mark which user the click came from
-            // ** Invalidate all clicks from same user within 30 seconds of another
-            // ** Invalidate all clicks from user if more than 3 ads where clicked
-            // ** Update funds for appropriate campagin, delete all clicks for ip/pub
+            // Invalidate clicks that happened too fast
+            // Set a value for if click was made by same user from click row
+            for (var i: number = 0; i < rows.length; i++) {
+                // Ensure individual click is valid
+                if (rows[i].clicked - rows[i].served > 5) {
+                    rows[i].valid = true;
+
+                    // Validate by browser signature
+                    if (!rows[i].xad_id) {
+                        // Click was made by same user as in click row
+                        if (click.signature == rows[i].signature)
+                            rows[i].user = 1;
+                        else
+                            rows[i].user = 0;
+                    }
+                    // Validate by xad_id
+                    else {
+                        // Click was made by same user as in click row
+                        if (click.xad_id == rows[i].xad_id)
+                            rows[i].user = 1;
+                        else
+                            rows[i].user = 0;
+                    }
+                }
+                else {
+                    rows[i].valid = false;
+                }
+            }
+
+            // Invalidate clicks in each group of clicks from same user
+            for (var u: number = 0; u < 2; u++) {
+                var clicks: number = 0;
+
+                for (var i: number = 0; i < rows.length; i++) {
+                    if (rows[i].user == u) {
+                        // Invalidate all clicks from user if more than 3 ads where clicked
+                        if (++clicks > 3) {
+                            for (var j: number = 0; j < rows.length; j++) {
+                                if (rows[j].user = u) rows[j].valid = false;
+                            }
+                        }
+
+                        // Invalidate clicks from same user within 30 seconds of another
+                        for (var j: number = 0; j < rows.length; j++) {
+                            if (i == j || rows[i].user != rows[j].user) continue;
+
+                            // j is within +- 30 seconds of i's clicked
+                            if (rows[i].clicked - 30 <= rows[j].clicked && rows[j].clicked <= rows[i].clicked + 30)
+                                rows[j].valid = false;
+                        }
+                    }
+                }
+            }
+
+            // Loop through clicks: if valid: updateFunds for publisher, else: advertiser
+            for (var i: number = 0; i < rows.length; i++) {
+                if (rows[i].valid)
+                    updateFunds(click.pub_id, rows[i].cost, "publish");
+                else
+                    updateFunds(rows[i].ad_id, rows[i].cost, "advert");
+            }
+            
+            // Delete all rows where ip and pub id
+            deleteClicks(click.pub_id, click.ip, () => cn.resume());
 
         });
 
