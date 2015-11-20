@@ -61,7 +61,7 @@ export = (req, res) => {
                     }
 
                     link = rows[0].ad_link;
-                    if (rows[0].pay_type) {
+                    if (rows[0].pay_type == 1) {
                         cpc = true, cost = rows[0].cost;
                     }
 
@@ -132,8 +132,9 @@ export = (req, res) => {
 
         // Add row to clicks table
         var insert = {
-            ad_id: req.query.ad, pub_id: req.query.pub, served: new Date(req.query.served),
-            ip: req.ip, clicked: new Date(), signature: signature, xad_id: ""
+            ad_id: req.query.ad, pub_id: req.query.pub, served: req.query.served,
+            ip: req.ip, clicked: new Date().getTime(), signature: signature,
+            xad_id: "", cost: cost
         };
         insert.xad_id = req.query.xad ? req.query.xad : "";
 
