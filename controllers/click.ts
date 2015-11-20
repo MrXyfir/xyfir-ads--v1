@@ -119,27 +119,30 @@ export = (req, res) => {
 
     /* Clicks Table / Redirect User */
     var finish = (): void => {
-        // Generate browser signature
-        var signature: string = req.useragent.browser + ';' + req.useragent.version + ';' + req.useragent.os;
+        // Only clicks on CPC ads need to be validated
+        if (cpc) {
+            // Generate browser signature
+            var signature: string = req.useragent.browser + ';' + req.useragent.version + ';' + req.useragent.os;
 
-        // Shorten length of signature
-        signature.replace(' ', '').replace('.', '').replace("Windows", "Win")
-            .replace("Internet Explorer", "IE").replace("Firefox", "FF")
-            .replace("Ubuntu", "Ubu").replace("Safara", "SF")
-            .replace("Chrome", "CH").replace("Opera", "OP");
+            // Shorten length of signature
+            signature.replace(' ', '').replace('.', '').replace("Windows", "Win")
+                .replace("Internet Explorer", "IE").replace("Firefox", "FF")
+                .replace("Ubuntu", "Ubu").replace("Safara", "SF")
+                .replace("Chrome", "CH").replace("Opera", "OP");
 
-        signature = signature.length > 32 ? signature.substr(0, 32) : signature;
+            signature = signature.length > 32 ? signature.substr(0, 32) : signature;
 
-        // Add row to clicks table
-        var insert = {
-            ad_id: req.query.ad, pub_id: req.query.pub, served: req.query.served,
-            ip: req.ip, clicked: new Date().getTime(), signature: signature,
-            xad_id: "", cost: cost
-        };
-        insert.xad_id = req.query.xad ? req.query.xad : "";
+            // Add row to clicks table
+            var insert = {
+                ad_id: req.query.ad, pub_id: req.query.pub, served: req.query.served,
+                ip: req.ip, clicked: new Date().getTime(), signature: signature,
+                xad_id: "", cost: cost
+            };
+            insert.xad_id = req.query.xad ? req.query.xad : "";
 
-        sql = "INSERT INTO clicks SET ?";
-        cn.query(sql, insert, (err, result) => cn.release());
+            sql = "INSERT INTO clicks SET ?";
+            cn.query(sql, insert, (err, result) => cn.release());
+        }
 
         // Redirect user to ad's link
         res.redirect(link);
