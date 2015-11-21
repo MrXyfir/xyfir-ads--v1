@@ -3,7 +3,7 @@ var Campaigns = require("./advertisers/Campaigns");
 
 var AdvertisersRoutes = React.createClass({
 
-    return: function () {
+    render: function () {
         return (
         <Router>
     	    <Route path="advertisers" component={Advertisers}>
