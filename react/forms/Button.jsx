@@ -1,8 +1,15 @@
 module.exports = React.createClass({
 
-    render: function() {
+    getDefaultProps: function() {
+        return {
+            type: "primary", disabled: false
+        };
+    },
+
+    render: function () {
+        var classn = "btn-" + this.props.type;
         return (
-            <button className={"btn-" + this.props.type} onClick={this.props.onClick}>
+            <button className={classn} onClick={this.props.onClick} disabled={this.props.disabled}>
                 {this.props.children}
             </button>
         );
