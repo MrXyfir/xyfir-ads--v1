@@ -213,6 +213,8 @@ export = {
                     requested, provided, payType, approved
                 }
             ]}
+        DESCRIPTION
+            Returns basic info for active and pending-approval campaigns
     */
     getAll: (req, res) => {
         db(cn => {

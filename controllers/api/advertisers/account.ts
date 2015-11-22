@@ -6,8 +6,12 @@ export = {
 
     /*
         POST api/advertisers/account/funds
+        REQUIRED
+            amount: number, stripeToken: string
         RETURN
             { error: bool, message: string }
+        DESCRIPTION
+            Charges user's card via stripeToken and adds funds to account
     */
     addFunds: (req, res) => {
         if (req.body.amount < 10) {
@@ -35,7 +39,7 @@ export = {
                 // Add funds to user's account
                 sql = "UPDATE advertisers SET funds = funds + ? WHERE user_id = ?";
                 cn.query(sql, [req.body.amount, req.session.uid], (e, r) => {
-                    if (e) {
+                    if (e || !r.affectedRows) {
                         cn.release();
                         res.json({ error: true, message: "An unknown error occured. Please contact support." });
                         return;
@@ -107,11 +111,11 @@ export = {
             var sql: string;
 
             // Grab funds in user's account
-            sql = "SELECT funds FROM advertiser WHERE user_id = ?";
+            sql = "SELECT funds FROM advertisers WHERE user_id = ?";
             cn.query(sql, [req.session.uid], (err, rows) => {
                 if (err || rows.length == 0) {
                     cn.release();
-                    res.json({});
+                    res.json({ funds: 0, payments: [] });
                     return;
                 }
 

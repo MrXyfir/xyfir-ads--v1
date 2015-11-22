@@ -1,6 +1,6 @@
 var router = require('express').Router();
 
-router.get('/account', require('./account'));
-router.get('/campaigns', require('./campaigns'));
+router.use('/account', require('./account'));
+router.use('/campaigns', require('./campaigns'));
 
 export = router;
