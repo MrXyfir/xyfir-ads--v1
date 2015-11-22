@@ -8,6 +8,7 @@
 import express = require('express');
 import session = require('express-session');
 import parser = require('body-parser');
+var sesStore = require('express-mysql-session');
 var config = require('./config');
 var app = express();
 
@@ -19,7 +20,7 @@ app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
 
 /* Sessions */
-var sessionStore = require('express-mysql-session')({
+var sessionStore = new sesStore({
     host: config.database.host,
     port: config.database.port,
     user: config.database.user,
@@ -49,6 +50,6 @@ app.use('/publishers', require('./routes/publishers'));
 app.use('/advertisers', require('./routes/advertisers'));
 
 /* Start Cron Jobs */
-require("./jobs/start")();
+//require("./jobs/start")();
 
 app.listen(config.port, () => console.log('SERVER RUNNING'));

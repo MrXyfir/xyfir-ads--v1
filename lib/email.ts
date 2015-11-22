@@ -1,6 +1,6 @@
 /// <reference path="../typings/nodemailer/nodemailer.d.ts" />
 
-var config = require('../../config').nodemailer;
+var config = require('../config').nodemailer;
 
 export = (email: string, subject: string, message: string) => {
 

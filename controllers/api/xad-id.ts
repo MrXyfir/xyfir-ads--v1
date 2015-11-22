@@ -1,4 +1,4 @@
-﻿import secret = require("../../config").secrets.xadid;
+﻿var secret = require("../../config").secrets.xadid;
 import db = require("../../lib/db");
 
 export = {
