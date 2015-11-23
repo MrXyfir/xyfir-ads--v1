@@ -187,32 +187,32 @@ export = {
                     cn.beginTransaction(err => {
                         if (err) {
                             cn.release();
-                            res.json({ error: true, message: "An unkown error occured" });
+                            res.json({ error: true, message: "An unkown error occured-" });
                             return;
                         }
 
                         // Subtract amount from user's funds
                         sql = "UPDATE advertisers SET funds = funds - ? WHERE user_id = ?";
                         cn.query(sql, [req.body.amount, req.session.uid], (err, result) => {
-                            if (err) {
+                            if (err || !result.affectedRows) {
                                 cn.rollback(() => cn.release());
-                                res.json({ error: true, message: "An unkown error occured" });
+                                res.json({ error: true, message: "An unkown error occured--" });
                                 return;
                             }
 
                             // Add amount to campaign's funds
                             sql = "UPDATE ads SET funds = funds + ? WHERE id = ?";
                             cn.query(sql, [req.body.amount, req.params.id], (err, result) => {
-                                if (err) {
+                                if (err || !result.affectedRows) {
                                     cn.rollback(() => cn.release());
-                                    res.json({ error: true, message: "An unkown error occured" });
+                                    res.json({ error: true, message: "An unkown error occured---" });
                                     return;
                                 }
 
                                 cn.commit(err => {
                                     if (err) {
                                         cn.rollback(() => cn.release());
-                                        res.json({ error: true, message: "An unkown error occured" });
+                                        res.json({ error: true, message: "An unkown error occured----" });
                                         return;
                                     }
 
@@ -241,7 +241,7 @@ export = {
                     }
 
                     // Check if new amount could still cover daily_funds
-                    if (rows[0].funds - req.body.amount < rows[0].funds) {
+                    if (rows[0].funds - req.body.amount < rows[0].daily_funds) {
                         cn.release();
                         res.json({ error: true, message: "Modified campaign balance would not be able to cover daily budget" });
                         return;
@@ -257,32 +257,32 @@ export = {
                     cn.beginTransaction(err => {
                         if (err) {
                             cn.release();
-                            res.json({ error: true, message: "An unkown error occured" });
+                            res.json({ error: true, message: "An unkown error occured-" });
                             return;
                         }
 
                         // Subtract amount from campaign's funds
                         sql = "UPDATE ads SET funds = funds - ? WHERE id = ?";
                         cn.query(sql, [req.body.amount, req.params.id], (err, result) => {
-                            if (err) {
+                            if (err || !result.affectedRows) {
                                 cn.rollback(() => cn.release());
-                                res.json({ error: true, message: "An unkown error occured" });
+                                res.json({ error: true, message: "An unkown error occured--" });
                                 return;
                             }
 
                             // Add amount to user's funds
                             sql = "UPDATE advertisers SET funds = funds + ? WHERE user_id = ?";
                             cn.query(sql, [req.body.amount, req.session.uid], (err, result) => {
-                                if (err) {
+                                if (err || !result.affectedRows) {
                                     cn.rollback(() => cn.release());
-                                    res.json({ error: true, message: "An unkown error occured" });
+                                    res.json({ error: true, message: "An unkown error occured---" });
                                     return;
                                 }
 
                                 cn.commit(err => {
                                     if (err) {
                                         cn.rollback(() => cn.release());
-                                        res.json({ error: true, message: "An unkown error occured" });
+                                        res.json({ error: true, message: "An unkown error occured----" });
                                         return;
                                     }
 
@@ -309,7 +309,7 @@ export = {
     budget: (req, res) => {
         // Check if daily budget >= minimum amount
         if (req.body.dailyBudget < 0.50) {
-            res.json({ error: true, message: "Daily allocated funds must be greater than or equal to $0.50" });
+            res.json({ error: true, message: "Daily allocated funds cannot be less than $0.50" });
             return;
         }
 
@@ -337,8 +337,8 @@ export = {
                 cn.query(sql, [req.body.dailyBudget, req.params.id], (err, result) => {
                     cn.release();
 
-                    if (err)
-                        res.json({ error: true, message: "An unkown error occured" });
+                    if (err || !result.affectedRows)
+                        res.json({ error: true, message: "An unkown error occured-" });
                     else
                         res.json({ error: false, message: "Daily allocated funds updated successfully" });
                 }); // update daily_funds
@@ -363,7 +363,7 @@ export = {
             // Validate and update campaign's bid (cost)
             if (req.body.bid) {
                 // Grab needed information for campaign
-                sql = "SELECT ad_type, pay_type, category, requested, funds, autobid "
+                sql = "SELECT ad_type, pay_type, ct_categories, requested, provided, funds, autobid "
                     + "FROM ads WHERE id = ? AND owner = ?";
                 cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
 
@@ -379,33 +379,37 @@ export = {
                     require("../../../lib/ad/price")
                     (campaign.ad_type, campaign.pay_type, campaign.ct_categories, info => {
                         // Ensure user's new bid is >= base price
-                        if (req.body.bid >= info.base) {
+                        if (req.body.bid < info.base) {
                             cn.release();
                             res.json({ error: true, message: "Bid must be greater than base price: $" + info.base });
                             return;
                         }
                         
                         // Ensure user can pay for requested with funds in campaign at bid
-                        if (campaign.requested * req.body.bid > campaign.funds) {
+                        if ((campaign.requested - campaign.provided) * req.body.bid > campaign.funds) {
                             cn.release();
-                            res.json({ error: true, message: "Minimum funds in campaign required: $" + req.body.bid + " * " + campaign.requested });
+                            res.json({
+                                error: true,
+                                message: "Minimum funds in campaign required: $" + (req.body.bid * (campaign.requested - campaign.provided))
+                            });
                             return;
                         }
 
                         // Update bid (cost) for campaign and set autobid = false, if true
-                        sql = "UPDATE ads SET cost = ?" + (campaign.autobid ? ", autobid = 0" : "") + " WHERE id = ?";
+                        sql = "UPDATE ads SET cost = ?" + (!!campaign.autobid ? ", autobid = 0" : "") + " WHERE id = ?";
                         cn.query(sql, [req.body.bid, req.params.id], (err, result) => {
                             cn.release();
 
-                            if (err) res.json({ error: true, message: "An unknown error occured" });
-                            else res.json({ error: false, message: "Bid updated successfully" });
+                            if (err || !result.affectedRows)
+                                res.json({ error: true, message: "An unknown error occured-" });
+                            else
+                                res.json({ error: false, message: "Bid updated successfully" });
                         }); // update bid cost
                     }); // grab ad/cat info
                 }); // grab campaign info
             }
             // Generate and set campaign's autobid and cost
             else if (req.body.autobid) {
-                // Check if campaign already has autobid set true
                 sql = "SELECT autobid FROM ads WHERE id = ? AND owner = ?";
                 cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
 
@@ -415,11 +419,18 @@ export = {
                         return;
                     }
 
+                    // Check if campaign already has autobid set true
+                    if (!!rows[0].autobid) {
+                        cn.release();
+                        res.json({ error: true, message: "Autobid is already enabled" });
+                        return;
+                    }
+
                     // Generate and set campaign's autobid cost
-                    require("../../../lib/ad/price")(req.params.id, cn, err => {
+                    require("../../../lib/ad/autobid")(req.params.id, cn, err => {
                         if (err) {
                             cn.release();
-                            res.json({ error: true, message: "An unknown error occured" });
+                            res.json({ error: true, message: "An unknown error occured-" });
                             return;
                         }
 
