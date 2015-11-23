@@ -482,7 +482,7 @@ export = {
                 var dates: string[] = req.query.dates.split(':');
                 var report = {
                     clicks: 0, views: 0, cost: 0, publishers: "",
-                    dem_age: "", dem_gender: "", dem_geo: ""
+                    dem_age: "", dem_gender: "", dem_geo: {}
                 };
 
                 sql = "SELECT * FROM ad_reports WHERE id = ? AND day BETWEEN ? AND ?";
@@ -506,9 +506,10 @@ export = {
                     report.cost += row.cost;
 
                     // Merge lists / objects
+                    report.publishers = mergeList(report.publishers.split(','), row.publishers.split(','));
                     report.dem_gender = mergeList(report.dem_gender.split(','), row.dem_gender.split(','));
                     report.dem_age = mergeList(report.dem_age.split(','), row.dem_age.split(','));
-                    report.dem_geo = mergeObject(report.dem_geo, row.dem_geo);
+                    report.dem_geo = mergeObject(report.dem_geo, JSON.parse(row.dem_geo));
 
                     cn.resume();
                 })
