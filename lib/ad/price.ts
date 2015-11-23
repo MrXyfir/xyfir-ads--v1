@@ -32,6 +32,9 @@ export = (adType: number, payType: number, category: string, fn) => {
     if (categoryLevels > 2)
         basePrice += basePrice * 0.05;
 
+    // Round base price to 6th decimal place
+    basePrice = Number(Math.round(basePrice + 'e' + 6) + 'e-' + 6);
+
     var info = {
         base: basePrice,
         competitors: 0,

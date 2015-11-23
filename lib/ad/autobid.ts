@@ -17,7 +17,7 @@ export = (id: number, cn: any, fn: any) => {
         }
 
         // Pass info to price module and receive bid info
-        require("price")(rows[0].ad_type, rows[0].pay_type, rows[0].ct_categories, info => {
+        require("./price")(rows[0].ad_type, rows[0].pay_type, rows[0].ct_categories, info => {
             var bid: number;
 
             // Bid will be average +- up to 5%
@@ -35,7 +35,7 @@ export = (id: number, cn: any, fn: any) => {
 
             // Set bid cost for campaign
             sql = "UPDATE ads SET cost = ? WHERE id = ?";
-            cn.query(sql, [bid, id], (err, result) => fn(err));
+            cn.query(sql, [bid, id], (err, result) => fn(err || !result.affectedRows));
         });
     });
 
