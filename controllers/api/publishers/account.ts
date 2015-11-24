@@ -44,7 +44,7 @@ export = {
                             cn.release();
 
                             if (err)
-                                res.json({ message: "An unkown error occured. Please try again." });
+                                res.json({ message: "An unknown error occured. Please try again." });
                             else
                                 res.json({ message: "Your application has been submit successfully." });
                         });
@@ -90,8 +90,9 @@ export = {
             else {
                 // Build an array of campaign ids
                 var ids: number[] = [];
-                for (var row in rows) ids.push(row.id);
-                rows = null;
+                for (var i: number = 0; i < rows.length; i++) {
+                    ids.push(rows[i].id);
+                }
 
                 sql = "SELECT SUM(earnings) as earnings, SUM(earnings_temp) as earnings_pending "
                     + "FROM pub_reports where id IN (?) AND MONTH(day) = MONTH(CURDATE())";
@@ -132,7 +133,7 @@ export = {
                     cn.query(sql, [false, req.session.uid], (err, rows) => {
                         cn.release();
 
-                        if (err || rows.length == 0) response.payments = rows;
+                        if (!err && !!rows.length) response.payments = rows;
 
                         res.json(response);
                     });
@@ -153,31 +154,6 @@ export = {
     update: (req, res) => {
         var info = JSON.parse(req.body.paymentInfo);
 
-        // Payment via check
-        if (req.body.paymentMethod == 1) {
-            // Validate info pertaining to check
-            if (!info.name.match(/^([\w-]{3,20}\s?){2,3}$/))
-                res.json({ error: true, message: "Invalid name" });
-            else if (!info.address.match(/^[\w\d -]{5,50}$/))
-                res.json({ error: true, message: "Invalid address" });
-            else if (!info.address2.match(/^[\w\d -]{5,50}$/))
-                res.json({ error: true, message: "Invalid address" });
-            else if (!info.address.match(/^[0-9]{5}$/))
-                res.json({ error: true, message: "Invalid zip code (US ONLY)" });
-            else if (info.country != "US")
-                res.json({ error: true, message: "Checks are only available for US publishers" });
-            else update();
-        }
-        
-        // Payment via bank wire
-        if (req.body.paymentMethod == 2) {
-            // ** Add validation for bank wire info
-        }
-
-        else {
-            res.json({ error: true, message: "Invalid payment method" });
-        }
-
         // Update payment_info, payment_method
         var update = () => db(cn => {
             var sql: string = "UPDATE publishers SET payment_info = ?, payment_method = ? WHERE user_id = ?";
@@ -190,6 +166,30 @@ export = {
                     res.json({ error: false, message: "Payment info updated successfully" });
             });
         });
+
+        // Payment via check
+        if (req.body.paymentMethod == 1) {
+            // Validate info pertaining to check
+            if (!info.name.match(/^([\w-]{3,20}\s?){2,3}$/))
+                res.json({ error: true, message: "Invalid name" });
+            else if (!info.address.match(/^[\w\d -.#,]{5,50}$/))
+                res.json({ error: true, message: "Invalid address" });
+            else if (!info.address2.match(/^[\w\d -.#,]{0,50}$/))
+                res.json({ error: true, message: "Invalid address" });
+            else if (!info.zip.match(/^[0-9]{5}$/))
+                res.json({ error: true, message: "Invalid zip code (US ONLY)" });
+            else if (info.country != "US")
+                res.json({ error: true, message: "Checks are only available for US publishers" });
+            else update();
+        }
+        // Payment via bank wire
+        else if (req.body.paymentMethod == 2) {
+            // ** Add validation for bank wire info
+        }
+        // Invalid payment method
+        else {
+            res.json({ error: true, message: "Invalid payment method" });
+        }
     }
 
 }
