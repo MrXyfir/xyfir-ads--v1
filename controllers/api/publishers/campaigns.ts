@@ -16,7 +16,7 @@ export = {
         var response = { error: false, message: "Campaign created successfully" };
 
         // Validate provided data
-        if (!req.body.name.match(/^\w{3,25}$/))
+        if (!req.body.name.match(/^[\w\d -]{3,25}$/))
             response = { error: true, message: "Invalid campaign name format or length" };
         else if (!req.body.keywords.match(/^[\w ,]{0,1599}$/))
             response = { error: true, message: "Invalid keywords format or length" };
@@ -65,7 +65,7 @@ export = {
             Returns basic information for all of publisher's campaigns
     */
     getAll: (req, res) => {
-        var sql: string = "SELECT id, name, site, type FROM publishers WHERE owner = ?";
+        var sql: string = "SELECT id, name, site, type FROM pubs WHERE owner = ?";
 
         db(cn => cn.query(sql, [req.session.uid], (err, rows) => {
             cn.release();
