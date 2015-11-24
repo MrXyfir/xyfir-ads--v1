@@ -5,15 +5,15 @@ export = {
     /*
         POST api/advertisers/campaigns
         REQUIRED
-            ut_genders ut_countries ut_regions ut_age
-            ct_category ct_keywords ct_sites
-            a_requested a_paytype a_media a_type
-            a_descriptions a_title a_type a_link
-            c_availability c_name f_allocated
+            ut_genders: string, ut_countries: string, ut_regions: string, ut_age: string,
+            a_requested: number, a_paytype: number, a_media: string, a_type: number,
+            c_availability: string, c_name: string, f_allocated: number,
+            ct_category: string, ct_keywords: string, ct_sites: string,
+            a_description: string, a_title: string, a_link: string
         OPTIONAL
-            f_autobid f_bid f_daily
+            f_autobid: boolean, f_bid: number, f_daily: number
         RETURN
-            { error: bool, message: string }
+            { error: boolean, message: string }
     */
     create: (req, res) => {
         var response = { error: false, message: "" };
@@ -23,7 +23,7 @@ export = {
             response = { error: true, message: "Invalid campaign name" };
         else if (['1', '2', '3', '4'].indexOf(req.body.a_type) == -1)
             response = { error: true, message: "Invalid ad type selection" };
-        else if (req.body.a_paytype != 1 && req.body.a_paytype != 2)
+        else if (['1', '2'].indexOf(req.body.a_paytype) == -1)
             response = { error: true, message: "Invalid pay-per-action selected" };
         else if (req.body.a_type == 4 && req.body.a_paytype == 1)
             response = { error: true, message: "Video ads cannot be pay-per-click" };
@@ -39,15 +39,15 @@ export = {
             response = { error: true, message: "Invalid keyword(s) length or character" };
         else if (!req.body.ut_countries.match(/^([A-Z]{2},?){1,50}|\*$/))
             response = { error: true, message: "Invalid target countries list (limit 50 countries)" };
-        else if (!req.body.ut_regions.match(/^([\w\d\s,\|]{1,1000})|\*$/))
+        else if (!req.body.ut_regions.match(/^([A-Z*,]{1,3}\|?){1,250}$/))
             response = { error: true, message: "Invalid target regions (limit 1,000 characters)" };
         else if (!require("../../../lib/category/validator")(req.body.ct_category, true))
             response = { error: true, message: "Invalid category selected" };
-        else if (!req.body.ct_sites.match(/^([\w\d.,]){5,225}|\*$/))
+        else if (!req.body.ct_sites.match(/^([\w\d.,-]){5,225}|\*$/))
             response = { error: true, message: "Invalid target sites format / length (limit 225 characters)" };
         else if (req.body.f_allocated < 10.00)
             response = { error: true, message: "You must allocate at least $10.00 for campaign" };
-        else if (!req.body.a_title.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{5,25}$/))
+        else if (!req.body.a_title.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{3,25}$/))
             response = { error: true, message: "Invalid ad title characters or length" };
         else if (!req.body.a_description.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{5,150}$/))
             response = { error: true, message: "Invalid ad description characters or length" };
@@ -74,29 +74,15 @@ export = {
                 response = { error: true, message: "Invalid image / video source length" };
         }
 
-        // Bid validation
-        if (req.body.f_autobid) {
+        // Validate daily allocated funds
+        if (req.body.f_daily) {
             if (req.body.f_daily > req.body.f_allocated)
                 response = { error: true, message: "Daily allocated funds limit cannot be greater than total allocated" };
             if (req.body.f_daily < 0.50)
                 response = { error: true, message: "Daily allocated funds limit cannot be less than $0.50" };
-
-            next();
-        }
-        else {
-            require("../../../lib/ad/price")(req.body.a_type, req.body.f_type, req.body.ct_category, info => {
-                // Ensure user's bid price >= category's base price
-                if (req.body.f_bid < info.base)
-                    response = { error: true, message: "Bid price is lower than category's base price" };
-
-                // Ensure their allocated funds can pay for requested clicks and 
-                if (req.body.f_bid * req.body.a_requested > req.body.f_allocated)
-                    response = { error: true, message: "Not enough allocated funds to pay for requested actions on ad" };
-
-                next();
-            });
         }
 
+        /* Create Campaign */
         var next = () => db(cn => {
             var sql: string = "SELECT funds FROM advertisers WHERE user_id = ?";
             cn.query(sql, [req.session.uid], (err, rows) => {
@@ -122,19 +108,21 @@ export = {
                     ut_age: req.body.ut_age,
                     autobid: req.body.f_autobid ? true : false,
                     ad_type: req.body.a_type,
+                    ad_link: req.body.a_link,
                     ad_title: req.body.a_title,
                     ad_media: req.body.a_media,
                     approved: false,
                     ct_sites: req.body.ct_sites,
                     pay_type: req.body.a_paytype,
                     requested: req.body.a_requested,
-                    available: req.body.available,
+                    available: req.body.c_availability,
                     ut_genders: req.body.ut_genders,
                     ut_regions: req.body.ut_regions,
                     ct_keywords: req.body.ct_keywords,
                     daily_funds: req.body.f_daily ? req.body.f_daily : 0,
                     ut_countries: req.body.ut_countries,
-                    ct_categories: req.body.ct_categories
+                    ct_categories: req.body.ct_categories,
+                    ad_description: req.body.a_description
                 };
                 req.body = null, response = null;
 
@@ -142,16 +130,16 @@ export = {
                 cn.beginTransaction(err => {
                     if (err) {
                         cn.release();
-                        res.json({ error: true, message: "An unknown error occured" });
+                        res.json({ error: true, message: "An unknown error occured-" });
                         return;
                     }
 
                     // Remove allocated funds from advertiser's account
                     sql = "UPDATE advertisers SET funds = funds - ? WHERE user_id = ?";
                     cn.query(sql, [data.funds, data.owner], (e, r) => {
-                        if (e) {
+                        if (e || !r.affectedRows) {
                             cn.rollback(() => cn.release());
-                            res.json({ error: true, message: "An unknown error occured" });
+                            res.json({ error: true, message: "An unknown error occured--" });
                             return;
                         }
 
@@ -162,11 +150,11 @@ export = {
 
                             if (e) {
                                 cn.rollback(() => cn.release());
-                                res.json({ error: true, message: "An unknown error occured" });
+                                res.json({ error: true, message: "An unknown error occured---" });
                                 return;
                             }
 
-                            var ad = r.insertID;
+                            var ad: number = r.insertId;
 
                             // Create blank ad_report for current date
                             sql = "INSERT INTO ad_reports (id, day) VALUES ('" + ad + "', CURDATE())";
@@ -174,7 +162,7 @@ export = {
                                 cn.commit(err => {
                                     if (err) {
                                         cn.rollback(() => cn.release());
-                                        res.json({ error: true, message: "An unknown error occured" });
+                                        res.json({ error: true, message: "An unknown error occured----" });
                                         return;
                                     }
 
@@ -200,6 +188,24 @@ export = {
                 }); // begin transac
             }); // grab funds
         }); // next()
+
+        // Bid validation
+        if (req.body.f_autobid) {
+            next();
+        }
+        else {
+            require("../../../lib/ad/price")(req.body.a_type, req.body.f_type, req.body.ct_category, info => {
+                // Ensure user's bid price >= category's base price
+                if (req.body.f_bid < info.base)
+                    response = { error: true, message: "Bid price is lower than category's base price" };
+
+                // Ensure their allocated funds can pay for requested clicks and 
+                if (req.body.f_bid * req.body.a_requested > req.body.f_allocated)
+                    response = { error: true, message: "Not enough allocated funds to pay for requested actions on ad" };
+
+                next();
+            });
+        }
 
     }, // create()
 
