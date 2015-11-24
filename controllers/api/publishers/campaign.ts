@@ -54,32 +54,24 @@ export = {
             All pending/confirmed earnings are lost
     */
     remove: (req, res) => {
-        var sql: string, response = { error: true, message: "An unkown error occured" };
+        var sql: string;
 
         sql = "DELETE FROM pubs WHERE id = ? AND owner = ?";
         db(cn => cn.query(sql, [req.params.id, req.session.uid], (err, result) => {
-            if (err) {
+            if (err || !result.affectedRows) {
                 cn.release();
-                res.json(response);
+                res.json({ error: true, message: "An unkown error occured" });
                 return;
             }
 
             sql = "DELETE FROM clicks WHERE pub_id = ?";
             cn.query(sql, [req.params.id], (err, result) => {
-                if (err) {
-                    cn.release();
-                    res.json(response);
-                    return;
-                }
 
                 sql = "DELETE FROM pub_reports WHERE id = ?";
                 cn.query(sql, [req.params.id], (err, result) => {
                     cn.release();
 
-                    if (err)
-                        res.json(response);
-                    else
-                        res.json({ error: false, message: "Campaign successfully deleted" });
+                    res.json({ error: false, message: "Campaign successfully deleted" });
                 });
             });
         }));
@@ -98,7 +90,7 @@ export = {
     update: (req, res) => {
         var response: any = { error: false, message: "Campaign updated successfully" };
 
-        if (!req.body.name.match(/^\w{3,25}$/))
+        if (!req.body.name.match(/^[\w\d -]{3,25}$/))
             response = { error: true, message: "Invalid campaign name format or length" };
         else if (!req.body.keywords.match(/^[\w ,]{0,1599}$/))
             response = { error: true, message: "Invalid keywords format or length" };
@@ -118,8 +110,8 @@ export = {
             + "SET name = ?, keywords = ?, site = ?, type = ?, categories = ? "
             + "WHERE id = ? AND owner = ?";
         var update: any[] = [
-            req.body.name, req.body.keywords, req.body.site, req.body.type,
-            req.body.categories, req.params.id, req.session.uid
+            req.body.name, req.body.keywords, req.body.site, req.body.type, req.body.categories,
+            req.params.id, req.session.uid
         ];
 
         db(cn => cn.query(sql, update, (err, result) => {
