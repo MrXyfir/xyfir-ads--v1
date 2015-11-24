@@ -19,7 +19,7 @@ export = {
         var response = { error: false, message: "" };
 
         // Validate data
-        if (!req.body.c_name.match(/^\w{3,25}$/))
+        if (!req.body.c_name.match(/^[\w\d -]{3,25}$/))
             response = { error: true, message: "Invalid campaign name" };
         else if (['1', '2', '3', '4'].indexOf(req.body.a_type) == -1)
             response = { error: true, message: "Invalid ad type selection" };
