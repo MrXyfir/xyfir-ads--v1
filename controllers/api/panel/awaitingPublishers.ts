@@ -6,7 +6,9 @@ export = {
     /*
         GET api/panel/awaiting/publishers
         RETURN
-            { publishers: [ {  } ] }
+            {publishers: [{
+                user_id: number, name: string, email: string, application: string
+            }]}
         DESCRIPTION
             Returns all publishers awaiting application review
     */

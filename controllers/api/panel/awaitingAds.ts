@@ -6,7 +6,7 @@ export = {
     /*
         GET api/panel/awaiting/ads
         RETURN
-            { ads: [ {  } ] }
+            { ads: adsRowObject[] }
         DESCRIPTION
             Return all ads awaiting approval
     */
@@ -112,7 +112,7 @@ export = {
                     sql = "INSERT INTO ads_ended SELECT "
                         + "id, name, pay_type, cost, autobid, available, approved, ad_type, ad_title, "
                         + "ad_description, ad_link, ad_media, ut_age, ut_countries, ut_regions, "
-                        + "ut_genders, ct_categories, ct_keywords, ct_sites, info, owner "
+                        + "ut_genders, ct_categories, ct_keywords, ct_sites, owner "
                         + "FROM ads WHERE id = ?";
                     cn.query(sql, [req.params.id], (e, r) => {
                         if (e || !r.affectedRows) {
