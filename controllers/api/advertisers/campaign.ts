@@ -546,7 +546,7 @@ export = {
             response = { error: true, message: "Invalid targeted user genders" };
         else if (!req.body.ut_age.match(/^[0123456,]{1,11}$/))
             response = { error: true, message: "Invalid targeted user age ranges" };
-        else if (!req.body.ct_keywords.match(/^[\w ,]{0,1500}$/))
+        else if (!req.body.ct_keywords.match(/^[\w\d ,-]{0,1500}$/))
             response = { error: true, message: "Invalid keyword(s) length or character" };
         else if (!req.body.ut_countries.match(/^([A-Z]{2},?){1,50}|\*$/))
             response = { error: true, message: "Invalid target countries list (limit 50 countries)" };

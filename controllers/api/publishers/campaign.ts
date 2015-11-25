@@ -92,7 +92,7 @@ export = {
 
         if (!req.body.name.match(/^[\w\d -]{3,25}$/))
             response = { error: true, message: "Invalid campaign name format or length" };
-        else if (!req.body.keywords.match(/^[\w ,]{0,1599}$/))
+        else if (!req.body.keywords.match(/^[\w\d ,-]{0,1599}$/))
             response = { error: true, message: "Invalid keywords format or length" };
         else if (!req.body.site.match(/^https?:\/\/[\w\d-.\/]{1,66}$/))
             response = { error: true, message: "Invalid website format or length" };
