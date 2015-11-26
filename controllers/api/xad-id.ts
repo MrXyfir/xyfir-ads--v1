@@ -25,7 +25,7 @@ export = {
             sql = "SELECT xad_id FROM xad_ids WHERE xacc_uid = ?";
             cn.query(sql, [req.params.xacc], (err, rows) => {
 
-                if (err || !rows.length) {
+                if (err || !!rows.length) {
                     cn.release();
                     res.json({ error: true });
                     return;
