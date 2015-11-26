@@ -1,4 +1,10 @@
-﻿var Advertisers = require("./advertisers/Advertisers");
+﻿/* React Router */
+var IndexRoute = window.ReactRouter.IndexRoute;
+var Router = window.ReactRouter.Router;
+var Route = window.ReactRouter.Route;
+
+/* Route Components */
+var Advertisers = require("./advertisers/Advertisers");
 var Campaigns = require("./advertisers/Campaigns");
 var Campaign = require("./advertisers/Campaign");
 var Account = require("./advertisers/Account");
