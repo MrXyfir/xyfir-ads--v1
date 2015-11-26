@@ -5,21 +5,21 @@ export = {
     /*
         GET api/pub/sites
         RETURN
-            {sites: [site, site]}
+            { sites: string[] }
+        DESCRIPTION
+            Return all sites linked to pub campaigns
     */
     sites: (req, res) => {
-        db(cn => {
-            cn.query("SELECT site FROM pubs", (err, rows) => {
-                cn.release();
+        db(cn => cn.query("SELECT site FROM pubs", (err, rows) => {
+            cn.release();
 
-                var sites: string[];
-                for (var row in rows) {
-                    sites.push(row.site);
-                }
+            var sites: string[] = [];
+            for (var i: number = 0; i < rows.length; i++) {
+                sites.push(rows[i].site);
+            }
 
-                res.json({ sites: sites });
-            });;
-        });
+            res.json({ sites: sites });
+        }));
     }
 
 };
