@@ -8,7 +8,9 @@ module.exports = React.createClass({
     },
 
     render: function () {
-        return <div>{this.state.editing ? CampaignEdit : CampaignView}</div>;
+        return (
+            <div>{this.state.editing ? CampaignEdit : CampaignView}</div>
+        );
     }
 
 });

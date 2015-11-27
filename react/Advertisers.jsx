@@ -17,7 +17,7 @@ var AdvertisersRoutes = React.createClass({
         return (
         <Router>
     	    <Route path="advertisers" component={Advertisers}>
-		        <IndexRoute path="campaigns" component={Campaigns} />
+		        <IndexRoute component={Campaigns} />
 		        <Route path="campaigns" component={Campaigns} />
 		        <Route path="campaign" component={Campaign}>
 			        <Route path="create" component={Create} />
