@@ -1,71 +1,33 @@
-﻿var Link = window.ReactRouter.Link;
+﻿var Manage = require("./campaign/Manage");
+var Create = require("./campaign/Create");
+var List = require("./campaign/List");
 
 module.exports = React.createClass({
 
-    getInitialState: function() {
-        return {
-            campaigns: []
-        };
-    },
-
-    componentWillMount: function () {
-        ajax({
-            url: URL + "api/advertisers/campaigns",
-            method: "GET",
-            dataType: "json",
-            success: function (response) {
-                this.setState(response);
-            }.bind(this)
-        });
-    },
-
     render: function () {
-        var campaigns = [];
+        // Determine campaign ID and action if user
+        // is accessing a single campaign
+        if (this.props.view == "campaign-mange") {
+            var a = document.createElement('a');
+            a.href = location.href;
 
-        if (!this.state.campaigns.length) {
-            campaigns.push(
-                <div className="advertisers-campaigns-none">
-                    <h3>You do not have any active campaigns!</h3>
-                </div>
-            );
-        }
-        else {
-            var c;
+            // /advertisers/campaign/:id[/:action]
+            var routes = a.pathname.split('/');
 
-            for (var i = 0; i < this.state.campaigns.length; i++) {
-                c = this.state.campaigns[i];
+            var id = routes[3], action = "view";
 
-                c.link = URL + "advertisers/campaign/" + c.id;
-                c.status = "campaign-status-" + (!!c.approved ? "approved" : "pending");
-                c.payType = c.payType == 1 ? "clicks" : "views";
-                
-                if (c.dailFunds == 0)
-                    c.allocated = "No Limit Set";
-                else
-                    c.allocated = '$' + c.dailFundsUsed + " used of " + '$' + c.dailFunds + " limit";
-
-                campaigns.push(
-                    <div className="advertisers-campaigns-campaign">
-                        <h3>
-                            <Link to={c.link}>{c.name}</Link>
-                            <span className={c.status}></span>
-                        </h3>
-
-                        <h4>{"$" + c.funds + " Funds Available"}</h4>
-
-                        <h5>{c.provided + ' ' + c.payType + " Received of " + c.requested}</h5>
-
-                        <p><b>Daily Allocated Funds:</b> {c.allocated}</p>
-                    </div>
-                );
-            }
+            if (routes[4] != undefined)
+                action = routes[4];
         }
 
-        return (
-        <div className="advertisers-campaigns">
-            {campaigns}
-        </div>  
-        );
+        switch (this.props.view) {
+            case "campaign-list":
+                return (<List updateRoute={this.props.updateRoute} />);
+            case "campaign-create":
+                return (<Create updateRoute={this.props.updateRoute} />);
+            case "campaign-manage":
+                return (<Manage updateRoute={this.props.updateRoute} id={id} action={action} />);
+        }
     }
 
 });
