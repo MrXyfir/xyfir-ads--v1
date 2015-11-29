@@ -15,3 +15,62 @@
   background-color: $lblack;
   color: #fff;
 }
+
+.advertisers-nav {    
+    padding: 1em;
+    background-color: #f7f7f7;
+    width: 75%;
+    margin: auto;
+    border: 1px solid #f0f0f0
+}
+.advertisers-nav > .link-lg {
+    margin: 1em;
+}
+.advertisers-campaigns-campaign {
+    margin: 1.5em;
+}
+.advertisers-account-payments {
+    margin-top: 2em;
+}
+.advertisers-account-payments > table {
+    margin: auto;
+}
+.advertisers-account-addfunds {
+    background-color: #f7f7f7;
+    padding: 1em;
+    border: 1px solid #f0f0f0;
+    width: 50%;
+    margin: auto;
+}
+.advertisers-account-addfunds > .btn-primary {
+    margin-top: 1em;
+}
+.advertisers-account-addfunds > div > .card-exp-month {
+    display: inline;
+    width: 2em;
+    margin-right: 1em;
+}
+.advertisers-account-addfunds > div > .card-exp-year {
+    display: inline;
+    width: 4em;
+}
+
+.campaign-top {
+    display: table;
+    margin-bottom: 0.4em;
+    margin: auto;
+}
+.campaign-top > span {
+    font-size: 1.5em;
+    font-weight: bold;
+    display: table-cell;
+    padding: 0.4em;
+}
+.campaign-bottom {
+    display: table;
+    margin: auto;
+}
+.campaign-bottom > span {
+    display: table-cell;
+    padding: 0.3em;
+}

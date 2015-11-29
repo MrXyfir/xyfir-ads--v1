@@ -37,23 +37,28 @@
                 c.status = "campaign-status-" + (!!c.approved ? "approved" : "pending");
                 c.payType = c.payType == 1 ? "clicks" : "views";
                 
-                if (c.dailFunds == 0)
-                    c.allocated = "No Limit Set";
+                if (c.dailyFunds == 0)
+                    c.allocated = <span>No Limit Set</span>;
                 else
-                    c.allocated = '$' + c.dailFundsUsed + " used of " + '$' + c.dailFunds + " limit";
+                    c.allocated = <span><b>{'$' + c.dailyFundsUsed}</b> used of <b>{'$' + c.dailyFunds}</b> daily limit</span>;
 
                 campaigns.push(
                     <div className="advertisers-campaigns-campaign">
-                        <h3>
-                            <a onClick={this.props.updateRoute.bind(this, c.link)}>{c.name}</a>
+                        <div className="campaign-top">
                             <span className={c.status}></span>
-                        </h3>
+                            <span className="campaign-name">
+                                <a onClick={this.props.updateRoute.bind(this, c.link)}>{c.name}</a>
+                            </span>
+                            <span className="campaign-completed">
+                                {c.provided == 0 ? "0.00%" :  Number(Math.round((c.provided / c.requested)+'e'+2)+'e-'+2) + '%'}
+                            </span>
+                        </div>
 
-                        <h4>{"$" + c.funds + " Funds Available"}</h4>
-
-                        <h5>{c.provided + ' ' + c.payType + " Received of " + c.requested}</h5>
-
-                        <p><b>Daily Allocated Funds:</b> {c.allocated}</p>
+                        <div className="campaign-bottom">
+                            <span><b>{"$" + c.funds}</b> in Campaign</span>
+                            {c.allocated}
+                            <span><b>{c.provided}</b> {c.payType} received of <b>{c.requested}</b></span>
+                        </div>
                     </div>
                 );
             }

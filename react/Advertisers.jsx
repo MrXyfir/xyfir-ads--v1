@@ -5,12 +5,12 @@ var Account = require("./advertisers/Account");
 var Advertisers = React.createClass({
 
     getInitialState: function() {
-        return { view: "campaigns" };
+        return { view: "account" };
     },
 
     componentWillMount: function () {
         // Set view based on current URL
-        routeUpdated();
+        this.routeUpdated();
     },
 
     /*
@@ -19,7 +19,7 @@ var Advertisers = React.createClass({
     updateRoute: function(route) {
         route = URL + "advertisers/" + route;
         history.pushState({}, '', route);
-        routeUpdated();
+        this.routeUpdated();
     },
 
     /*
