@@ -19,7 +19,7 @@ export = {
             return;
         }
 
-        var stripeKey: string = require("../../../config").stripe;
+        var stripeKey: string = require("../../../config").secrets.stripe;
         
         // Attempt to charge user's card
         require("stripe")(stripeKey).charges.create({
@@ -29,6 +29,7 @@ export = {
             description: "Xyfir Ads - Add Funds: $" + req.body.amount
         }, (err, charge) => {
             if (err) {
+                console.log(err);
                 res.json({ error: true, message: "There was an error processing your card." });
                 return;
             }
