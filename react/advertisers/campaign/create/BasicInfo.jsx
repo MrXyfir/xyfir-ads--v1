@@ -27,24 +27,31 @@
 
         return (
             <div className="form-step">
-                {alert}
+                <div className="form-step-head">
+                    <h2>Basic Information</h2>
+                    <p>Tell us what type of ad you want and then give your ad campaign a name.</p>
+                </div>
 
-                <label>Campaign Name</label>
-                <input ref="name" defaultValue={campaignData.name} />
+                <div className="form-step-body">
+                    {alert}
 
-                <label>Ad Type</label>
-                <select ref="type" defaultValue={campaignData.type}>
-                    <option value="1">Text</option>
-                    <option value="2">Short</option>
-                    <option value="3">Image</option>
-                    <option value="4">Video</option>
-                </select>
+                    <label>Campaign Name</label>
+                    <input ref="name" defaultValue={campaignData.name} />
 
-                <label>Payment Type</label>
-                <select ref="payType" defaultValue={campaignData.payType}>
-                    <option value="1">Pay Per Click</option>
-                    <option value="2">Pay Per View</option>
-                </select>
+                    <label>Ad Type</label>
+                    <select ref="type" defaultValue={campaignData.type}>
+                        <option value="1">Text</option>
+                        <option value="2">Short</option>
+                        <option value="3">Image</option>
+                        <option value="4">Video</option>
+                    </select>
+
+                    <label>Payment Type</label>
+                    <select ref="payType" defaultValue={campaignData.payType}>
+                        <option value="1">Pay Per Click</option>
+                        <option value="2">Pay Per View</option>
+                    </select>
+                </div>
 
                 <div className="form-step-nav">
                     <Button onClick={this.next}>Next</Button>

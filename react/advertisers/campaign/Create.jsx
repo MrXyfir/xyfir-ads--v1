@@ -8,9 +8,9 @@ var Final = require("./create/Final");
 /* Available to and Modified by All 'Step' Components */
 var campaignData = {
     name: "", type: 0, payType: 0, available: "",
-    genders: "", countries: "", regions: "", age: "",
-    category: "", keywords: "", sites: "",
-    requested: 0, allocated: 0.00, dailyFunds: 0.00, autobid: false, bid: 0.00,
+    genders: [false, true, true, true], countriesRegions: "", age: [false, true, true, true, true, true, true],
+    category: "", keywords: "", sites: [],
+    requested: 0, allocated: 10.00, dailyFunds: 0.00, autobid: false, bid: 0.00,
     title: "", link: "", description: "", media: ""
 };
 
@@ -27,10 +27,6 @@ module.exports = React.createClass({
     },
 
     /*
-        Step 3:
-            ct_category, ct_keywords, ct_sites
-        Step 4:
-            a_requested, f_allocated, f_daily, f_autobid | f_bid
         Step 5:
             a_media, a_description, a_title, a_link
     */
