@@ -26,10 +26,6 @@ module.exports = React.createClass({
         });
     },
 
-    /*
-        Step 5:
-            a_media, a_description, a_title, a_link
-    */
     render: function () {
         var step;
 
