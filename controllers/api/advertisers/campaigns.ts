@@ -75,7 +75,7 @@ export = {
         }
 
         // Validate daily allocated funds
-        if (req.body.f_daily) {
+        if (!!req.body.f_daily) {
             if (req.body.f_daily > req.body.f_allocated)
                 response = { error: true, message: "Daily allocated funds limit cannot be greater than total allocated" };
             if (req.body.f_daily < 0.50)
@@ -119,7 +119,7 @@ export = {
                     ut_genders: req.body.ut_genders,
                     ut_regions: req.body.ut_regions,
                     ct_keywords: req.body.ct_keywords,
-                    daily_funds: req.body.f_daily ? req.body.f_daily : 0,
+                    daily_funds: !!req.body.f_daily ? req.body.f_daily : 0,
                     ut_countries: req.body.ut_countries,
                     ct_categories: req.body.ct_categories,
                     ad_description: req.body.a_description
@@ -190,7 +190,7 @@ export = {
         }); // next()
 
         // Bid validation
-        if (req.body.f_autobid) {
+        if (!!req.body.f_autobid) {
             next();
         }
         else {
