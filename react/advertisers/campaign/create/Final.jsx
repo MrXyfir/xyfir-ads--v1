@@ -25,12 +25,12 @@ module.exports = React.createClass({
 
         // If all values in cd.genders/cd.age are the same, ut_value = 0
         var allGenders = true, allAges = true;
-        for (var i = 1; i < 5; i++) if (cd.genders[i] != cd.genders[1]) allGenders = false;
-        for (var i = 1; i < 8; i++) if (cd.age[i] != cd.age[1]) allAges = false;
+        for (var i = 1; i < 4; i++) if (cd.genders[i] != cd.genders[1]) allGenders = false;
+        for (var i = 1; i < 7; i++) if (cd.age[i] != cd.age[1]) allAges = false;
 
         if (!allGenders) {
             data.ut_genders = '';
-            for (var i = 1; i < 5; i++) {
+            for (var i = 1; i < 4; i++) {
                 if (cd.genders[i]) data.ut_genders += i + ','
             }
             data.ut_genders = data.ut_genders.substr(0, data.ut_genders.length - 1);
@@ -38,7 +38,7 @@ module.exports = React.createClass({
 
         if (!allAges) {
             data.ut_age = '';
-            for (var i = 1; i < 8; i++) {
+            for (var i = 1; i < 7; i++) {
                 if (cd.age[i]) data.ut_age += i + ','
             }
             data.ut_age = data.ut_age.substr(0, data.ut_age.length - 1);
