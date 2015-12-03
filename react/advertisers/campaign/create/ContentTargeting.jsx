@@ -1,28 +1,32 @@
-﻿var categorySearchResults = [], siteSearchResults = [], sites = [], categories = [];
+﻿var Button = require("../../../forms/Button");
+var Alert = require("../../../forms/Alert");
 
+var categorySearchResults = [], siteSearchResults = [];
+
+// ** Replace category textbox with scrollable selector
 module.exports = React.createClass({
 
-    getIntialState: function() {
-        return { error: false, message: '' };
+    getInitialState: function() {
+        return { error: false, message: '', trigger: false, sites: [], categories: [] };
     },
 
-    componentWillMount: function () {
+    componentWillMount: function() {
         // Load categories
         ajax({
             url: API + "pub/categories",
             dataType: "json",
-            success: function (res) {
-                sites = res.sites;
-            }
+            success: function(res) {
+                this.setState(res);
+            }.bind(this)
         });
 
         // Load sites
         ajax({
             url: API + "pub/sites",
             dataType: "json",
-            success: function (res) {
-                categories = res.categories;
-            }
+            success: function(res) {
+                this.setState(res);
+            }.bind(this)
         });
     },
 
@@ -36,15 +40,15 @@ module.exports = React.createClass({
 
     step: function(action) {
         // Ensure user provided a valid category
-        if (categories.indexOf(this.refs.category.value) == -1) {
+        if (this.state.categories.indexOf(this.refs.category.value) == -1) {
             this.setState({ error: true, message: "Invalid category provided" });
             return;
         }
 
         // Ensure user only selected sites in our publisher network
-        if (!!campaignData.sites.length) {
-            for (var i = 0; i < campaignData.sites.length; i++) {
-                if (sites.indexOf(campaignData.sites[i]) == -1) {
+        if (!!window.campaignData.sites.length) {
+            for (var i = 0; i < window.campaignData.sites.length; i++) {
+                if (this.state.sites.indexOf(window.campaignData.sites[i]) == -1) {
                     this.setState({ error: true, message: "Invalid website(s) provided" });
                     return;
                 }
@@ -57,42 +61,50 @@ module.exports = React.createClass({
             return;
         }
 
-        campaignData.category = this.refs.category.value, campaignData.keywords = this.refs.keywords.value;
+        window.campaignData.category = this.refs.category.value, window.campaignData.keywords = this.refs.keywords.value;
 
         this.props.step(action);
     },
 
     addSite: function() {
         // Add site if it doesn't exist
-        if (campaignData.sites.indexOf(this.refs.site.value) == -1)
-            campaignData.sites.push(this.refs.site.value);
+        if (window.campaignData.sites.indexOf(this.refs.site.value) == -1)
+            window.campaignData.sites.push(this.refs.site.value);
+
+        this.setState({ trigger: !this.state.trigger });
     },
 
     remSite: function() {
         // Remove site if it exists
-        var i = campaignData.sites.indexOf(this.refs.site.value);
+        var i = window.campaignData.sites.indexOf(this.refs.site.value);
 
-        if (i != -1) campaignData.sites.splice(i, 1);
+        if (i != -1) window.campaignData.sites.splice(i, 1);
+
+        this.setState({ trigger: !this.state.trigger });
     },
 
     searchSites: function() {
         // Save first 5 matches
         siteSearchResults = [];
-        sites.forEach(function (site) {
+        this.state.sites.forEach(function(site) {
             if (site.indexOf(this.refs.site.value) != -1 && siteSearchResults.length < 6) {
-                siteSearchResults.push(<span className="search-result">site</span>);
+                siteSearchResults.push(<span className="search-result">{site}</span>);
             }
-        });
+        }.bind(this));
+
+        this.setState({ trigger: !this.state.trigger });
     },
 
     searchCategories: function() {
         // Save first 5 matches
         categorySearchResults = [];
-        categories.forEach(function (category) {
+        this.state.categories.forEach(function(category) {
             if (category.indexOf(this.refs.category.value) != -1 && categorySearchResults.length < 6) {
-                categorySearchResults.push(<span className="search-result">category</span>);
+                categorySearchResults.push(<span className="search-result">{category}</span>);
             }
-        });
+        }.bind(this));
+
+        this.setState({ trigger: !this.state.trigger });
     },
 
     render: function () {
@@ -111,24 +123,24 @@ module.exports = React.createClass({
 
                     <label>Keywords</label>
                     <small>A comma delimited list of keywords that describe your advertisement and its targets.</small>
-                    <textarea defaultValue={campaignData.keywords}></textarea>
+                    <textarea defaultValue={window.campaignData.keywords} ref="keywords"></textarea>
 
                     <label>Category</label>
-                    <input type="text" ref="category" onKeyDown={this.searchCategories} defaultValue={campaignData.category} />
+                    <input type="text" ref="category" onKeyDown={this.searchCategories} defaultValue={window.campaignData.category} />
                     <div className="search-results">
                         {categorySearchResults}
                     </div>
 
                     <label>Sites</label>
                     <small>List sites in our publishers network that you would like your ad to appear on. Leave blank for all sites.</small>
-                    <input type="search" ref="site" onKeyDown={this.searchSites} />
+                    <input type="text" ref="site" onKeyDown={this.searchSites} />
                     <div className="search-results">
                         {siteSearchResults}
                     </div>
                     <Button type="primary btn-sm" onClick={this.addSite}>Add Site</Button>
                     <Button type="primary btn-sm" onClick={this.remSite}>Remove Site</Button>
                     <div className="target-sites">
-                        {campaignData.sites.join(", ")}
+                        {window.campaignData.sites.join(", ")}
                     </div>
                 </div>
 

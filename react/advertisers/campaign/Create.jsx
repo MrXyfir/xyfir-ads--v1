@@ -6,7 +6,7 @@ var Funds = require("./create/Funds");
 var Final = require("./create/Final");
 
 /* Available to and Modified by All 'Step' Components */
-var campaignData = {
+window.campaignData = {
     name: "", type: 0, payType: 0, available: "",
     genders: [false, true, true, true], countriesRegions: "", age: [false, true, true, true, true, true, true],
     category: "", keywords: "", sites: [],
@@ -22,7 +22,7 @@ module.exports = React.createClass({
 
     step: function(action) {
         this.setState({
-            step: action == '+' ? step++ : step--
+            step: action == '+' ? this.state.step + 1 : this.state.step - 1
         });
     },
 

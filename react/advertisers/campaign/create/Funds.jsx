@@ -1,9 +1,12 @@
-﻿module.exports = React.createClass({
+﻿var Button = require("../../../forms/Button");
+var Alert = require("../../../forms/Alert");
+
+module.exports = React.createClass({
 
     getInitialState: function() {
         return {
             error: false, message: '',
-            autobid: campaignData.autobid,
+            autobid: window.campaignData.autobid,
             pricing: {
                 base: 0, competitors: 0, average: 0, highest: 0
             }
@@ -12,14 +15,22 @@
 
     componentWillMount: function() {
         // Load pricing info for category+adtype+paytype
-        var url = API + "ad/pricing?adType=" + campaignData.type
-            + "&payType=" + campaignData.payType + "&category=" + campaignData.category;
+        var url = API + "ad/pricing?adType=" + window.campaignData.type
+            + "&payType=" + window.campaignData.payType + "&category="
+            + encodeURIComponent(window.campaignData.category);
 
         ajax({
-            url: URL,
+            url: url,
             dataType: "json",
-            sucess: function(res) {
-                this.setState({ pricing: res });
+            success: function(res) {
+                this.setState({
+                    pricing: {
+                        base: res.base,
+                        competitors: res.competitors,
+                        average: (res.average == null ? res.base : res.average),
+                        highest: (res.highest == null ? res.base : res.highest)
+                    }
+                });
             }.bind(this)
         });
     },
@@ -39,7 +50,7 @@
         ajax({
             url: API + "advertisers/account",
             dataType: "json",
-            sucess: function(res) {
+            success: function(res) {
                 // Check if user has enough funds in account
                 if (funds > res.funds) {
                     this.setState({ error: true, message: "You do not have enough funds in your account" });
@@ -58,20 +69,20 @@
                 if ((bid * requested) > funds) {
                     this.setState({
                         error: true,
-                        message: "Not enough allocated funds to pay for requested " + (campaignData.payType == 1 ? "clicks" : "views")
+                        message: "Not enough allocated funds to pay for requested " + (window.campaignData.payType == 1 ? "clicks" : "views")
                             + " at bid price of $" + bid
                     });
                     return;
                 }
 
-                if (dailyFunds > funds || dailyFunds < 0.50) {
+                if (dailyFunds > 0 && (dailyFunds > funds || dailyFunds < 0.50)) {
                     this.setState({ error: true, message: "Daily funds cannot be greater than allocated funds or less than $0.50" });
                     return;
                 }
 
-                // Save data to campaignData
-                campaignData.requested = requested, campaignData.allocated = funds, campaignData.dailyFunds = dailyFunds;
-                campaignData.autobid = this.state.autobid, campaignData.bid = (this.state.autobid ? 0.00 : bid);
+                // Save data to window.campaignData
+                window.campaignData.requested = requested, window.campaignData.allocated = funds, window.campaignData.dailyFunds = dailyFunds;
+                window.campaignData.autobid = this.state.autobid, window.campaignData.bid = (this.state.autobid ? 0.00 : bid);
 
                 this.props.step(action);
             }.bind(this)
@@ -101,10 +112,10 @@
         }
         else {
             bidding = (
-                <div>
+                <div className="form-step-body">
                     <label>Bid</label>
                     <small>Cannot be lower than category's base price.</small>
-                    <input type="number" step="0.001" ref="bid" min={this.state.pricing.base} defaultValue={campaignData.bid} />
+                    <input type="number" step="0.001" ref="bid" min={this.state.pricing.base} defaultValue={window.campaignData.bid} />
                 </div>
             );
         }
@@ -119,34 +130,38 @@
                 <div className="form-step-body">
                     {alert}
 
-                    <label>Requested {campaignData.payType == 1 ? "Clicks" : "Views"}</label>
-                    <input type="number" step="1000" defaultValue={campaignData.requested} ref="requested" />
+                    <label>Requested {window.campaignData.payType == 1 ? "Clicks" : "Views"}</label>
+                    <input type="number" step="1000" defaultValue={window.campaignData.requested} ref="requested" />
 
                     <label>Allocate Funds</label>
                     <small>Add funds from your account to the ad campaign.</small>
-                    <input type="number" min="10.00" defaultValue={campaignData.allocated} ref="funds" />
+                    <input type="number" min="10.00" defaultValue={window.campaignData.allocated} ref="funds" />
 
                     <label>Daily Funds Limit</label>
-                    <small>Prevent your campaign from costing more than your set limit per day. (leave at $0.00 for no limit)</small>
-                    <input type="number" defaultValue={campaignData.dailyFunds} ref="dailyFunds" />
+                    <small>
+                        Prevent your campaign from costing more than your set limit per day.
+                        <br />
+                        Leave at $0.00 for no limit.
+                    </small>
+                    <input type="number" defaultValue={window.campaignData.dailyFunds} ref="dailyFunds" />
 
                     <h3>Ad Pricing for Category</h3>
                     <div className="panels ad-pricing-info">
                         <div className="panel">
-                            <span className="panel-head">Base Price</span>
-                            <span className="panel-body">{'$' + this.state.pricing.base}</span>
+                            <div className="panel-title">Base Price</div>
+                            <div className="panel-body">{'$' + this.state.pricing.base}</div>
                         </div>
                         <div className="panel">
-                            <span className="panel-head">Competitors</span>
-                            <span className="panel-body">{this.state.pricing.competitors}</span>
+                            <div className="panel-title">Competitors</div>
+                            <div className="panel-body">{this.state.pricing.competitors}</div>
                         </div>
                         <div className="panel">
-                            <span className="panel-head">Average Bid</span>
-                            <span className="panel-body">{'$' + this.state.pricing.average}</span>
+                            <div className="panel-title">Average Bid</div>
+                            <div className="panel-body">{'$' + this.state.pricing.average}</div>
                         </div>
                         <div className="panel">
-                            <span className="panel-head">Highest Bid</span>
-                            <span className="panel-body">{'$' + this.state.pricing.highest}</span>
+                            <div className="panel-title">Highest Bid</div>
+                            <div className="panel-body">{'$' + this.state.pricing.highest}</div>
                         </div>
                     </div>
 

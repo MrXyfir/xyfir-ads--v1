@@ -1,4 +1,6 @@
 ﻿var dimensions = require("../../../../lib/file/dimensions");
+var Button = require("../../../forms/Button");
+var Alert = require("../../../forms/Alert");
 
 module.exports = React.createClass({
 
@@ -30,7 +32,7 @@ module.exports = React.createClass({
         }
         
         // Validate data for specific ad types
-        if (campaignData.type == 2) {
+        if (window.campaignData.type == 2) {
             if (this.refs.title.value.length > 15) {
                 this.setState({ error: true, message: "Short text ad titles cannot be longer than 15 characters" });
                 return;
@@ -40,22 +42,23 @@ module.exports = React.createClass({
                 return;
             }
         }
-        else if (campaignData.type == 3 || campaignData.type == 4) {
-            if (campaignData.media.split(',').length != 4) {
+        else if (window.campaignData.type == 3 || window.campaignData.type == 4) {
+            if (window.campaignData.media.split(',').length != 4) {
                 this.setState({ error: true, message: "Not all files have been uploaded" });
                 return;
             }
         }
 
-        // Save to campaignData
-        campaignData.title = this.refs.title.value, campaignData.link = this.refs.link.value;
-        campaignData.description = this.refs.description.value;
+        // Save to window.campaignData
+        window.campaignData.title = this.refs.title.value, window.campaignData.link = this.refs.link.value;
+        window.campaignData.description = this.refs.description.value;
 
         this.props.step(action);
     },
 
+    // ** Debug / test upload
     upload: function(i) {
-        var url = "api/upload?type=" + campaignData.type - 2 + "&size=" + i
+        var url = "api/upload?type=" + window.campaignData.type - 2 + "&size=" + i
             + "&url=" + this.refs["url-" + i].value;
 
         // Upload file
@@ -71,15 +74,15 @@ module.exports = React.createClass({
                     var addMedia = true;
 
                     // Replace link if it already exists
-                    campaignData.media.split(',').forEach(function (link) {
+                    window.campaignData.media.split(',').forEach(function (link) {
                         if (link.split(':')[0] == i) {
-                            campaignData.media.replace(link, i + ':' + res.link);
+                            window.campaignData.media.replace(link, i + ':' + res.link);
                             addMedia = false;
                         }
                     });
 
                     // Add media link
-                    if (addMedia) campaignData.media += ',' + i + ':' + res.link;
+                    if (addMedia) window.campaignData.media += ',' + i + ':' + res.link;
                 }
             }.bind(this)
         });
@@ -90,14 +93,14 @@ module.exports = React.createClass({
         if (this.state.error) alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
 
         // Allow user to upload images/videos for advertisement
-        if (campaignData.type == 1 || campaignData.type == 2) {
-            var rows = [], type = campaignData.type == 3 ? "image" : "video";
+        if (window.campaignData.type == 3 || window.campaignData.type == 4) {
+            var rows = [], type = window.campaignData.type == 3 ? "image" : "video";
             for (var i = 0; i < 4; i++) {
                 rows.push(
                     <tr>
                         <td>{dimensions[type][i].width + 'x' + dimensions[type][i].height}</td>
                         <td>{<input type="text" ref={"url-" + i} />}</td>
-                        <td>{campaignData.type == 3 ? "Image" : "Video"}</td>
+                        <td>{window.campaignData.type == 3 ? "Image" : "Video"}</td>
                         <td><a onClick={this.upload.bind(this, i)}>Upload</a></td>
                     </tr>
                 );
@@ -106,11 +109,11 @@ module.exports = React.createClass({
             // ** Add link for info about uploading
             manageMedia = (
                 <div className="manage-media">
-                    <h3>Upload {cmapaignData.type == 3 ? "Images" : "Videos"} for Advertisement</h3>
+                    <h3>Upload {window.campaignData.type == 3 ? "Images" : "Videos"} for Advertisement</h3>
                     <p>Files can only be uploaded via URL. Click <a href="">here</a> for more information regarding uploading.</p>
                     <table>
                         <tr>
-                            <th>Resolution</th><th>File</th><th>Type</th><th>Upload</th>
+                            <th>Resolution</th><th>File URL</th><th>Type</th><th>Upload</th>
                         </tr>
                         {rows}
                     </table>
@@ -130,15 +133,15 @@ module.exports = React.createClass({
 
                     <label>Link</label>
                     <small>Where users will be taken to when the click on your advertisement.</small>
-                    <input type="text" ref="link" value={campaignData.link} />
+                    <input type="text" ref="link" defaultValue={window.campaignData.link} />
 
                     <label>Title</label>
                     <small>The main title for your advertisement that users will see.</small>
-                    <input type="text" ref="title" value={campaignData.title} />
+                    <input type="text" ref="title" defaultValue={window.campaignData.title} />
 
                     <label>Description</label>
                     <small>Describe your advertisement in a short, descriptive way to engage users.</small>
-                    <textarea ref="description" defaultValue={campaignData.description}></textarea>
+                    <textarea ref="description" defaultValue={window.campaignData.description}></textarea>
 
                     {manageMedia}
                 </div>

@@ -1,6 +1,9 @@
-﻿module.exports = React.createClass({
+﻿var Button = require("../../../forms/Button");
+var Alert = require("../../../forms/Alert");
 
-    getInitialData: function() {
+module.exports = React.createClass({
+
+    getInitialState: function() {
         return {
             loading: true, error: false, message: ''
         };
@@ -8,22 +11,25 @@
 
     componentWillMount: function() {
         // Build data object from campaignData for 
-        var cd = campaignData, data = {
-            c_name: cd.name, a_type: cd.type, a_paytype: cd.payType, c_availibility: cd.available,
-            ct_category: cd.category, ct_keywords: cd.ct_keywords.replace(", ", ',').replace(" ,", ','),
-            ct_sites: cd.sites.join(','), a_requested: cd.requested, f_allocated: cd.allocated,
-            f_autobid: cd.autobid, f_bid: cd.bid, f_daily: cd.dailyFunds, a_link: cd.link,
-            a_title: cd.title, a_description: cd.description, a_media: cd.media,
-            ut_genders: 0, ut_age: 0, ut_countries: "", ut_regions: ""
+        var cd = window.campaignData;
+
+        var data = {
+            c_name: cd.name, a_type: cd.type, a_paytype: cd.payType, c_availability: cd.available,
+            ct_category: cd.category, ct_keywords: cd.keywords,
+            ct_sites: (cd.sites[0] == '' ? '*' : cd.sites.join(',')),
+            a_requested: cd.requested, f_allocated: cd.allocated, f_autobid: +cd.autobid,
+            f_bid: cd.bid, f_daily: cd.dailyFunds, a_link: cd.link, a_title: cd.title,
+            a_description: cd.description, a_media: cd.media, ut_genders: 0,
+            ut_age: 0, ut_countries: "", ut_regions: ""
         };
 
         // If all values in cd.genders/cd.age are the same, ut_value = 0
-        var gender = cd.genders[1], age = cd.age[1], allGenders = true, allAges = true;
-
-        cd.genders.forEach(function (g) { if (g != gender) allGenders = false; });
-        cd.age.forEach(function (a) { if (a != age) allAges = false; });
+        var allGenders = true, allAges = true;
+        for (var i = 1; i < 5; i++) if (cd.genders[i] != cd.genders[1]) allGenders = false;
+        for (var i = 1; i < 8; i++) if (cd.age[i] != cd.age[1]) allAges = false;
 
         if (!allGenders) {
+            data.ut_genders = '';
             for (var i = 1; i < 5; i++) {
                 if (cd.genders[i]) data.ut_genders += i + ','
             }
@@ -31,6 +37,7 @@
         }
 
         if (!allAges) {
+            data.ut_age = '';
             for (var i = 1; i < 8; i++) {
                 if (cd.age[i]) data.ut_age += i + ','
             }
@@ -55,13 +62,15 @@
             data.ut_regions = data.ut_regions.substr(1);
         }
 
+        console.log(data);
+
         // Send campaign to API
         ajax({
             url: API + "advertisers/campaigns",
             data: data,
             method: "POST",
             dataType: "json",
-            success: function (res) {
+            success: function(res) {
                 res.loading = false;
                 this.setState(res);
             }.bind(this)

@@ -1,11 +1,18 @@
-﻿module.exports = React.createClass({
+﻿var Button = require("../../../forms/Button");
+var Alert = require("../../../forms/Alert");
+
+module.exports = React.createClass({
+
+    getInitialState: function() {
+        return { error: false, message: '' };
+    },
 
     next: function () {
         var name = this.refs.name.value, type = this.refs.type.value, payType = this.refs.payType.value;
 
-        // Save data to campaignData even if it's not valid
-        campaignData.name = name, campaignData.type = type, campaignData.payType = payType;
-        campaignData.available = new Date().getTime() - (86400 * 1000) + '-';
+        // Save data to window.campaignData even if it's not valid
+        window.campaignData.name = name, window.campaignData.type = type, window.campaignData.payType = payType;
+        window.campaignData.available = Math.round((new Date().getTime() - (86400 * 1000)) / 1000) + '-';
 
         // Validate data
         if (!name.match(/^[\w\d -]{3,25}$/))
@@ -36,10 +43,10 @@
                     {alert}
 
                     <label>Campaign Name</label>
-                    <input ref="name" defaultValue={campaignData.name} />
+                    <input type="text" ref="name" defaultValue={window.campaignData.name} />
 
                     <label>Ad Type</label>
-                    <select ref="type" defaultValue={campaignData.type}>
+                    <select ref="type" defaultValue={window.campaignData.type}>
                         <option value="1">Text</option>
                         <option value="2">Short</option>
                         <option value="3">Image</option>
@@ -47,7 +54,7 @@
                     </select>
 
                     <label>Payment Type</label>
-                    <select ref="payType" defaultValue={campaignData.payType}>
+                    <select ref="payType" defaultValue={window.campaignData.payType}>
                         <option value="1">Pay Per Click</option>
                         <option value="2">Pay Per View</option>
                     </select>

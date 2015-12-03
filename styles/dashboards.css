@@ -54,6 +54,48 @@
     display: inline;
     width: 4em;
 }
+.country-region-selector {
+    margin-bottom: 2em;
+}
+.country-region-selector > .link-sm {
+    margin: 0.5em;
+}
+.target-sites {    
+    margin-top: 1em;
+    font-size: 90%;
+}
+.search-results {
+    margin-bottom: 1em;
+}
+.search-results > .search-result {
+    margin: 0.5em;
+    color: #707070;
+    font-size: 90%;
+}
+.ad-pricing-info {    
+    max-width: 36em;
+    margin: auto;
+    margin-top: -1.3em;
+}
+.manage-media > table {
+    margin: auto;
+}
+
+.panel {
+    display: inline-block;
+    border: 1px solid $blue;
+    width: 10em;
+    margin: 1em;
+}
+.panel > .panel-title {
+    background-color: $blue;
+    color: #FFF;
+    font-size: 115%;
+}
+.panel > .panel-body {
+    padding: 1em;
+    font-size: 110%;
+}
 
 .campaign-top {
     display: table;
