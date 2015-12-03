@@ -20,6 +20,17 @@ export = {
 
             res.json({ sites: sites });
         }));
+    },
+
+    /*
+        GET api/pub/categories
+        RETURN
+            { categories: string[] }
+        DESCRIPTION
+            Return possible categories
+    */
+    categories: (req, res) => {
+        res.json({ categories: require("../../lib/category/list") });
     }
 
 };
