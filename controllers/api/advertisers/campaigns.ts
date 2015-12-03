@@ -75,7 +75,7 @@ export = {
         }
 
         // Validate daily allocated funds
-        if (!!req.body.f_daily) {
+        if (req.body.f_daily > 0) {
             if (req.body.f_daily > req.body.f_allocated)
                 response = { error: true, message: "Daily allocated funds limit cannot be greater than total allocated" };
             if (req.body.f_daily < 0.50)
@@ -102,11 +102,11 @@ export = {
                 // Setup object to insert into table
                 var data = {
                     name: req.body.c_name,
-                    cost: req.body.f_autobid ? 0 : req.body.f_bid,
+                    cost: req.body.f_autobid == 1 ? 0 : req.body.f_bid,
                     funds: req.body.f_allocated,
                     owner: req.session.uid,
                     ut_age: req.body.ut_age,
-                    autobid: req.body.f_autobid ? true : false,
+                    autobid: req.body.f_autobid,
                     ad_type: req.body.a_type,
                     ad_link: req.body.a_link,
                     ad_title: req.body.a_title,
@@ -121,7 +121,7 @@ export = {
                     ct_keywords: req.body.ct_keywords,
                     daily_funds: !!req.body.f_daily ? req.body.f_daily : 0,
                     ut_countries: req.body.ut_countries,
-                    ct_categories: req.body.ct_categories,
+                    ct_categories: req.body.ct_category,
                     ad_description: req.body.a_description
                 };
                 req.body = null, response = null;
@@ -190,7 +190,7 @@ export = {
         }); // next()
 
         // Bid validation
-        if (!!req.body.f_autobid) {
+        if (req.body.f_autobid == 1) {
             next();
         }
         else {
