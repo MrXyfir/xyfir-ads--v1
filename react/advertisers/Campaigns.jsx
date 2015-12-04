@@ -7,7 +7,7 @@ module.exports = React.createClass({
     render: function () {
         // Determine campaign ID and action if user
         // is accessing a single campaign
-        if (this.props.view == "campaign-mange") {
+        if (this.props.view == "campaign-manage") {
             var a = document.createElement('a');
             a.href = location.href;
 

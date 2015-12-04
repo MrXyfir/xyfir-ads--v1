@@ -15,6 +15,11 @@ module.exports = React.createClass({
             success: function(res) {
                 res.confirm = true;
                 this.setState(res);
+
+                // Send user back to their campaigns
+                setTimeout(function () {
+                    window.location.href = "../../campaigns";
+                }, 7 * 1000);
             }.bind(this)
         });
     },

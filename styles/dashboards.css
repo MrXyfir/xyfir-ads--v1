@@ -16,18 +16,60 @@
   color: #fff;
 }
 
-.advertisers-nav {    
+.advertisers-nav, .advertisers-nav-sub {
     padding: 1em;
     background-color: #f7f7f7;
-    width: 75%;
     margin: auto;
     border: 1px solid #f0f0f0
 }
-.advertisers-nav > .link-lg {
+.advertisers-nav > .link-lg, .advertisers-nav-sub > .link-lg {
     margin: 1em;
+}
+.advertisers-nav {
+    width: 75%;
+}
+.advertisers-nav-sub {
+    width: 60%;
+    margin-top: 1em;
 }
 .advertisers-campaigns-campaign {
     margin: 1.5em;
+}
+.advertisers-campaign > h2, .campaign-reports > .report > h3 {
+    margin-bottom: -0.5em;
+}
+table.demographics > tbody > tr > td > span {
+    margin: 0.2em;
+}
+table.demographics > tbody > tr > td > span > b,
+table.geo > tbody > tr > td > b {
+    color: #777;
+}
+.advertisers-campaign > table, .report > table {
+    margin: auto;
+    border-spacing: 0.2em;
+    border-collapse: separate;
+}
+.advertisers-campaign > table > tbody > tr > td {
+    max-width: 35em;
+}
+.campaign-user-targeting > tbody > .geo > td > span > b {
+    color: #777;
+}
+.campaign-content-targeting > tbody > .keywords > td > span,
+.campaign-content-targeting > tbody > .sites > td > span {
+    margin: 0.2em;
+    font-size: 90%;
+}
+.campaign-user-targeting > tbody > .age-ranges > td > span,
+.campaign-user-targeting > tbody > .genders > td > span {
+    margin: 0.2em;
+}
+.campaign-edit > .basic-info {
+    margin-top: 2em;
+}
+.campaign-edit > div > h3 {
+    margin-bottom: 0em;
 }
 .advertisers-account-payments {
     margin-top: 2em;

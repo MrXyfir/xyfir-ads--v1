@@ -20,7 +20,7 @@ module.exports = React.createClass({
             ad: {
                 type: 0
             },
-            error: false, message: ""
+            error: false, message: "", loading: true
         };
     },
 
@@ -29,8 +29,10 @@ module.exports = React.createClass({
         ajax({
             url: API + "advertisers/campaigns/" + this.props.id,
             dataType: "json",
-            success: function (res) {
-                this.setState(res, function () {
+            success: function(res) {
+                res.loading = false;
+
+                this.setState(res, function() {
                     var url = API + "ad/pricing?adType=" + this.state.ad.type
                         + "&payType=" + this.state.payType + "&category="
                         + encodeURIComponent(this.state.contentTargets.categories);
@@ -39,7 +41,7 @@ module.exports = React.createClass({
                     ajax({
                         url: url,
                         dataType: "json",
-                        success: function (res) {
+                        success: function(res) {
                             this.setState({
                                 pricing: {
                                     base: res.base,
@@ -74,7 +76,7 @@ module.exports = React.createClass({
     // Set daily allocated funds limit
     dailyBudget: function() {
         ajax({
-            url: API + "api/advertisers/campaigns/" + this.props.id + "/budget",
+            url: API + "advertisers/campaigns/" + this.props.id + "/budget",
             data: {
                 dailyBudget: +this.refs.dailyBudget.value
             },
@@ -132,7 +134,12 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        if (this.state.ended || !this.state.approved) return;
+        if (this.state.loading) {
+            return <div></div>;
+        }
+        else if (this.state.ended || !this.state.approved) {
+            return <Alert type="error" title="Error!">You cannot edit pending or ended campaigns.</Alert>;
+        }
 
         var c = this.state, alert, bidding;
 
@@ -159,7 +166,7 @@ module.exports = React.createClass({
         else {
             bidding = (
                 <div>
-                    <label>Bid</label>
+                    <h3>Bid</h3>
                     <small>Cannot be lower than category's base price.</small>
                     <input type="number" step="0.001" ref="bid" min={c.pricing.base} defaultValue={c.cost} />
                 </div>
@@ -170,15 +177,15 @@ module.exports = React.createClass({
             <div className="campaign-edit">
                 {alert}
 
-                <div className="form-group">
-                    <label>Campaign Name</label>
+                <div className="form-group basic-info">
+                    <h3>Campaign Name</h3>
                     <input type="text" ref="name" defaultValue={c.name} />
 
-                    <label>Requested</label>
-                    <small>Add amount to requested.</small>
+                    <h3>Requested</h3>
+                    <small>Add amount to requested {c.payType == 1 ? "clicks" : "views"}.</small>
                     <input type="number" ref="requested" step="1000" />
 
-                    <label>Keywords</label>
+                    <h3>Keywords</h3>
                     <textarea ref="keywords" defaultValue={c.contentTargets.keywords}></textarea>
 
                     <Button onClick={this.update}>Update</Button>
@@ -188,7 +195,6 @@ module.exports = React.createClass({
 
                 <h3>Funds</h3>
                 <div className="form-group add-funds">
-                    {alert}
                     <select ref="addFundsAction">
                         <option value="add">Add Funds to Campaign</option>
                         <option value="rem">Remove Funds From Campaign</option>
@@ -230,7 +236,7 @@ module.exports = React.createClass({
                         </div>
                     </div>
                     
-                    <a onClick={toggleBidType}>Switch to {c.autobid ? "Manual" : "Automatic"} Bidding</a>
+                    <a onClick={this.toggleBidType}>Switch to {c.autobid ? "Manual" : "Automatic"} Bidding</a>
                     
                     {bidding}
                     

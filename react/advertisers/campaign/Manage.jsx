@@ -10,11 +10,11 @@ module.exports = React.createClass({
 
         switch (this.props.action) {
             case "end":
-                step = <End id={this.props.id} />;
+                step = <End id={this.props.id} />; break;
             case "view":
-                step = <View id={this.props.id} />;
+                step = <View id={this.props.id} />; break;
             case "edit":
-                step = <Edit id={this.props.id} />;
+                step = <Edit id={this.props.id} />; break;
             case "reports":
                 step = <Reports id={this.props.id} />;
         }

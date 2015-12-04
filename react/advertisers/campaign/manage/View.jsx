@@ -7,7 +7,7 @@ module.exports = React.createClass({
     getInitialState: function() {
         return {
             name: "", funds: 0, dailyFunds: 0, dailyFundsUsed: 0, ended: false,
-            payType: 0, cost: 0, autobid: bool, requested: 0,
+            payType: 0, cost: 0, autobid: false, requested: 0,
             provided: 0, available: "", approved: false,
             ad: {
                 type: 0, title: "", description: "", link: "", media: "",
@@ -33,7 +33,8 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        if (this.state.name == "") return;
+        if (this.state.name == "")
+            return <div></div>;
 
         var c = this.state, status = "", alert;
 
@@ -50,9 +51,9 @@ module.exports = React.createClass({
             <div className="advertisers-campaign">
                 <h2>{c.name}</h2>
                 <p>
-                    <b>{status}</b> campaign 
-                    <b>{c.provided == 0 ? "0.00" : Number(Math.round((c.requested / c.provided) + 'e' + 2) + 'e-' + 2)}%</b>
-                    complete
+                    <b>{status}</b> Campaign
+                    <b> | {c.provided == 0 ? "0.00" : Number(Math.round((c.requested / c.provided) + 'e' + 2) + 'e-' + 2)}% </b>
+                    Complete
                 </p>
                 
                 <hr />
@@ -66,7 +67,7 @@ module.exports = React.createClass({
                         <th>Requested {c.payType == 1 ? "Clicks" : "Views"}</th><td>{c.requested}</td>
                     </tr>
                     <tr>
-                        <th>Provided {c.payType == 1 ? "Clicks" : "Views"}</th><td>{c.Provided}</td>
+                        <th>Provided {c.payType == 1 ? "Clicks" : "Views"}</th><td>{c.provided}</td>
                     </tr>
                     <tr>
                         <th>{c.autobid ? "Autobid" : "Bid"}</th><td>{c.autobid ? "Enabled" : '$' + c.cost}</td>
@@ -127,7 +128,7 @@ module.exports = React.createClass({
                 <hr />
 
                 <h3>Content Targeting</h3>
-                <table className="campaign-user-targeting">
+                <table className="campaign-content-targeting">
                     <tr className="category">
                         <th>Category</th><td>{c.contentTargets.categories}</td>
                     </tr>
@@ -137,14 +138,18 @@ module.exports = React.createClass({
                     </tr>
                     <tr className="sites">
                         <th>Sites</th>
-                        <td>{c.contentTargets.sites.split(',').map(function(site) { return(<span>{site}</span>); })}</td>
+                        <td>{
+                            c.contentTargets.sites == '*'
+                            ? "All Sites"
+                            : c.contentTargets.sites.split(',').map(function(site) { return(<span>{site}</span>); })
+                        }</td>
                     </tr>
                 </table>
 
                 <hr />
 
                 <h3>Advertisement</h3>
-                media: "",
+
                 <table className="campaign-advertisement">
                     <tr>
                         <th>Type</th><td>{['', "Text", "Short Text", "Image", "Video"][c.ad.type]}</td>

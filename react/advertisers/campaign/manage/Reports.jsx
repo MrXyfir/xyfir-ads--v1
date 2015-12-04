@@ -5,7 +5,8 @@ module.exports = React.createClass({
     getInitialState: function() {
         return {
             clicks: 0, views: 0, cost: 0, publishers: "",
-            dem_age: "", dem_gender: "", dem_geo: ""
+            dem_age: "", dem_gender: "", dem_geo: "",
+            loading: true
         };
     },
 
@@ -17,6 +18,7 @@ module.exports = React.createClass({
             url: url,
             dataType: "json",
             success: function(res) {
+                res.loading = false;
                 this.setState(res);
             }.bind(this)
         });
@@ -27,9 +29,11 @@ module.exports = React.createClass({
         if (this.refs.end.value != "")
             dates += '|' + this.refs.end.value;
 
+        var url = API + "advertisers/campaigns/" + this.props.id + "/reports"
+            + "?dates=" + dates;
+
         ajax({
-            url: API + "advertisers/campaigns/" + this.props.id + "/reports"
-                + "?dates=" + dates,
+            url: url,
             dataType: "json",
             success: function(res) {
                 this.setState(res);
@@ -38,33 +42,27 @@ module.exports = React.createClass({
     },
 
     render: function() {
+        if (this.state.loading) return <div></div>;
+
         var s = this.state, ages = ["Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"],
-            genders = ["Unkown", "Male", "Female", "Other"], countries = [], regions = [], geo = [];
+            genders = ["Unkown", "Male", "Female", "Other"];
 
         s.dem_geo = JSON.parse(s.dem_geo);
 
-        // Populate countries[] and regions[]
+        /* Populate countries[] and regions[]
         for (var country in s.dem_geo) {
             if (s.dem_geo.hasOwnProperty(country)) {
-                countries.push(country);
+                countries[i] = country, regions[i] = [];
 
-                for (var region in country) {
-                    if (country.hasOwnProperty(region)) {
-                        regions.push(<span><b>{region}</b>({country[region]})</span>);
+                for (var region in s.dem_geo[country]) {
+                    if (s.dem_geo[country].hasOwnProperty(region)) {
+                        regions[i].push([region, s.dem_geo[country][region]]);
                     }
                 }
-            }
-        }
 
-        // Build geo from countries[] and regions[]
-        for (var i = 0; i < countries.length; i++) {
-            geo.push(
-                <tr>
-                    <th>{counties[i]}</th>
-                    <td>{regions[i]}</td>
-                </tr>
-            );
-        }
+                i++;
+            }
+        }*/
 
         return(
             <div className="campaign-reports">
@@ -80,11 +78,10 @@ module.exports = React.createClass({
 
                 <hr />
 
-                <h2>Report</h2>
                 <div className="report">
                     <h3>Statistics</h3>
+                    <p>Statistics generated over the given time period.</p>
                     <table className="statistics">
-                        clicks / views / cost / ctr
                         <tr>
                             <th>Clicks</th><td>{s.clicks}</td>
                         </tr>
@@ -129,7 +126,7 @@ module.exports = React.createClass({
                     <h3>Countries / Regions</h3>
                     <p>Geographic demographics are <em>only</em> for clicks received.</p>
                     <table className="geo">
-                        {geo}
+
                     </table>
 
                     <h3>Top Publishers</h3>
