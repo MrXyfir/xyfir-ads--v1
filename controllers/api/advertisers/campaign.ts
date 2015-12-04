@@ -308,7 +308,8 @@ export = {
     */
     budget: (req, res) => {
         // Check if daily budget >= minimum amount
-        if (req.body.dailyBudget < 0.50) {
+        // dailyBudget can be 0, to remove limit
+        if (req.body.dailyBudget > 0 && req.body.dailyBudget < 0.50) {
             res.json({ error: true, message: "Daily allocated funds cannot be less than $0.50" });
             return;
         }
