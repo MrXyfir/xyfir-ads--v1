@@ -74,24 +74,32 @@ module.exports = React.createClass({
         if (this.state.loading) return <div></div>;
 
         var s = this.state, ages = ["Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"],
-            genders = ["Unkown", "Male", "Female", "Other"];
+            genders = ["Unkown", "Male", "Female", "Other"], geo = [];
         
-        if (s.dem_geo != "") s.dem_geo = JSON.parse(s.dem_geo);
+        // Convert {CO:{RE:20,RE:20},CO:{...}...}
+        // to [{country:"",regions:[{region:"",clicks:0},...]},...]
+        if (s.dem_geo != "") {
+            s.dem_geo = JSON.parse(s.dem_geo);
+            var temp;
 
-        /* Populate countries[] and regions[]
-        for (var country in s.dem_geo) {
-            if (s.dem_geo.hasOwnProperty(country)) {
-                countries[i] = country, regions[i] = [];
+            for (var country in s.dem_geo) {
+                if (s.dem_geo.hasOwnProperty(country)) {
+                    temp = {};
 
-                for (var region in s.dem_geo[country]) {
-                    if (s.dem_geo[country].hasOwnProperty(region)) {
-                        regions[i].push([region, s.dem_geo[country][region]]);
+                    temp.country = country, temp.regions = [];
+
+                    for (var region in s.dem_geo[country]) {
+                        if (s.dem_geo[country].hasOwnProperty(region)) {
+                            temp.regions.push({
+                                region: region, clicks: s.dem_geo[country][region],
+                            });
+                        }
                     }
-                }
 
-                i++;
+                    geo.push(temp);
+                }
             }
-        }*/
+        }
 
         return(
             <div className="campaign-reports">
@@ -154,9 +162,22 @@ module.exports = React.createClass({
 
                     <h3>Countries / Regions</h3>
                     <p>Geographic demographics are <em>only</em> for clicks received.</p>
-                    <table className="geo">
-
-                    </table>
+                    <table className="geo">{
+                        geo.map(function(c) {
+                            return(
+                                <tr>
+                                    <th>{c.country}</th>
+                                    <td>{
+                                        c.regions.map(function(r) {
+                                            return(
+                                                <span>{r.name}({r.clicks})</span>
+                                            );
+                                        })
+                                    }</td>
+                                </tr>
+                            );
+                        })
+                    }</table>
 
                     <h3>Top Publishers</h3>
                     <p>Publishers who are serving your ad the most.</p>
