@@ -10,9 +10,10 @@
 
     componentWillMount: function () {
         ajax({
-            url: URL + "api/publishers/campaigns",
+            url: API + "publishers/campaigns",
             dataType: "json",
             success: function(res) {
+                console.log(res);
                 this.setState(res);
             }.bind(this)
         });
@@ -22,7 +23,7 @@
         var campaigns = [];
 
         if (!this.state.campaigns.length) {
-            campaigns.push(
+            return(
                 <div className="publishers-campaigns-none">
                     <h3>You do not have any active campaigns!</h3>
                 </div>
@@ -41,11 +42,11 @@
                         <td className="type">{c.type == 1 ? "Site" : "App"}</td>
                     </tr>
                 ); 
-            });
+            }.bind(this));
         }
 
         return (
-            <table className="advertisers-campaigns">
+            <table className="publishers-campaigns">
                 {campaigns}
             </table>
         );

@@ -20,8 +20,8 @@ module.exports = React.createClass({
         }
 
         return (
-            <div className="advertisers-campaign-manage">
-                <div className="advertisers-nav-sub">
+            <div className="publishers-campaign-manage">
+                <div className="publishers-nav-sub">
                     <a onClick={this.props.updateRoute.bind(this, route)} className="link-lg">View</a>
                     <a onClick={this.props.updateRoute.bind(this, route + "/reports")} className="link-lg">Reports</a>
                     <a onClick={this.props.updateRoute.bind(this, route + "/edit")} className="link-lg">Edit</a>

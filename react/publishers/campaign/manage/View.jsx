@@ -28,19 +28,19 @@ module.exports = React.createClass({
         var c = this.state;
 
         return(
-            <div className="advertisers-campaign">
+            <div className="publishers-campaign">
                 <h2><a href={c.site} target="_blank">{c.name}</a></h2>
 
                 <h3>Statistics</h3>
                 <table className="campaign-statistics">
                     <tr>
-                        <th>Type</th><td>{c.payType == 1 ? "Website" : "App / Web App"}</td>
+                        <th>Type</th><td>{c.type == 1 ? "Website" : "App / Web App"}</td>
                     </tr>
                     <tr>
-                        <th>Clicks</th><td>{c.clicks}</td>
+                        <th>Clicks</th><td>{c.clicks == 0 ? "None" : c.clicks}</td>
                     </tr>
                     <tr>
-                        <th>Views</th><td>{c.views}</td>
+                        <th>Views</th><td>{c.views == 0 ? "None" : c.views}</td>
                     </tr>
                     <tr>
                         <th>CTR</th><td>{c.clicks == 0 ? "0.00" : c.clicks / c.views}%</td>
@@ -69,7 +69,7 @@ module.exports = React.createClass({
                 }</div>
 
                 <h4>Categories</h4>
-                <div className="categories">{
+                <div className="category-selected">{
                     c.categories.split(',').map(function(cat) {
                         return(<span>{cat}</span>);
                     })

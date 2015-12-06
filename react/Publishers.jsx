@@ -2,7 +2,7 @@
 var Campaigns = require("./publishers/Campaigns");
 var Account = require("./publishers/Account");
 
-var Advertisers = React.createClass({
+var Publishers = React.createClass({
 
     getInitialState: function() {
         return { view: "account" };

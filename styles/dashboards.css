@@ -1,37 +1,3 @@
-.dashboard-nav {
-  padding: 0.4em;
-  text-align: center;
-}
-.dashboard-nav > .col-sm-12 {
-  background-color: #eee;
-  font-size: 2em;
-  margin: 0.3em;
-  padding: 0.2em;
-}
-.dashboard-nav > .col-sm-12:hover {
-  background-color: #ddd;
-}
-.dashboard-nav > .dashboard-nav-active:hover, .dashboard-nav > .dashboard-nav-active {
-  background-color: $lblack;
-  color: #fff;
-}
-
-.advertisers-nav, .advertisers-nav-sub {
-    padding: 1em;
-    background-color: #f7f7f7;
-    margin: auto;
-    border: 1px solid #f0f0f0
-}
-.advertisers-nav > .link-lg, .advertisers-nav-sub > .link-lg {
-    margin: 1em;
-}
-.advertisers-nav {
-    width: 75%;
-}
-.advertisers-nav-sub {
-    width: 60%;
-    margin-top: 1em;
-}
 .advertisers-campaigns-campaign {
     margin: 1.5em;
 }
@@ -44,11 +10,6 @@ table.demographics > tbody > tr > td > span {
 table.demographics > tbody > tr > td > span > b,
 table.geo > tbody > tr > td > b {
     color: #777;
-}
-.advertisers-campaign > table, .report > table {
-    margin: auto;
-    border-spacing: 0.2em;
-    border-collapse: separate;
 }
 .advertisers-campaign > table > tbody > tr > td {
     max-width: 35em;
@@ -106,14 +67,6 @@ table.geo > tbody > tr > td > b {
     margin-top: 1em;
     font-size: 90%;
 }
-.search-results {
-    margin-bottom: 1em;
-}
-.search-results > .search-result {
-    margin: 0.5em;
-    color: #707070;
-    font-size: 90%;
-}
 .ad-pricing-info {    
     max-width: 36em;
     margin: auto;
@@ -123,6 +76,76 @@ table.geo > tbody > tr > td > b {
     margin: auto;
 }
 
+
+
+.publishers-account-payments {
+    margin-bottom: 3em;
+}
+.category-selected > span {
+    margin: 0.2em;
+}
+.publishers-campaigns {    
+    margin: auto;
+    margin-top: 3em;
+    border-spacing: 0.5em;
+    border-collapse: separate;
+    font-size: 125%;
+}
+.publishers-campaigns > .campaign > .name {
+    font-weight: bold;
+}
+.publishers-campaigns > .campaign > .site {
+    color: #777;
+}
+.keywords > span {
+    margin: 0.2em;
+    font-size: 90%;
+}
+.publishers-campaign > h3 {
+    margin-bottom: 0em;
+}
+.publishers-campaign > h4 {
+    margin-bottom: 0.3em;
+}
+.publishers-campaign-manage > .campaign-reports > .report > h3 {
+    margin-bottom: 0em;
+}
+
+
+.search-results {
+    max-width: 50em;
+    margin: 1em auto;
+}
+.search-results > .search-result {
+    margin: 0.5em;
+    color: #707070;
+    font-size: 90%;
+}
+.advertisers-nav, .advertisers-nav-sub,
+.publishers-nav, .publishers-nav-sub {
+    padding: 1em;
+    background-color: #f7f7f7;
+    margin: auto;
+    border: 1px solid #f0f0f0;
+}
+.advertisers-nav > .link-lg, .advertisers-nav-sub > .link-lg,
+.publishers-nav > .link-lg, .publishers-nav-sub > .link-lg {
+    margin: 1em;
+}
+.advertisers-nav, .publishers-nav {
+    width: 75%;
+}
+.advertisers-nav-sub, .publishers-nav-sub {
+    width: 60%;
+    margin-top: 1em;
+}
+.advertisers-campaign > table, .report > table,
+.publishers-account-payments > table,
+.publishers-campaign > table {
+    margin: auto;
+    border-spacing: 0.2em;
+    border-collapse: separate;
+}
 .panel {
     display: inline-block;
     border: 1px solid $blue;

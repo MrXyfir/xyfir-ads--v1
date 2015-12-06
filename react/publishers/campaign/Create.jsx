@@ -1,7 +1,7 @@
 ﻿var Button = require("../../forms/Button");
 var Alert = require("../../forms/Alert");
 
-modules.exports = react.createClass({
+module.exports = React.createClass({
 
     getInitialState: function() {
         return {
@@ -36,14 +36,6 @@ modules.exports = react.createClass({
         // Add category if it doesn't exist in selected categories
         if (this.state.selectedCategories.indexOf(this.refs.category.value) == -1 && this.state.selectedCategories.length < 3)
             this.setState({ selectedCategories: this.state.selectedCategories.concat(this.refs.category.value) });
-    },
-
-    remCategory: function() {
-        // Remove site if it exists
-        var i = this.state.selectedCategories.indexOf(this.refs.category.value);
-
-        if (i != -1)
-            this.setState({ selectedCategories: this.state.selectedCategories.splice(i, 1) });
     },
 
     createCampaign: function() {
@@ -83,6 +75,13 @@ modules.exports = react.createClass({
     },
 
     render: function() {
+        var alert;
+
+        if (this.state.error)
+            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>
+        else if (this.state.message != "")
+            alert = <Alert type="success" title="Success!">{this.state.message}</Alert>
+
         return (
             <div className="publishers-campaign-create form-step">
                 <div className="form-step-head">
@@ -90,6 +89,8 @@ modules.exports = react.createClass({
                 </div>
 
                 <div className="form-step-body">
+                    {alert}
+
                     <label>Campaign Name</label>
                     <input type="text" ref="name" />
 
@@ -113,9 +114,8 @@ modules.exports = react.createClass({
                     <label>Category</label>
                     <input type="text" ref="category" onChange={this.categorySearch} />
                     <Button type="primary btn-sm" onClick={this.addCategory}>Add Category</Button>
-                    <Button type="primary btn-sm" onClick={this.remCategory}>Remove Category</Button>
 
-                    <div className="category-search-results">{
+                    <div className="search-results">{
                         this.state.categorySearchResults.map(function(category) {
                             return(<span className="search-result">{category}</span>);
                         })

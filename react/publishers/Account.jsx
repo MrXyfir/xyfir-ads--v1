@@ -34,7 +34,7 @@ module.exports = React.createClass({
 
     updatePaymentInfo: function () {
         ajax({
-            URL: API + "publishers/account",
+            url: API + "publishers/account",
             data: {
                 paymentMethod: +this.refs.paymentMethod.value,
                 paymentInfo: JSON.stringify({
@@ -83,17 +83,19 @@ module.exports = React.createClass({
 
         /* Build Payment Info Form */
         if (this.state.paymentMethod == 1) {
+            // For some reason React is completely incapable of accepting
+            // variables for value of defaultValue={} attributes ONLY here
             paymentInfoForm = (
                 <div className="payment-info-check">
                     <label>Full Name</label>
-                    <input type="text" ref="name" defaultValue={s.payment.info.name ? s.payment.info.name : ""} />
+                    <input type="text" ref="name" />
 
                     <label>Address</label>
-                    <input type="text" ref="address" defaultValue={s.payment.info.address ? s.payment.info.address : ""} />
-                    <input type="text" ref="address2" defaultValue={s.payment.info.address2 ? s.payment.info.address2 : ""} />
+                    <input type="text" ref="address" />
+                    <input type="text" ref="address2" />
 
                     <label>ZIP Code</label>
-                    <input type="text" ref="zip" defaultValue={s.payment.info.zip ? s.payment.info.zip : ""} />
+                    <input type="text" ref="zip" />
 
                     <label>Country</label>
                     <select ref="country">
@@ -138,7 +140,7 @@ module.exports = React.createClass({
                 </select>
                 {paymentInfoForm}
 
-                <button onClick={this.updatePaymentInfo}>Update</button>
+                <Button onClick={this.updatePaymentInfo}>Update</Button>
             </div>
         );
     }

@@ -44,6 +44,8 @@ module.exports = React.createClass({
         if (this.state.loading)
             return <div></div>;
 
+        var s = this.state;
+
         return(
             <div className="campaign-reports">
                 <h3>Generate Report</h3>
@@ -82,7 +84,7 @@ module.exports = React.createClass({
                         </tr>
                     </table>
 
-                    <h3>Top Advertisers</h3>
+                    <h3>{s.ads == "" ? "" : "Top Advertisers"}</h3>
                     <table className="top-advertisers">{
                         s.ads.split(',').map(function(ad) {
                             return(
