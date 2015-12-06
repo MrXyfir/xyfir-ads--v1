@@ -170,13 +170,13 @@ export = {
         // Payment via check
         if (req.body.paymentMethod == 1) {
             // Validate info pertaining to check
-            if (!info.name.match(/^([\w-]{3,20}\s?){2,3}$/))
+            if (!info.name.match(/^([\w-]{2,20}\s?){2,3}$/))
                 res.json({ error: true, message: "Invalid name" });
             else if (!info.address.match(/^[\w\d -.#,]{5,50}$/))
                 res.json({ error: true, message: "Invalid address" });
             else if (!info.address2.match(/^[\w\d -.#,]{0,50}$/))
                 res.json({ error: true, message: "Invalid address" });
-            else if (!info.zip.match(/^[0-9]{5}$/))
+            else if (!String(info.zip).match(/^[0-9]{5}$/))
                 res.json({ error: true, message: "Invalid zip code (US ONLY)" });
             else if (info.country != "US")
                 res.json({ error: true, message: "Checks are only available for US publishers" });
