@@ -53,7 +53,7 @@ module.exports = React.createClass({
                 // cr == US:CA,FL,OR,...
                 var temp = cr.split(':');
 
-                data.ut_countries += '|' + temp[0];
+                data.ut_countries += ',' + temp[0];
                 data.ut_regions += '|' + temp[1];
             });
 
