@@ -18,7 +18,7 @@ module.exports = React.createClass({
             dataType: "json",
             success: function(res) {
                 res.loading = false;
-                this.setState(res);
+                this.setState(res, function () { this.idToAd(); });
             }.bind(this)
         });
     },
@@ -35,9 +35,38 @@ module.exports = React.createClass({
             url: url,
             dataType: "json",
             success: function(res) {
-                this.setState(res);
+                this.setState(res, function () { this.idToAd(); });
             }.bind(this)
         });
+    },
+
+    // Take list of ad campaign ids:clicks and convert id to ad's title
+    idToSite: function () {
+        if (this.state.ads == "")
+            return;
+
+        var arr = this.ads.publishers.split(',');
+
+        var convert = function (i) {
+            // Looped through all ids, set state.ads
+            if (arr[i] == undefined) {
+                this.setState({ ads: arr.join(',') });
+                return;
+            }
+
+            var temp = arr[i].split(':');
+
+            ajax({
+                url: API + "ad/info?id=" + temp[0],
+                dataType: "json",
+                success: function (res) {
+                    arr[i] = res.title + ':' + temp[1];
+                    convert(i++);
+                }
+            });
+        };
+
+        convert(0);
     },
 
     render: function() {
@@ -84,7 +113,8 @@ module.exports = React.createClass({
                         </tr>
                     </table>
 
-                    <h3>{s.ads == "" ? "" : "Top Advertisers"}</h3>
+                    <h3>Top Advertisements</h3>
+                    <p>Advertisements your users are clicking most.</p>
                     <table className="top-advertisers">{
                         s.ads.split(',').map(function(ad) {
                             return(

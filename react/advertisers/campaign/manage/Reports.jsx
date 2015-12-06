@@ -19,7 +19,7 @@ module.exports = React.createClass({
             dataType: "json",
             success: function(res) {
                 res.loading = false;
-                this.setState(res);
+                this.setState(res, function () { this.idToSite(); });
             }.bind(this)
         });
     },
@@ -36,9 +36,38 @@ module.exports = React.createClass({
             url: url,
             dataType: "json",
             success: function(res) {
-                this.setState(res);
+                this.setState(res, function() { this.idToSite(); });
             }.bind(this)
         });
+    },
+
+    // Take list of pub campaign ids:clicks and convert id to site address
+    idToSite: function() {
+        if (this.state.publishers == "")
+            return;
+
+        var arr = this.state.publishers.split(',');
+
+        var convert = function(i) {
+            // Looped through all ids, set state.publishers
+            if (arr[i] == undefined) {
+                this.setState({ publishers: arr.join(',') });
+                return;
+            }
+
+            var temp = arr[i].split(':');
+
+            ajax({
+                url: API + "pub/info?id=" + temp[0],
+                dataType: "json",
+                success: function(res) {
+                    arr[i] = res.site + ':' + temp[1];
+                    convert(i++);
+                }
+            });
+        };
+
+        convert(0);
     },
 
     render: function() {
@@ -46,8 +75,8 @@ module.exports = React.createClass({
 
         var s = this.state, ages = ["Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"],
             genders = ["Unkown", "Male", "Female", "Other"];
-
-        s.dem_geo = JSON.parse(s.dem_geo);
+        
+        if (s.dem_geo != "") s.dem_geo = JSON.parse(s.dem_geo);
 
         /* Populate countries[] and regions[]
         for (var country in s.dem_geo) {
