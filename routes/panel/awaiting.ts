@@ -1,5 +1,5 @@
 var router = require('express').Router();
 
-router.use('/awaiting/*', require('../../controllers/panel/awaiting'));
+router.use('/*', require('../../controllers/panel/awaiting'));
 
 export = router;

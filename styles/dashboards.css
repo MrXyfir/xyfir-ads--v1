@@ -1,3 +1,4 @@
+/* ADVERTISERS DASHBORD */
 .advertisers-campaigns-campaign {
     margin: 1.5em;
 }
@@ -77,7 +78,7 @@ table.geo > tbody > tr > td > b {
 }
 
 
-
+/* PUBLISHERS DASHBORD */
 .publishers-account-payments {
     margin-bottom: 3em;
 }
@@ -111,7 +112,17 @@ table.geo > tbody > tr > td > b {
     margin-bottom: 0em;
 }
 
+/* PANEL - AWAITING */
+.panel-awaiting-publisher > table, .panel-awaiting-ad > table,
+.panel-awaiting-ads, .panel-awaiting-publishers {
+    margin: 2em auto;
+}
+.panel-awaiting-publisher > table > tbody > tr > td,
+.panel-awaiting-ad > table > tbody > tr > td {
+    max-width: 45em;
+}
 
+/* ADVERTISERS / PUBLISHERS DASHBORD */
 .search-results {
     max-width: 50em;
     margin: 1em auto;
@@ -121,21 +132,21 @@ table.geo > tbody > tr > td > b {
     color: #707070;
     font-size: 90%;
 }
-.advertisers-nav, .advertisers-nav-sub,
+.advertisers-nav, .advertisers-nav-sub, .nav,
 .publishers-nav, .publishers-nav-sub {
     padding: 1em;
     background-color: #f7f7f7;
     margin: auto;
     border: 1px solid #f0f0f0;
 }
-.advertisers-nav > .link-lg, .advertisers-nav-sub > .link-lg,
+.advertisers-nav > .link-lg, .advertisers-nav-sub > .link-lg, .nav > .link-lg,
 .publishers-nav > .link-lg, .publishers-nav-sub > .link-lg {
     margin: 1em;
 }
-.advertisers-nav, .publishers-nav {
+.advertisers-nav, .publishers-nav, .nav {
     width: 75%;
 }
-.advertisers-nav-sub, .publishers-nav-sub {
+.advertisers-nav-sub, .publishers-nav-sub, .nav-sub {
     width: 60%;
     margin-top: 1em;
 }
