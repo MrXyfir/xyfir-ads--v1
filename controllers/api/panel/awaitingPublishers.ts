@@ -32,7 +32,7 @@ export = {
     */
     info: (req, res) => {
         db(cn => {
-            cn.query("SELECT * FROM awaiting_publishers WHERE id = ?", [req.params.id], (err, rows) => {
+            cn.query("SELECT * FROM awaiting_publishers WHERE user_id = ?", [req.params.id], (err, rows) => {
                 cn.release();
                 res.json(rows[0]);
             });
