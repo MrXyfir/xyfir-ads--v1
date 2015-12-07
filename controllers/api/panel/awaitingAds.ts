@@ -6,21 +6,33 @@ export = {
     /*
         GET api/panel/awaiting/ads
         RETURN
-            { ads: adsRowObject[] }
+            { ads: [ { id: number, funds: number, ad_title: string, ad_type: number } ] }
         DESCRIPTION
             Return all ads awaiting approval
     */
     awaiting: (req, res) => {
-        db(cn => cn.query("SELECT * FROM ads WHERE approved = 0", (err, rows) => {
+        db(cn => cn.query("SELECT id, ad_title, ad_type, funds FROM ads WHERE approved = 0", (err, rows) => {
             cn.release();
             res.json({ ads: rows });
         }));
     },
 
     /*
+        GET api/panel/awaiting/ads/:id
+        RETURN
+            { entire ads table row }
+        DESCRIPTION
+            Return all info for ad
+    */
+    info: (req, res) => {
+        db(cn => cn.query("SELECT * FROM ads WHERE id = ? AND approved = 0", [req.params.id], (err, rows) => {
+            cn.release();
+            res.json(rows[0]);
+        }));
+    },
+
+    /*
         POST api/panel/awaiting/ads/:id
-        REQUIRED
-            email: string
         RETURN
             { error: boolean }
         DESCRIPTION
@@ -28,7 +40,7 @@ export = {
             Generates bid for ad if autobid
     */
     approve: (req, res) => {
-        var sql: string = "SELECT autobid FROM ads WHERE id = ?";
+        var sql: string = "SELECT autobid, owner FROM ads WHERE id = ?";
         db(cn => cn.query(sql, [req.params.id], (err, rows) => {
             
             var finish = () => {
@@ -40,7 +52,7 @@ export = {
                     var campaign: string = "https://ads.xyfir.com/advertisers/campaign/" + req.params.id;
 
                     // Email user notice of approval
-                    email(req.body.email, "Advertising Campaign - Approved",
+                    email(uEmail, "Advertising Campaign - Approved",
                         "Congratulations, your advertising campaign was approved! View your campaign here: "
                         + "<a href='" + campaign + "'>Your Approved Campaign</a>"
                     );
@@ -49,20 +61,37 @@ export = {
             };
 
             // Generate bid if campaign has autobid enabled
-            if (!!rows[0].autobid) {
-                require("../../../lib/ad/autobid")(req.params.id, cn, err => {
-                    if (err) {
-                        cn.release();
-                        res.json({ error: true });
-                    }
-                    else {
-                        finish();
-                    }
-                });
+            var autobid = () => {
+                if (autobidValue) {
+                    require("../../../lib/ad/autobid")(req.params.id, cn, err => {
+                        if (err) {
+                            cn.release();
+                            res.json({ error: true });
+                        }
+                        else {
+                            finish();
+                        }
+                    });
+                }
+                else {
+                    finish();
+                }
             }
-            else {
-                finish();
-            }
+
+            var autobidValue = !!rows[0].autobid, uEmail = "";
+
+            // Grab advertiser's email from users
+            sql = "SELECT email FROM users WHERE user_id = ?";
+            cn.query(sql, [rows[0].owner], (err, rows) => {
+                if (err || !rows.length) {
+                    cn.release();
+                    res.json({ error: true });
+                }
+                else {
+                    uEmail = rows[0].email;
+                    autobid();
+                }
+            });
 
         }));
     },
@@ -70,7 +99,7 @@ export = {
     /*
         DELETE api/panel/awaiting/ads/:id
         REQUIRED
-            email: string, reason: string
+            reason: string
         RETURN
             { error: boolean }
         DESCRIPTION
@@ -84,7 +113,7 @@ export = {
         // Refund cost of advertisement - 10% (minimum $10)
         var sql: string = "SELECT funds, owner, ad_media FROM ads WHERE id = ?";
         db(cn => cn.query(sql, [req.params.id], (err, rows) => {
-            var refund: number = 0, media: string[] = rows[0].ad_media.split(',');
+            var refund: number = 0, media: string[] = rows[0].ad_media.split(','), owner = rows[0].owner;
 
             // Determine refund amount
             if (rows[0].funds > 10) {
@@ -101,7 +130,7 @@ export = {
 
                 // Add refund to user's funds
                 sql = "UPDATE advertisers SET funds = funds + ? WHERE user_id = ?";
-                cn.query(sql, [refund, rows[0].owner], (e, r) => {
+                cn.query(sql, [refund, owner], (e, r) => {
                     if (e || !r.affectedRows) {
                         cn.rollback(() => cn.release());
                         res.json({ error: true });
@@ -137,26 +166,42 @@ export = {
                                     return;
                                 }
 
-                                // Send denial email to advertiser
-                                email(req.body.email, "Advertising Campaign - Denied",
-                                    "Your campaign was denied for the following reason: " + req.body.reason
-                                );
-                                res.json({ error: false });
+                                var uEmail: string = "";
 
-                                // Check if we need to delete content from Cloudinary
-                                if (!!media[0]) {
-                                    var ids: string[] = [], temp: string;
+                                var finish = () => {
+                                    // Send denial email to advertiser
+                                    email(uEmail, "Advertising Campaign - Denied",
+                                        "Your campaign was denied for the following reason: " + req.body.reason
+                                    );
+                                    res.json({ error: false });
 
-                                    for (var i: number = 0; i < media.length; i++) {
-                                        // Grab id + .ext
-                                        temp = media[i].substr(media[i].lastIndexOf('/') + 1);
-                                        // Cut off .ext and leave id
-                                        temp = temp.substr(0, temp.length - 4);
-                                        ids.push(temp);
+                                    // Check if we need to delete content from Cloudinary
+                                    if (!!media[0]) {
+                                        var ids: string[] = [], temp: string;
+
+                                        for (var i: number = 0; i < media.length; i++) {
+                                            // Grab id + .ext
+                                            temp = media[i].substr(media[i].lastIndexOf('/') + 1);
+                                            // Cut off .ext and leave id
+                                            temp = temp.substr(0, temp.length - 4);
+                                            ids.push(temp);
+                                        }
+
+                                        require("../../../lib/file/delete")(ids);
+                                    };
+                                };
+
+                                sql = "SELECT email FROM users WHERE user_id = ?";
+                                cn.query(sql, [owner], (err, rows) => {
+                                    if (err || !rows.length) {
+                                        cn.release();
+                                        res.json({ error: true });
                                     }
-
-                                    require("../../../lib/file/delete")(ids);
-                                }
+                                    else {
+                                        uEmail = rows[0].email;
+                                        finish();
+                                    }
+                                }); // get user's email
                             }); // commit transaction
                         }); // delete from ads
                     }); // move to ads_ended
