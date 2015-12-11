@@ -7,14 +7,13 @@ import cron = require("cron");
     Handles errors / responses from jobs
 */
 export = (): void => {
-    // ** Modify module to loop through jobs array of objects starting and managing jobs
-	// ** Job object contains function, cron string, retry amount, retry delay
     var jobs = {
-        autobid: require("autobid"),
-        deleteReports: require("deleteReports"),
-        createReports: require("createReports"),
-        validateClicks: require("validateClicks"),
-        dailyAllocatedFunds: require("dailyAllocatedFunds")
+        autobid: require("./autobid"),
+        deleteReports: require("./deleteReports"),
+        createReports: require("./createReports"),
+        validateClicks: require("./validateClicks"),
+        dailyAllocatedFunds: require("./dailyAllocatedFunds"),
+        updateGeoIpDatabase: require("./updateGeoIpDatabase")
     };
 
     // Generate ad cost for ads where autobid
@@ -79,6 +78,13 @@ export = (): void => {
 
         run();
 
+    }, () => { return; }, true);
+
+    // Updates MaxMind's GeoIP (lite) database
+    // Runs at 06:00 twice a month
+    // No error checking
+    new cron.CronJob("0 6 */16 * *", () => {
+        jobs.updateGeoIpDatabase();
     }, () => { return; }, true);
 
 };
