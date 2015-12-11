@@ -9,6 +9,7 @@ import express = require('express');
 import session = require('express-session');
 import parser = require('body-parser');
 var sesStore = require('express-mysql-session');
+var uaParser = require('express-useragent').express;
 var config = require('./config');
 var app = express();
 
@@ -18,6 +19,9 @@ app.use(express.static(__dirname + '/public'));
 /* Body Parser */
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
+
+/* User Agent Parser */
+app.use('/click', uaParser());
 
 /* Sessions */
 var sessionStore = new sesStore({
