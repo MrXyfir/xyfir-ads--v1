@@ -92,7 +92,7 @@ var Home = React.createClass({
 	            <p>
 	                Native ads receive more views, clicks, and conversions than normal web advertising. Users are more likely to pay attention to an ad that becomes part of the content.
 		            <br />
-	                Another benefit to native advertising is that they are much less likely to be blocked by ad-blocking plugins, and for multiple reasons. Ad-blockers work by finding a common method of displaying ads utilized by ad networks; since the actual ad displaying is determined by the publishers they chances of someone blocking that specific method or much lower. In addition to this, ads that aren't annoying and obtrusive simply won't be blocked.
+	                Another benefit to native advertising is that they are much less likely to be blocked by ad-blocking plugins, and for multiple reasons. Ad-blockers work by finding a common method of displaying ads utilized by ad networks; since the actual ad displaying is determined by the publishers they chances of someone blocking that specific method is much lower. In addition to this, ads that aren't annoying and obtrusive simply won't be blocked.
 	            </p>
 
                 {registerAdvertiser}
@@ -109,7 +109,7 @@ var Home = React.createClass({
 
 	            <h3>Increased revenue? Happy users? How?</h3>
 	            <p>
-	                Xyfir Ads brings unprecedented customization and control to publishers. Native ads allow you to integrate advertising any way you want. Control exactly where, what, and how ads display. You tell us what kind of ads you want and we find ads relevant to your content and return not the ad itself, but the ad information. We give you the link, title, description, image, etc and let you (or your developers) decide how to display that content. The result is multitude of benefits for both you <b>and</b> your users: cleaner site, faster page loads, no intrusive user tracking, more personalized ads, less blocked ads, and more!
+	                Xyfir Ads brings unprecedented customization and control to publishers. Native ads allow you to integrate advertising any way you want. Control exactly where, what, and how ads display. You tell us what kind of ads you want and we find ads relevant to your content and return not the ad itself, but the ad information. We give you the link, title, description, image, etc and let you (or your developers) decide how to display that content. The result is a multitude of benefits for both you <b>and</b> your users: cleaner site, faster page loads, no intrusive user tracking, more personalized ads, less blocked ads, and more!
 	            </p>
 
                 {registerPublisher}

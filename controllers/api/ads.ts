@@ -24,7 +24,7 @@ import db = require("../../lib/db");
         Attempts to find and return relevant ads
 */
 export = (req, res) => {
-    
+
     // pubid is required
     if (!req.query.pubid) {
         res.json({ ads: [] });
@@ -49,7 +49,7 @@ export = (req, res) => {
     var initialData = (): void => {
         // Grab pub campaign's information
         sql = "SELECT categories, keywords, site, type FROM pubs WHERE id = ?";
-        cn.query(sql, [req.query.pubid], (err, rows) => {
+        cn.query(sql, [q.pubid], (err, rows) => {
             if (err || !rows.length) {
                 cn.release();
                 res.json({ ads: [] });
@@ -63,12 +63,13 @@ export = (req, res) => {
 
             // Grab user's country and region codes
             // user == { country: "", region: "" }
-            user = ip2geo(req.ip);
+            user = ip2geo(q.ip || req.ip);
+            console.log(user);
 
             // Grab user's information from their xad-id
-            if (req.query.xadid && (!req.query.age || !req.query.gender)) {
+            if (q.xadid && (!q.age || !q.gender)) {
                 sql = "SELECT info FROM xad_ids WHERE xad_id = ?";
-                cn.query(sql, [req.query.xadid], (err, rows) => {
+                cn.query(sql, [q.xadid], (err, rows) => {
                     if (!err && !!rows.length)
                         user = mergeObject(user, JSON.parse(rows[0].info));
                     buildQuery();
@@ -93,7 +94,7 @@ export = (req, res) => {
 
         // Validate types if multiple provided
         if (!q.type) {
-            if (!q.types && !q.types.match(/^[0-9,]{3,7}$/)) {
+            if (!q.types || !q.types.match(/^[0-9,]{3,7}$/)) {
                 cn.release();
                 res.json({ ads: [] });
                 return;
