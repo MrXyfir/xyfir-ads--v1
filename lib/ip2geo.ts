@@ -6,8 +6,16 @@ import geoip = require("geoip-lite");
 export = (ip: string): IGeo => {
     var geo = geoip.lookup(ip);
 
-    return {
-        country: geo.country,
-        region: geo.region
-    };
+    if (geo != null) {
+        return {
+            country: geo.country,
+            region: geo.region
+        };
+    }
+    else {
+        return {
+            country: "US",
+            region: "CA"
+        };
+    }
 };

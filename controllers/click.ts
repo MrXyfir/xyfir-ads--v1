@@ -8,10 +8,9 @@ import db = require("../lib/db");
 /*
     GET /click
     REQUIRED
-        pub: number, ad: number, served: unix-ts-string
+        pub: number, ad: number, served: unix-timestamp
     OPTIONAL
-        score: number, xad[id]: string, a[ge]: number,
-        g[ender]: number
+        score: number, xad[id]: string, a[ge]: number, g[ender]: number
     DESCRIPTION
         Gathers information about click and updates campaigns/reports
         Saves information about click in clicks table
@@ -34,7 +33,7 @@ export = (req, res) => {
         // Grab data we need to update for ad report
         sql = "SELECT dem_age, dem_gender, dem_geo, publishers FROM ad_reports "
             + "WHERE id = ? AND day = CURDATE()";
-        cn.query(sql, [req.ad], (err, rows) => {
+        cn.query(sql, [req.query.ad], (err, rows) => {
             if (err || rows.length == 0) {
                 res.redirect("https://xyfir.com/");
                 return;
@@ -44,7 +43,7 @@ export = (req, res) => {
 
             // Grab data we need to update for pub report
             sql = "SELECT ads FROM pub_reports WHERE id = ? AND day = CURDATE()";
-            cn.query(sql, [req.pub], (err, rows) => {
+            cn.query(sql, [req.query.pub], (err, rows) => {
                 if (err || rows.length == 0) {
                     res.redirect("https://xyfir.com/");
                     return;
@@ -54,7 +53,7 @@ export = (req, res) => {
 
                 // Grab needed info from ad
                 sql = "SELECT ad_link, pay_type, cost FROM ads WHERE id = ?";
-                cn.query(sql, [req.ad], (err, rows) => {
+                cn.query(sql, [req.query.ad], (err, rows) => {
                     if (err || rows.length == 0) {
                         res.redirect("https://xyfir.com/");
                         return;
@@ -71,7 +70,7 @@ export = (req, res) => {
                     + "requested = CASE WHEN pay_type = 1 THEN requested + 1 ELSE requested END, "
                     + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
                     + "WHERE id = ?";
-                    cn.query(sql, [req.ad], (err, result) => updateReports());
+                    cn.query(sql, [req.query.ad], (err, result) => updateReports());
                 }); // ad link
             }); // pub report
         }); // ad report
@@ -87,24 +86,33 @@ export = (req, res) => {
 
         // Increment required ad_reports values
         adReport.publishers = mergeList(adReport.publishers.split(','), [req.query.pub + ":1"]);
-        adReport.dem_geo = mergeObject(
-            adReport.dem_geo,
-            JSON.parse("{\"" + geo.country + "\":{\"" + geo.region + "\":1}}")
-        );
+
+        // This is the ad's first click of the day, start new dem_geo object
+        if (adReport.dem_geo == "") {
+            adReport.dem_geo = "{\"" + geo.country + "\":{\"" + geo.region + "\":1}}";
+        }
+        // Merge object {COUNTRY:{REGION:1}} with previous dem_geo object
+        else {
+            adReport.dem_geo = JSON.stringify(mergeObject(
+                JSON.parse(adReport.dem_geo),
+                JSON.parse("{\"" + geo.country + "\":{\"" + geo.region + "\":1}}")
+            ));
+        }
 
         // Increment required pub_reports value
         pubReport.ads = mergeList(pubReport.ads.split(','), [req.query.ad + ":1"]);
 
         // Update ad_report values
         sql = "UPDATE ad_reports SET dem_age = ?, dem_gender = ?, dem_geo = ?, publishers = ?, "
-            + "click = clicks + 1, cost = CASE WHEN ? THEN cost + ? ELSE cost END "
+            + "clicks = clicks + 1, cost = CASE WHEN ? THEN cost + ? ELSE cost END "
             + "WHERE id = ? AND day = CURDATE()";
         var values = [
             adReport.dem_age, adReport.dem_gender, adReport.dem_geo,
             adReport.publishers, cpc, cost, req.query.ad
         ];
         cn.query(sql, values, (err, result) => {
-            if (err) {
+            if (err || !result.affectedRows) {
+                console.log(err);
                 finish();
                 return;
             }
@@ -124,8 +132,8 @@ export = (req, res) => {
             // Generate browser signature
             var signature: string = req.useragent.browser + ';' + req.useragent.version + ';' + req.useragent.os;
 
-            // Shorten length of signature
-            signature.replace(' ', '').replace('.', '').replace("Windows", "Win")
+            signature = signature // Shorten length of signature
+                .replace(/\s/g, "").replace("Windows", "Win")
                 .replace("Internet Explorer", "IE").replace("Firefox", "FF")
                 .replace("Ubuntu", "Ubu").replace("Safara", "SF")
                 .replace("Chrome", "CH").replace("Opera", "OP");
@@ -135,7 +143,7 @@ export = (req, res) => {
             // Add row to clicks table
             var insert = {
                 ad_id: req.query.ad, pub_id: req.query.pub, served: req.query.served,
-                ip: req.ip, clicked: new Date().getTime(), signature: signature,
+                ip: req.ip, clicked: (new Date().getTime() / 1000), signature: signature,
                 xad_id: "", cost: cost
             };
             insert.xad_id = req.query.xad ? req.query.xad : "";
