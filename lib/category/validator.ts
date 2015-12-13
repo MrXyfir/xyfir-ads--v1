@@ -3,11 +3,11 @@
 export = (category: string, isAd: boolean = false): boolean => {
 
     // Ad cannot have multiple categories (only subcats)
-    if (isAd && !category.match(/^[\w &>]{3,75}$/))
+    if (isAd && !category.match(/^[\w &>]{3,100}$/))
         return false;
 
     // Pub campaigns can have multiple categories
-    if (!isAd && !category.match(/^[\w &>,]{3,227}$/))
+    if (!isAd && !category.match(/^[\w &>,]{3,300}$/))
         return false;
 
     category = category.split(',');
