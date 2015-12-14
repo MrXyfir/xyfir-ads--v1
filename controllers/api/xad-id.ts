@@ -8,7 +8,7 @@ export = {
         REQUIRED
             secret: string
         RETURN
-            { error: boolean }
+            { error: boolean, xadid?: string }
         DESCRIPTION
             Generates an xad-id for the Xyfir Account :xacc
     */
@@ -60,7 +60,10 @@ export = {
                             cn.query(sql, insert, (err, result) => {
                                 cn.release();
 
-                                res.json({ error: !!err });
+                                if (err || !result.affectedRows)
+                                    res.json({ error: true });
+                                else
+                                    res.json({ error: false, xadid: insert.xad_id });
                             });
                         }
                     });
