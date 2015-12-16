@@ -15,6 +15,8 @@ export = {
     create: (req, res) => {
         var sql: string;
 
+        res.append("Access-Control-Allow-Origin", true);
+
         if (secret != req.body.secret) {
             res.json({ error: true });
             return;
@@ -86,6 +88,8 @@ export = {
     info: (req, res) => {
         var sql: string;
 
+        res.append("Access-Control-Allow-Origin", true);
+
         if (secret != req.query.secret) {
             res.json({ error: true });
             return;
@@ -105,7 +109,7 @@ export = {
         REQUIRED
             secret: string, info: json-string
         RETURN
-            { error: boolean }
+            { error: boolean, message: string }
         DESCRIPTION
             Updates info object-string where xacc and xad
             *All validation is done by Xyfir Accounts
@@ -113,16 +117,25 @@ export = {
     update: (req, res) => {
         var sql: string;
 
-        if (secret != req.body.secret || !req.body.info) {
-            res.json({ error: true });
-            return;
-        }
+        res.append("Access-Control-Allow-Origin", true);
 
-        sql = "UPDATE xad_ids SET info = ? WHERE xad_id = ? AND xacc_uid = ?";
-        db(cn => cn.query(sql, [req.body.info, req.params.xad, req.params.xacc], (err, result) => {
-            cn.release();
-            res.json({ error: !!err });
-        }));
+        if (secret != req.body.secret) {
+            res.json({ error: true, message: "Invalid secret key" });
+        }
+        else if (req.body.info == undefined) {
+            res.json({ error: true, message: "Info property is required" });
+        }
+        else {
+            sql = "UPDATE xad_ids SET info = ? WHERE xad_id = ? AND xacc_uid = ?";
+            db(cn => cn.query(sql, [req.body.info, req.params.xad, req.params.xacc], (err, result) => {
+                cn.release();
+
+                if (err || !result.affectedRows)
+                    res.json({ error: true, message: "An unknown error occured-" });
+                else
+                    res.json({ error: false, message: "Ad profile updated successfully" });
+            }));
+        }
     }
 
 };

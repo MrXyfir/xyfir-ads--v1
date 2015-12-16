@@ -25,6 +25,8 @@ import db = require("../../lib/db");
 */
 export = (req, res) => {
 
+    res.append("Access-Control-Allow-Origin", true);
+
     // pubid is required
     if (!req.query.pubid) {
         res.json({ ads: [] });
