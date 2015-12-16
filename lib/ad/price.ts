@@ -6,22 +6,19 @@
         competitors in category with ad/pay type
         average bid and highest bid
 */
-
-// ** Set actual base prices for each ad category
-
 export = (adType: number, payType: number, category: string, fn) => {
 
     var basePrice: number;
 
     // Determine basePrice for adType using payType
     switch (adType + '-' + payType) {
-        case '1-1': basePrice = 0.05; break;  // text cpc
-        case '1-2': basePrice = 0.005; break; // text cpv
-        case '2-1': basePrice = 0.03; break;  // short cpc
-        case '2-2': basePrice = 0.003; break; // short cpv
-        case '3-1': basePrice = 0.15; break;  // image cpc
-        case '3-2': basePrice = 0.01; break;  // image cpv
-        case '4-2': basePrice = 0.03; break;  // video cpv
+        case '1-1': basePrice = 0.10; break;  // text cpc  | $100
+        case '1-2': basePrice = 0.005; break; // text cpv  | $5
+        case '2-1': basePrice = 0.08; break;  // short cpc | $80
+        case '2-2': basePrice = 0.004; break; // short cpv | $4
+        case '3-1': basePrice = 0.20; break;  // image cpc | $200
+        case '3-2': basePrice = 0.01; break;  // image cpv | $10
+        case '4-2': basePrice = 0.05; break;  // video cpv | $50
     }
 
     var categoryLevels: number = category.split('>').length;
