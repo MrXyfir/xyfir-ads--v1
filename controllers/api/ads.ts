@@ -363,7 +363,7 @@ export = (req, res) => {
                 + "cost = CASE WHEN ? THEN cost + ? ELSE cost END "
                 + "WHERE id = ? AND day = CURDATE()";
 
-            cn.query(sql, [ads[i].payType == 2, ads[i].cost, ads[i].id], (err, rows) => {
+            cn.query(sql, [ads[i].payType == 2, ads[i].cost * 0.70, ads[i].id], (err, rows) => {
                 // Update pub report: views / earnings
                 sql = "UPDATE pub_reports SET views = views + 1, "
                     + "earnings = CASE WHEN ? THEN earnings + ? ELSE earnings END "

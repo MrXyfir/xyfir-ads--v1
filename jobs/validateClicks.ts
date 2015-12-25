@@ -154,7 +154,7 @@ export = (fn: any): void => db(cn => {
 
             sql = "UPDATE pub_reports SET earnings = earnings + ?, earnings_temp = 0 "
                 + "WHERE id = ? AND day = DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
-            cn.query(sql, [campaigns.publish[i].amount, campaigns.publish[i].id], (err, result) => {
+            cn.query(sql, [campaigns.publish[i].amount * 0.70, campaigns.publish[i].id], (err, result) => {
                 pub(!!err ? i : i++); // repeat if error
             });
         };
