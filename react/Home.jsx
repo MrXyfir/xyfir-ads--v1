@@ -21,10 +21,7 @@ var Home = React.createClass({
 
     login: function() {
         // accounts.xyfir.com/login/11
-        loginWindow = window.open(xacc + 'login/11');
-
-        // doLogin() is called on postMessage() from loginWindow
-        window.addEventListener("message", doLogin, false);
+        location.href = XACC + "login/11";
     },
 
     render: function() {
