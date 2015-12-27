@@ -29,7 +29,7 @@ export = (req, res) => {
 
     // pubid is required
     if (!req.query.pubid) {
-        res.json({ ads: [] });
+        res.json({ ads: ['-'] });
         return;
     }
     // Setup variables
@@ -40,6 +40,7 @@ export = (req, res) => {
 
         q.speed = !q.speed ? 0 : q.speed;
         q.count = !q.count ? 1 : q.count;
+        q.count = q.count > 5 ? 5 : q.count;
 
         db(connection => {
             cn = connection;
@@ -54,7 +55,7 @@ export = (req, res) => {
         cn.query(sql, [q.pubid], (err, rows) => {
             if (err || !rows.length) {
                 cn.release();
-                res.json({ ads: [] });
+                res.json({ ads: ['--'] });
                 return;
             }
 
@@ -91,14 +92,14 @@ export = (req, res) => {
         sql = "SELECT id, pay_type, cost, available, ad_type, ad_title, ad_description, ad_media, "
             + "ut_age, ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords FROM ads "
             + "WHERE approved = 1 AND requested > provided AND funds > cost "
-            + "AND IF(ct_sites = '', 1, INSTR(ct_site, '" + pub.site + "') > 0) "
+            + "AND IF(ct_sites = '*', 1, INSTR(ct_sites, '" + pub.site + "') > 0) "
             + "AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used) AND ad_type ";
 
         // Validate types if multiple provided
         if (!q.type) {
             if (!q.types || !q.types.match(/^[0-9,]{3,7}$/)) {
                 cn.release();
-                res.json({ ads: [] });
+                res.json({ ads: ['---'] });
                 return;
             }
 
@@ -123,19 +124,6 @@ export = (req, res) => {
         var pubKeywords: string[], adKeywords: string[];
         var tAd: IAd, lowestScore: number;
 
-        var query = cn.query(sql);
-        query // Loop through each row
-        .on("error", err => {
-            cn.end();
-            cn.release();
-            res.json({ ads: [] });
-            return;
-        })
-        .on("result", handleRow)
-        .on("end", () => {
-            returnAds();
-        });
-
         // Determine if ad at row has chance of being returned
         var handleRow = (ad: IAdsRow) => {
             cn.pause();
@@ -145,7 +133,7 @@ export = (req, res) => {
             available = ad.available.split(',');
 
             // Loop through time ranges: time-time,time-time,...
-            for (var i: number; i < available.length; i++) {
+            for (var i: number = 0; i < available.length; i++) {
                 avail = available[i].split('-');
 
                 // Available time hasn't begun
@@ -253,6 +241,26 @@ export = (req, res) => {
                 }
             };
 
+            // Build an IAd object and push it to ads[]
+            var addAd = (): void => {
+                tAd = {
+                    type: ad.ad_type, link: "", title: ad.ad_title, score: score,
+                    description: ad.ad_description, id: ad.id,
+                    cost: ad.cost, payType: ad.pay_type
+                };
+
+                if (!!ad.ad_media) tAd.media = ad.ad_media;
+
+                // Build link user will go to when clicking ad
+                tAd.link = "https://ads.xyfir.com/click/?pub=" + q.pubid
+                    + "&ad=" + ad.id + "&score=" + score + "&served=" + time
+                    + ((q.gender || user.gender) ? ("&g=" + gender) : "")
+                    + ((q.age || user.age) ? ("&a=" + age) : "")
+                    + (q.xadid ? ("&xad=" + q.xadid) : "");
+
+                ads.push(tAd);
+            };
+
             /* Determine whether ad should have chance of return based on score */
             // Publisher wants more ads than we've found: add no matter what
             // If we have enough ads but speed > 0: add anyways to save time
@@ -275,33 +283,25 @@ export = (req, res) => {
                             break;
                         }
                     }
-
                     addAd();
                 }
             }
 
-            // Build an IAd object and push it to ads[]
-            var addAd = (): void => {
-                tAd = {
-                    type: ad.ad_type, link: "", title: ad.ad_title, score: score,
-                    description: ad.ad_description, id: ad.id,
-                    cost: ad.cost, payType: ad.pay_type
-                };
-
-                if (!!ad.ad_media) tAd.media = ad.ad_media;
-
-                // Build link user will go to when clicking ad
-                tAd.link = "https://ads.xyfir.com/click/?pub=" + q.pubid
-                    + "&ad=" + ad.id + "&score=" + score + "&served=" + time
-                    + ((q.gender || user.gender) ? ("&g=" + gender) : "")
-                    + ((q.age || user.age) ? ("&a=" + age) : "")
-                    + (q.xadid ? ("&xad=" + q.xadid) : "");
-
-                ads.push(tAd);
-            };
-
             cn.resume();
         };
+
+        console.log(sql);
+        var query = cn.query(sql);
+        query // Loop through each row
+            .on("error", err => {
+                cn.release();
+                res.json({ ads: ['----'] });
+                return;
+            })
+            .on("result", handleRow)
+            .on("end", () => {
+                returnAds();
+            });
     };
 
     /* Find Ads to Return from Filtered */
@@ -319,19 +319,21 @@ export = (req, res) => {
             ads.splice(q.count, ads.length - q.count);
         }
 
-        res.json((): any => {
-            var adsTemp: IAd[] = ads;
-
-            // Remove properties publisher doesn't need
-            for (var i: number = 0; i < adsTemp.length; i++) {
-                delete adsTemp[i].payType;
-                delete adsTemp[i].score;
-                delete adsTemp[i].cost;
-                delete adsTemp[i].id;
-            }
-
-            return adsTemp;
+        // Create a copy of ads[] we can modify
+        var adsTemp: IAd[] = ads.map(ad => {
+            return JSON.parse(JSON.stringify(ad));
         });
+
+        // Remove ad properties publisher doesn't need
+        for (var i: number = 0; i < adsTemp.length; i++) {
+            delete adsTemp[i].payType;
+            delete adsTemp[i].score;
+            delete adsTemp[i].cost;
+            delete adsTemp[i].id;
+        }
+
+        res.json({ ads: adsTemp });
+        adsTemp = [];
 
         // Begin updating values for ads in ads[]
         // Start with ad at ads[0]
@@ -356,20 +358,20 @@ export = (req, res) => {
             + "requested = CASE WHEN pay_type = 2 THEN requested + 1 ELSE requested END, "
             + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
             + "WHERE id = ?";
-
+        
         cn.query(sql, [ads[i].id], (err, result) => {
             // Update ad report: views / cost
-            sql = "UPDATE ad_reports SET views = views + 1, "
-                + "cost = CASE WHEN ? THEN cost + ? ELSE cost END "
+            sql = "UPDATE ad_reports SET views = views + 1"
+                + (ads[i].payType == 2 ? ", cost = cost + " + ads[i].cost + " " : " ")
                 + "WHERE id = ? AND day = CURDATE()";
 
-            cn.query(sql, [ads[i].payType == 2, ads[i].cost * 0.70, ads[i].id], (err, rows) => {
+            cn.query(sql, [ads[i].id], (err, result) => {
                 // Update pub report: views / earnings
-                sql = "UPDATE pub_reports SET views = views + 1, "
-                    + "earnings = CASE WHEN ? THEN earnings + ? ELSE earnings END "
+                sql = "UPDATE pub_reports SET views = views + 1"
+                    + (ads[i].payType == 2 ? ", earnings = earnings + " + (ads[i].cost * 0.70) + " " : " ")
                     + "WHERE id = ? AND day = CURDATE()";
 
-                cn.query(sql, [ads[i].payType == 2, ads[i].cost, q.pubid], (err, result) => {
+                cn.query(sql, [q.pubid], (err, result) => {
                     // Update values for next add in array
                     updateValues(i + 1);
                 }); // pub rep
