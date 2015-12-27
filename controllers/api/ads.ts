@@ -8,10 +8,10 @@ import db = require("../../lib/db");
 /*
     GET api/ads
     REQUIRED
-        pubid: number
+        pubid: number, type: number OR types: string
     OPTIONAL
-        xadid: string, type: number, types: string, count: number,
-        speed: number, ip: string, age: number, gender: number,
+        xadid: string, count: number, speed: number,
+        ip: string, age: number, gender: number,
         categories: string, keywords: string
     RETURN
         {ads: [
@@ -67,14 +67,15 @@ export = (req, res) => {
             // Grab user's country and region codes
             // user == { country: "", region: "" }
             user = ip2geo(q.ip || req.ip);
-            console.log(user);
 
             // Grab user's information from their xad-id
             if (q.xadid && (!q.age || !q.gender)) {
                 sql = "SELECT info FROM xad_ids WHERE xad_id = ?";
                 cn.query(sql, [q.xadid], (err, rows) => {
-                    if (!err && !!rows.length)
+                    if (!err && !!rows.length) {
+                        // add age/gender/etc to user object
                         user = mergeObject(user, JSON.parse(rows[0].info));
+                    }
                     buildQuery();
                 });
             }
@@ -128,6 +129,13 @@ export = (req, res) => {
         var handleRow = (ad: IAdsRow) => {
             cn.pause();
 
+            // If publisher is requesting a speedy response, we have enough ads,
+            // and random() returns a 1: skip this row
+            if (q.speed > 0 && ads.length >= q.count && Math.round(Math.random()) == 1) {
+                cn.resume();
+                return;
+            }
+
             /* Check if ad is available */
             isAvailable = false;
             available = ad.available.split(',');
@@ -158,27 +166,27 @@ export = (req, res) => {
             // Score age range target
             if (q.age || user.age) {
                 age = q.age || user.age;
-
+                
                 // Ad accepts any age range: +1
                 if (+ad.ut_age == 0)
                     score++;
-                // Ad requests a single age range, user matches: +2
-                else if (age == +ad.ut_age)
-                    score += 2;
                 // Ad accepts a list of age ranges, user is in range: +2
                 else if (ad.ut_age.indexOf(',') > -1 && ad.ut_age.split(',').indexOf(String(age)) > -1)
+                    score += 2;
+                // Ad requests a single age range, user matches: +2
+                else if (age == +ad.ut_age)
                     score += 2;
             }
 
             // Score gender target
             if (q.gender || user.gender) {
                 gender = q.gender || user.gender;
-
-                if (+ad.ut_gender == 0)
+                
+                if (+ad.ut_genders == 0)
                     score++;
-                else if (gender == +ad.ut_gender)
+                else if (ad.ut_genders.indexOf(',') > -1 && ad.ut_genders.split(',').indexOf(String(gender)) > -1)
                     score += 2;
-                else if (ad.ut_gender.indexOf(',') > -1 && ad.ut_gender.split(',').indexOf(String(gender)) > -1)
+                else if (gender == +ad.ut_genders)
                     score += 2;
             }
 
@@ -188,13 +196,13 @@ export = (req, res) => {
             }
             else {
                 countries = ad.ut_countries.split(',');
-
+                
                 // Check if user is in a targeted country
                 for (var i: number = 0; i < countries.length; i++) {
                     if (countries[i] == user.country) {
                         // Get array of regions within user's country
                         regions = ad.ut_regions.split('|')[i].split(',');
-
+                        
                         if (regions[0] == '*') {
                             score += 2;
                         }
@@ -217,17 +225,20 @@ export = (req, res) => {
             // Skip category / keyword scoring if speed > 0
             if (q.speed == 0) {
                 // Score how well ad's category target matches publisher's categories
+                // +1 for each category level matched
                 score += categoryMatch(pub.categories.split(','), ad.ct_categories);
 
-                // Score how well ad's / pub's keywords match
                 adKeywords = ad.ct_keywords.split(',');
                 pubKeywords = pub.keywords.split(',');
+
+                // Score how well ad's / pub's keywords match
+                // +1 for partial match, +2 for exact match
                 for (var i: number = 0; i < adKeywords.length; i++) {
                     // Check for exact keyword match
                     if (pubKeywords.indexOf(adKeywords[i]) > -1)
                         score += 2;
                     // Check for partial match
-                    else if (pub.keywords.indexOf(ad.ct_keywords) > -1)
+                    else if (pub.keywords.indexOf(adKeywords[i]) > -1)
                         score++;
                 }
             }
@@ -249,7 +260,7 @@ export = (req, res) => {
                     cost: ad.cost, payType: ad.pay_type
                 };
 
-                if (!!ad.ad_media) tAd.media = ad.ad_media;
+                if (ad.ad_media != "") tAd.media = ad.ad_media;
 
                 // Build link user will go to when clicking ad
                 tAd.link = "https://ads.xyfir.com/click/?pub=" + q.pubid
@@ -290,7 +301,6 @@ export = (req, res) => {
             cn.resume();
         };
 
-        console.log(sql);
         var query = cn.query(sql);
         query // Loop through each row
             .on("error", err => {

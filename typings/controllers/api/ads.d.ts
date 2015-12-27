@@ -22,6 +22,6 @@ interface IUser {
 interface IAdsRow {
     ad_media: string, ut_age: string, ut_countries: string, ct_keywords: string,
     pay_type: number, cost: number, available: string, ad_type: number,
-    ut_regions: string, ut_gender: string, ct_categories: string,
+    ut_regions: string, ut_genders: string, ct_categories: string,
     ad_title: string, ad_description: string, id: number
 }
