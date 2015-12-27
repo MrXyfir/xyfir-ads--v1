@@ -156,9 +156,9 @@ export = {
 
                             var ad: number = r.insertId;
 
-                            // Create blank ad_report for current date
-                            sql = "INSERT INTO ad_reports (id, day) VALUES ('" + ad + "', CURDATE())";
-                            cn.query(sql, (e, r) => {
+                            // Create blank ad_report for current date and tomorrow's date
+                            sql = "INSERT INTO ad_reports (id, day) VALUES (?, CURDATE()), (?, DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
+                            cn.query(sql, [ad], (e, r) => {
                                 cn.commit(err => {
                                     if (err) {
                                         cn.rollback(() => cn.release());

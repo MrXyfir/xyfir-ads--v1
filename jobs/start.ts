@@ -28,17 +28,12 @@ export = (): void => {
     }, () => { return; }, true);
 
     // Create ad and pub campaign reports
-    // Runs at 00:30 every day
+    // Runs at 23:30 every day
     // Retries indefinitely on error
-    new cron.CronJob("30 0 * * *", () => {
+    new cron.CronJob("30 23 * * *", () => {
 
         var run = (): void => jobs.createReports(res => {
-            // Database error
-            if (res == 1)
-                run();
-            // Ran too early
-            if (res == 2)
-                setTimeout(() => { run(); }, 2500);
+            if (res != 0) run();
         });
 
         run();

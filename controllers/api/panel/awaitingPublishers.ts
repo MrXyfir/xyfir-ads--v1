@@ -83,22 +83,32 @@ export = {
                             return;
                         }
 
-                        cn.commit(err => {
-                            if (err) {
+                        // Create report for today and tomorrow's date
+                        var sql: string = "INSERT INTO pub_reports (id, day) VALUES (?, CURDATE()), (?, DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
+                        cn.query(sql, [req.params.id], (e, r) => {
+                            if (e || !r.affectedRows) {
                                 cn.rollback(() => cn.release());
                                 res.json({ error: true });
+                                return;
                             }
-                            else {
-                                cn.release();
-                                res.json({ error: false });
 
-                                // Email user notice of approval
-                                email(req.body.email, "Publisher Application - Approved",
-                                    "Congratulations, your application was approved! You can now login to your publisher's dashboard: "
-                                    + "<a href='https://ads.xyfir.com/publishers/'>Publisher Dashboard</a>"
-                                );
-                            }
-                        }); // commit transaction
+                            cn.commit(err => {
+                                if (err) {
+                                    cn.rollback(() => cn.release());
+                                    res.json({ error: true });
+                                }
+                                else {
+                                    cn.release();
+                                    res.json({ error: false });
+
+                                    // Email user notice of approval
+                                    email(req.body.email, "Publisher Application - Approved",
+                                        "Congratulations, your application was approved! You can now login to your publisher's dashboard: "
+                                        + "<a href='https://ads.xyfir.com/publishers/'>Publisher Dashboard</a>"
+                                    );
+                                }
+                            }); // commit transaction
+                        }); // create reports in pub_reports
                     }); // delete from awaiting_publishers
                 }); // set publisher boolean
             }); // create publisher
