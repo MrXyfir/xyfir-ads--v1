@@ -1,4 +1,6 @@
-﻿module.exports = React.createClass({
+﻿var round = require("../../../lib/round");
+
+module.exports = React.createClass({
 
     getInitialState: function() {
         return {
@@ -50,7 +52,7 @@
                                 <a onClick={this.props.updateRoute.bind(this, c.link)}>{c.name}</a>
                             </span>
                             <span className="campaign-completed">
-                                {c.provided == 0 ? "0.00%" :  Number(Math.round((c.provided / c.requested)+'e'+2)+'e-'+2) + '%'}
+                                {c.provided == 0 ? "0.00%" :  round(c.provided / c.requested, 2) + '%'}
                             </span>
                         </div>
 

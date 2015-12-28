@@ -1,4 +1,5 @@
-﻿import db = require("../db");
+﻿import round = require("../round");
+import db = require("../db");
 
 /*
     fn returns info object which contains:
@@ -30,7 +31,7 @@ export = (adType: number, payType: number, category: string, fn) => {
         basePrice += basePrice * 0.05;
 
     // Round base price to 6th decimal place
-    basePrice = Number(Math.round(basePrice + 'e' + 6) + 'e-' + 6);
+    basePrice = round(basePrice, 6);
 
     var info = {
         base: basePrice,

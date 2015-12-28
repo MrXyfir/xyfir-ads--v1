@@ -1,6 +1,7 @@
 ﻿var dimensions = require("../../../../lib/file/dimensions");
 var Button = require("../../../forms/Button");
 var Alert = require("../../../forms/Alert");
+var round = require("../../../../lib/round");
 
 module.exports = React.createClass({
 
@@ -52,7 +53,7 @@ module.exports = React.createClass({
                 <h2>{c.name}</h2>
                 <p>
                     <b>{status}</b> Campaign
-                    <b> | {c.provided == 0 ? "0.00" : Number(Math.round((c.requested / c.provided) + 'e' + 2) + 'e-' + 2)}% </b>
+                    <b> | {c.provided == 0 ? "0.00" : round(c.requested / c.provided, 2)}% </b>
                     Complete
                 </p>
                 
