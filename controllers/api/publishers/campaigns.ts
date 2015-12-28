@@ -45,8 +45,8 @@ export = {
                 return;
             }
 
-            // Create blank report in pub_reports
-            sql = "INSERT INTO pub_reports (id, day) VALUES (?, CURDATE())";
+            // Create blank reports for current and next day in pub_reports
+            sql = "INSERT INTO pub_reports (id, day) VALUES (?, CURDATE()), (?, DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
             cn.query(sql, [result.insertId], (err, result) => {
                 cn.release();
 
