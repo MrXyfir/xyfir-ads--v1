@@ -3,6 +3,9 @@
 
 import geoip = require("geoip-lite");
 
+// Automatically updates db in memory when files update
+geoip.startWatchingDataUpdate();
+
 export = (ip: string): IGeo => {
     var geo = geoip.lookup(ip);
 
