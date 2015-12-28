@@ -2,8 +2,6 @@
 
 /*
     Creates new reports for ad and pub campaigns for next day
-    Error Codes:
-        0 - none, 1 - db error
 */
 export = (fn: any): void => db(cn => {
     
@@ -19,10 +17,10 @@ export = (fn: any): void => db(cn => {
     cn.query(sql, (err, result) => {
         if (err) {
             cn.release();
-            fn(1);
+            fn(true);
             return;
         }
-
+        
             // Insert into pub_reports with id and day
         sql = "INSERT INTO pub_reports (id, day) "
             // Where pub from pubs DOES NOT have a report for day
@@ -30,8 +28,8 @@ export = (fn: any): void => db(cn => {
             + "(SELECT * FROM pub_reports WHERE pub_reports.id = pubs.id AND pub_reports.day = DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
         cn.query(sql, (err, result) => {
             cn.release();
-
-            fn(!!err ? 1 : 0);
+            
+            fn(!!err);
         });
     });
 

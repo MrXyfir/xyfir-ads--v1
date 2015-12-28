@@ -6,6 +6,9 @@ export = () => {
     var cmd = "cd node_modules/geoip-lite & npm run-script updatedb";
 
     exec(cmd, (error, stdout, stderr) => {
+        console.log('running/ended');
+        console.log(error);
         console.log(stdout);
+        console.log(stderr);
     });
 };

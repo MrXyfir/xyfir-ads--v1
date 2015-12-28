@@ -3,7 +3,7 @@
 /*
     Delete ad/pub reports older than 3 months
 */
-export = db(cn => {
+export = (): void => db(cn => {
 
     var sql: string = "DELETE FROM ad_reports WHERE day < DATE_SUB(CURDATE(), INTERVAL 3 MONTH)";
     cn.query(sql, (err, result) => {

@@ -6,28 +6,32 @@ import db = require("../lib/db");
 */
 export = (fn: any): void => db(cn => {
 
-    // Get id of all ads with autobid enabled
-    cn.query("SELECT id FROM ads WHERE autobid = 1 AND approved = 1")
-    .on("result", handleRow)
-    .on("error", onError)
-    .on("end", () => {
-        cn.release();
-        fn(false);
+    // Needed to pass to autobid since cn will be paused
+    db(cn2 => {
+
+        var onError = (err: any): void => {
+            cn.release();
+            cn2.release();
+            fn(true);
+        };
+
+        // Get id of all ads with autobid enabled
+        cn.query("SELECT id FROM ads WHERE autobid = 1 AND approved = 1")
+            .on("result", row => {
+                cn.pause();
+
+                autobid(row.id, cn2, err => {
+                    if (err)
+                        onError(true);
+                    else
+                        cn.resume();
+                });
+            })
+            .on("error", onError)
+            .on("end", () => {
+                cn.release();
+                cn2.release();
+                fn(false);
+            });
     });
-
-    var handleRow = (row): void => {
-        cn.pause();
-
-        autobid(row.id, cn, err => {
-            if (err) onError(true);
-            else cn.resume();
-        });
-    };
-
-    var onError = (err: any): void => {
-        cn.end();
-        cn.release();
-        fn(true);
-    };
-
 });

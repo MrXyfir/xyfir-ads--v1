@@ -32,8 +32,8 @@ export = (): void => {
     // Retries indefinitely on error
     new cron.CronJob("30 23 * * *", () => {
 
-        var run = (): void => jobs.createReports(res => {
-            if (res != 0) run();
+        var run = (): void => jobs.createReports(err => {
+            if (err) run();
         });
 
         run();

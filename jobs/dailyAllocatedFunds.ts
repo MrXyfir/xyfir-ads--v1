@@ -6,8 +6,9 @@
 */
 export = (fn: any): void => db(cn => {
 
-    var sql = "UPDATE ads SET funds = funds - daily_funds_used, daily_funds_used = 0 "
-        + "WHERE daily_funds > 0";
+    var sql: string = "UPDATE ads "
+        + "SET funds = funds - daily_funds_used, daily_funds_used = 0 "
+        + "WHERE daily_funds > 0 AND approved = 1";
     cn.query(sql, (err, result) => {
         cn.release();
         fn(!!err);
