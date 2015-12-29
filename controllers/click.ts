@@ -10,7 +10,8 @@ import db = require("../lib/db");
     REQUIRED
         pub: number, ad: number, served: unix-timestamp
     OPTIONAL
-        score: number, xad[id]: string, a[ge]: number, g[ender]: number
+        score: number, xad[id]: string, a[ge]: number, g[ender]: number,
+        test: string
     DESCRIPTION
         Gathers information about click and updates campaigns/reports
         Saves information about click in clicks table
@@ -19,11 +20,23 @@ import db = require("../lib/db");
 export = (req, res) => {
 
     var adReport: IAdReport, pubReport: IPubReport, geo: IGeo, cn: any, sql: string,
-        link: string, cpc: boolean = false, cost: number = 0;
+        link: string, cpc: boolean = false, cost: number = 0, testMode: boolean;
 
     db(connection => {
         cn = connection;
-        getData();
+
+        // Set testMode boolean
+        if (req.query.test) {
+            sql = "SELECT id FROM pubs WHERE id = ? AND test = ?";
+            cn.query(sql, [req.query.pub, req.query.test], (err, rows) => {
+                testMode = rows.length == 1;
+                getData();
+            });
+        }
+        else {
+            testMode = false;
+            getData();
+        }
     });
 
     /* Grab Initial Data / Update Ad */
@@ -64,13 +77,19 @@ export = (req, res) => {
                         cpc = true, cost = rows[0].cost;
                     }
 
-                    // Update ad if ad is cost-per-click
-                    sql = "UPDATE ads SET "
-                    + "funds = CASE WHEN pay_type = 1 THEN funds - cost ELSE funds END, "
-                    + "requested = CASE WHEN pay_type = 1 THEN requested + 1 ELSE requested END, "
-                    + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
-                    + "WHERE id = ?";
-                    cn.query(sql, [req.query.ad], (err, result) => updateReports());
+                    if (testMode) {
+                        // Don't update ad and skip updateReports()
+                        finish();
+                    }
+                    else {
+                        // Update ad if ad is cost-per-click
+                        sql = "UPDATE ads SET "
+                            + "funds = CASE WHEN pay_type = 1 THEN funds - cost ELSE funds END, "
+                            + "requested = CASE WHEN pay_type = 1 THEN requested + 1 ELSE requested END, "
+                            + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
+                            + "WHERE id = ?";
+                        cn.query(sql, [req.query.ad], (err, result) => updateReports());
+                    }
                 }); // ad link
             }); // pub report
         }); // ad report
@@ -128,7 +147,8 @@ export = (req, res) => {
     /* Clicks Table / Redirect User */
     var finish = (): void => {
         // Only clicks on CPC ads need to be validated
-        if (cpc) {
+        // Don't add click to table if in test mode
+        if (cpc && !testMode) {
             // Generate browser signature
             var signature: string = req.useragent.browser + ';' + req.useragent.version + ';' + req.useragent.os;
 

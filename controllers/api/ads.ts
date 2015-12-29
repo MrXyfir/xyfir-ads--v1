@@ -12,7 +12,8 @@ import db = require("../../lib/db");
     OPTIONAL
         xadid: string, count: number, speed: number,
         ip: string, age: number, gender: number,
-        categories: string, keywords: string
+        categories: string, keywords: string,
+        test: string
     RETURN
         {ads: [
             {
@@ -34,7 +35,7 @@ export = (req, res) => {
     }
     // Setup variables
     else {
-        var q: IRequestQuery = req.query, ads: IAd[] = [],
+        var q: IRequestQuery = req.query, ads: IAd[] = [], testMode: boolean,
             sql: string, cn: any, pub: IPub, user: IUser;
         req.query = null;
 
@@ -44,7 +45,19 @@ export = (req, res) => {
 
         db(connection => {
             cn = connection;
-            initialData();
+
+            if (q.test) {
+                // If publisher provided valid test key, enable testMode
+                sql = "SELECT id FROM pubs WHERE id = ? AND test = ?";
+                cn.query(sql, [q.pubid, q.test], (err, rows) => {
+                    testMode = rows.length == 1;
+                    initialData();
+                });
+            }
+            else {
+                testMode = false;
+                initialData();
+            }
         });
     }
 
@@ -267,6 +280,7 @@ export = (req, res) => {
                     + "&ad=" + ad.id + "&score=" + score + "&served=" + time
                     + ((q.gender || user.gender) ? ("&g=" + gender) : "")
                     + ((q.age || user.age) ? ("&a=" + age) : "")
+                    + (testMode ? ("&test=" + q.test) : "")
                     + (q.xadid ? ("&xad=" + q.xadid) : "");
 
                 ads.push(tAd);
@@ -354,7 +368,8 @@ export = (req, res) => {
     // Recursively loops until all returned ads are updated
     var updateValues = (i: number): void => {
         // If index in ads[] does not exist: quit
-        if (ads[i] == undefined) {
+        // Don't update values in test mode
+        if (testMode || ads[i] == undefined) {
             cn.release();
             return;
         }
@@ -366,7 +381,7 @@ export = (req, res) => {
         sql = "UPDATE ads SET "
             + "funds = CASE WHEN pay_type = 2 THEN funds - cost ELSE funds END, "
             + "requested = CASE WHEN pay_type = 2 THEN requested + 1 ELSE requested END, "
-            + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
+            + "daily_funds_used = CASE WHEN pay_type = 2 AND daily_funds > 0 THEN daily_funds_used + cost ELSE daily_funds_used END "
             + "WHERE id = ?";
         
         cn.query(sql, [ads[i].id], (err, result) => {

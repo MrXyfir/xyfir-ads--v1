@@ -12,7 +12,8 @@ interface IPub {
 interface IRequestQuery {
     pubid: number, xadid?: string, type?: number, types?: string,
     count?: number, speed?: number, ip?: string, age?: number,
-    gender?: number, categories?: string, keywords?: string
+    gender?: number, categories?: string, keywords?: string,
+    test?: string
 }
 
 interface IUser {
