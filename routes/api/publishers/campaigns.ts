@@ -10,5 +10,6 @@ router.route('/:id')
     .put(campaign.update)
     .delete(campaign.remove);
 router.get('/:id/reports', campaign.reports);
+router.put('/:id/test', campaign.generateTestKey);
 
 export = router;

@@ -1,4 +1,5 @@
-﻿import db = require("../../../lib/db");
+﻿import * as crypto from "crypto";
+import db = require("../../../lib/db");
 
 export = {
 
@@ -34,8 +35,14 @@ export = {
         }
 
         var sql: string = "INSERT INTO pubs SET ?";
-        req.body.owner = req.session.uid;
 
+        req.body.owner = req.session.uid;
+        
+        // Grab last 10 characters of 40 character hash
+        req.body.test = crypto.createHash('sha1').update(
+            Math.floor(Math.random() * (999999999 - 99999999 + 1) + 99999999
+            ).toString()).digest('hex').substr(30);
+        
         // Insert campaign into database
         db(cn => cn.query(sql, req.body, (err, result) => {
 

@@ -1,5 +1,6 @@
 ﻿import mergeObject = require("../../../lib/merge/object");
 import mergeList = require("../../../lib/merge/list");
+import * as crypto from "crypto");
 import db = require("../../../lib/db");
 
 export = {
@@ -9,7 +10,7 @@ export = {
         RETURN
             {
                 name: string, categories: string, keywords: string, site: string,
-                type: number, ?clicks: number, ?views: number,
+                type: number, test: string, ?clicks: number, ?views: number,
                 ?earnings: number, ?pending: number
             }
         DESCRIPTION
@@ -20,7 +21,7 @@ export = {
         var sql: string, response: any;
 
         // Grab the campaign's basic information
-        sql = "SELECT name, categories, keywords, site, type FROM pubs WHERE id = ? AND owner = ?";
+        sql = "SELECT name, categories, keywords, site, type, test FROM pubs WHERE id = ? AND owner = ?";
         db(cn => cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
 
             if (err || rows.length == 0) {
@@ -193,6 +194,33 @@ export = {
             else {
                 res.json({});
             }
+        });
+    },
+
+    /*
+        PUT api/publishers/campaigns/:id/test
+        RETURN
+            { key: string }
+        DESCRIPTION
+            Generates a new test key
+    */
+    generateTestKey: (req, res) => {
+        db(cn => {
+
+            var test: string = crypto.createHash('sha1').update(
+                Math.floor(Math.random() * (999999999 - 99999999 + 1) + 99999999
+                ).toString()).digest('hex').substr(30);
+
+            var sql: string = "UPDATE pubs SET test = ? WHERE id = ? AND owner = ?";
+
+            cn.query(sql, [test, req.params.id, req.session.uid], (err, result) => {
+                cn.release();
+
+                if (err || !result.affectedRows)
+                    res.json({ key: "" });
+                else
+                    res.json({ key: test });
+            });
         });
     }
 
