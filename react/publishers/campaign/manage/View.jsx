@@ -6,7 +6,7 @@ module.exports = React.createClass({
     getInitialState: function() {
         return {
             name: "", categories: "", keywords: "", site: "",
-            type: 0, clicks: 0, views: 0,
+            type: 0, clicks: 0, views: 0, test: "",
             earnings: 0, pending: 0
         };
     },
@@ -74,6 +74,14 @@ module.exports = React.createClass({
                         return(<span>{cat}</span>);
                     })
                 }</div>
+
+                <hr />
+
+                <h4>Test Mode Key</h4>
+                <p>
+                    Read more about Test Mode in our <a href="https://xyfir.github.io/ads/developers#TestMode" target="_blank">developer documentation.</a>
+                </p>
+                <input type="text" onclick="this.select()" value={c.test} />
             </div>
         );
     }

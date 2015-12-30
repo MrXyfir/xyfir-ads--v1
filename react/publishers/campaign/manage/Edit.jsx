@@ -6,7 +6,7 @@ module.exports = React.createClass({
 
     getInitialState: function () {
         return {
-            name: "", categories: "", keywords: "", site: "", type: 0,
+            name: "", categories: "", keywords: "", site: "", type: 0, test: "",
             error: false, message: ""
         };
     },
@@ -34,6 +34,19 @@ module.exports = React.createClass({
             dataType: "json",
             success: function (res) {
                 this.setState(res);
+            }.bind(this)
+        });
+    },
+
+    generateTestKey: function() {
+        ajax({
+            url: API + "publishers/campaigns/" + this.props.id + "/test",
+            method: "PUT",
+            dataType: "json",
+            success: function (res) {
+                if (res.key != "") {
+                    this.setState({ test: res.key });
+                }
             }.bind(this)
         });
     },
@@ -70,6 +83,12 @@ module.exports = React.createClass({
                 </select>
 
                 <Button onClick={this.update}>Update</Button>
+
+                <hr />
+
+                <h3>Test Key</h3>
+                <input type="text" onclick="this.select()" value={c.test} />
+                <Button type="secondary" onClick={this.generateTestKey}>Generate New Key</Button>
             </div>
         );
     }
