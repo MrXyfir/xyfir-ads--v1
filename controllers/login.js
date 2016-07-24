@@ -10,20 +10,20 @@
         Redirects to home page
 */
 
-import request = require("request");
-import db = require("../../lib/db");
+const request = require("request");
+const db = require("lib/db");
 
-var config = require("../../config");
+let config = require("config");
 
-export = (req, res) => {
+module.exports = function(req, res) {
 
     if (req.session.uid) {
         res.redirect(config.addresses.xads);
         return;
     }
 
-    var url: string = config.addresses.xacc
-        + "api/service/11/" + req.query.xid + "/" + req.query.auth;
+    let url = config.addresses.xacc + "api/service/11/" + req.query.xid
+        + "/" + req.query.auth;
 
 
     request(url, (err, response, body) => {
@@ -35,12 +35,12 @@ export = (req, res) => {
         }
 
         db(cn => {
-            var sql: string = "SELECT * FROM users WHERE xyfir_id = ?";
+            let sql = "SELECT * FROM users WHERE xyfir_id = ?";
             cn.query(sql, [req.query.xid], (err, rows) => {
 				
                 // Check if first login (registration) or normal login
                 if (rows.length == 0) {
-                    var insert = {
+                    let insert = {
                         xyfir_id: req.query.xid,
                         email: body.email
                     };
@@ -60,7 +60,7 @@ export = (req, res) => {
                     cn.query(sql, [body.email, rows[0].user_id], (err, result) => {
                         cn.release();
 
-                        // Set session variables
+                        // Set session letiables
                         req.session.uid = rows[0].user_id;
                         req.session.publisher = !!rows[0].publisher;
                         req.session.advertiser = !!rows[0].advertiser;
