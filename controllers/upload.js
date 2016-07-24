@@ -1,5 +1,5 @@
 /*
-    POST api/upoad
+    POST api/upload
     REQUIRED
         type: number, size: number
     OPTIONAL
@@ -9,7 +9,7 @@
     DESCRIPTION
         Upload images or videos for ads using Cloudinary
 */
-export = (req, res) => {
+module.exports = function(req, res) {
 
     // Check if user can upload files
     if (!req.files.file && !req.body.url) {
@@ -22,17 +22,17 @@ export = (req, res) => {
     }
 
     // Setup Cloudinary
-    var cloudinary = require("cloudinary");
-    var config = require("../../config").cloudinary;
+    let cloudinary = require("cloudinary");
+    let config = require("config").cloudinary;
     cloudinary.config(config);
 
     // Upload file to Cloudinary
-    var file = req.body.url || req.files.file.path;
+    let file = req.body.url || req.files.file.path;
     cloudinary.uploader.upload(file, result => {
 
         // Validate file and upload
-        var isValid = (): string => {
-            var dimensions = require("../../lib/file/dimensions");
+        const isValid = () => {
+            let dimensions = require("lib/file/dimensions");
 
             if (!result.secure_url)
                 return "An unkown error occured";
@@ -46,7 +46,7 @@ export = (req, res) => {
                     return "Invalid file format"
 
                 // Size
-                for (var i: number = 0; i < dimensions.image.length; i++) {
+                for (let i = 0; i < dimensions.image.length; i++) {
                     if (dimensions.image[i].size == req.body.size) {
                         if (dimensions.image[i].height != result.height)
                             return "Invalid file dimensions";
@@ -62,7 +62,7 @@ export = (req, res) => {
                     return "Invalid file format"
 
                 // Size
-                for (var i: number = 0; i < dimensions.video.length; i++) {
+                for (let i = 0; i < dimensions.video.length; i++) {
                     if (dimensions.video[i].size == req.body.size) {
                         if (dimensions.video[i].height != result.height)
                             return "Invalid file dimensions";
@@ -74,7 +74,7 @@ export = (req, res) => {
             return "";
         };
 
-        var error = isValid();
+        let error = isValid();
 
         // Send response to client
         if (!!error) {
@@ -82,17 +82,20 @@ export = (req, res) => {
             deleteFile(file, result.public_id);
         }
         else {
-            res.json({ error: false, message: "File uploaded successfully", link: result.secure_url });
+            res.json({
+                error: false,
+                message: "File uploaded successfully", link: result.secure_url
+            });
             deleteFile(file);
         }
     });
 
     // Delete file from server and cloud if available
-    var deleteFile = (path: string, cloud: string = ''): void => {
+    const deleteFile = (path, cloud = "") => {
         // Path is an actual path, not url
         if (path.substr(0, 1) == '/') require("fs").unlink(path, err => { return; });
 
         // Delete file from Cloudinary
-        if (!!cloud) require("../../lib/file/delete")([cloud]);
+        if (!!cloud) require("lib/file/delete")([cloud]);
     };
 };
