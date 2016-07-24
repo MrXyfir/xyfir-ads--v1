@@ -20,7 +20,6 @@
     "geoip-lite": "^1.1.8",
     "mailgun-js": "^0.7.11",
     "mysql": "^2.11.1",
-    "nodemailer": "^2.5.0",
     "randomstring": "^1.1.5",
     "react": "^15.2.1",
     "react-dom": "^15.2.1",
