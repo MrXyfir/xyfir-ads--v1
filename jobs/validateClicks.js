@@ -1,19 +1,17 @@
-﻿/// <reference path="../typings/jobs/validateClicks.d.ts" />
-
-import { EventEmitter } from "events";
-import round = require("../lib/round");
-import db = require("../lib/db");
+﻿const EventEmitter = require("events").EventEmitter;
+const round = require("lib/round");
+const db = require("lib/db");
 
 /*
     Validates clicks in the clicks table
     Modifies costs/earnings for campaigns
     All clicks in table are from CPC ads
 */
-export = (fn: any): void => db(cn => {
+module.exports = (fn) => db(cn => {
 
-    var sql: string = "", cn2: any;
+    let sql = "", cn2;
 
-    var campaigns = {
+    let campaigns = {
         publish: [
             { id: 0, amount: 0 }
         ],
@@ -23,10 +21,10 @@ export = (fn: any): void => db(cn => {
     };
 
     // Adds cost to id in campaigns.* array
-    var updateFunds = (id: number, cost: number, type: string): void => {
+    const updateFunds = (id, cost, type) => {
         // Find index for campaign in campaigns.*[]
-        var campaignIndex = (): number => {
-            for (var i: number = 1; i < campaigns[type].length; i++) {
+        const campaignIndex = () => {
+            for (let i = 1; i < campaigns[type].length; i++) {
                 if (campaigns[type][i].id == id)
                     return i;
             }
@@ -34,7 +32,7 @@ export = (fn: any): void => db(cn => {
             return 0;
         };
 
-        var i: number = campaignIndex();
+        let i = campaignIndex();
         
         if (i == 0) // Add campaign to array
             campaigns[type].push({ id: id, amount: cost });
@@ -43,19 +41,19 @@ export = (fn: any): void => db(cn => {
     };
 
     // Deletes clicks where id, ip, and clicked was yesterday
-    var deleteClicks = (id: number, ip: string, fn: any): void => {
+    const deleteClicks = (id, ip, fn) => {
         sql = "DELETE FROM clicks WHERE pub_id = ? AND ip = ? AND UNIX_TIMESTAMP(CURDATE()) > clicked";
         cn2.query(sql, [id, ip], (err, result) => fn());
         fn();
     };
 
     // Validate clicks for IP with publisher
-    var validate = (click: IClick): void => {
+    const validate = (click) => {
         cn.pause();
 
         //  Grab all clicks where pub/ip match current row's
         sql = "SELECT * FROM clicks WHERE UNIX_TIMESTAMP(CURDATE()) > clicked AND pub_id = ? AND ip = ?";
-        cn2.query(sql, [click.pub_id, click.ip], (err, rows: IClick[]) => {
+        cn2.query(sql, [click.pub_id, click.ip], (err, rows) => {
 
             // There are no other clicks on pub with ip
             if (rows.length == 1) {
@@ -70,7 +68,7 @@ export = (fn: any): void => db(cn => {
 
             // Invalidate clicks that happened too fast
             // Set a value for if click was made by same user from click row
-            for (var i: number = 0; i < rows.length; i++) {
+            for (let i = 0; i < rows.length; i++) {
                 // Ensure individual click is valid
                 if (rows[i].clicked - rows[i].served > 5) {
                     rows[i].valid = true;
@@ -98,20 +96,20 @@ export = (fn: any): void => db(cn => {
             }
 
             // Invalidate clicks in each group of clicks from same user
-            for (var u: number = 0; u < 2; u++) {
-                var clicks: number = 0;
+            for (let u = 0; u < 2; u++) {
+                let clicks = 0;
 
-                for (var i: number = 0; i < rows.length; i++) {
+                for (let i = 0; i < rows.length; i++) {
                     if (rows[i].user == u) {
                         // Invalidate all clicks from user if more than 3 ads where clicked
                         if (++clicks > 3) {
-                            for (var j: number = 0; j < rows.length; j++) {
+                            for (let j = 0; j < rows.length; j++) {
                                 if (rows[j].user = u) rows[j].valid = false;
                             }
                         }
 
                         // Invalidate clicks from same user within 30 seconds of another
-                        for (var j: number = 0; j < rows.length; j++) {
+                        for (let j = 0; j < rows.length; j++) {
                             if (i == j || rows[i].user != rows[j].user) continue;
 
                             // j is within +- 30 seconds of i's clicked
@@ -123,7 +121,7 @@ export = (fn: any): void => db(cn => {
             }
 
             // Loop through clicks: if valid: updateFunds for publisher, else: advertiser
-            for (var i: number = 0; i < rows.length; i++) {
+            for (let i = 0; i < rows.length; i++) {
                 if (rows[i].valid)
                     updateFunds(click.pub_id, rows[i].cost, "publish");
                 else
@@ -137,11 +135,11 @@ export = (fn: any): void => db(cn => {
     };
 
     // Credit / deduct funds from each campaign
-    var update = (): void => {
+    const update = () => {
         
-        var ee = new EventEmitter();
-        var pubIndex: number = 0, advIndex: number = 0;
-        var data = [];
+        let ee = new EventEmitter();
+        let pubIndex = 0, advIndex = 0;
+        let data = [];
 
         // Increases earnings and resets earnings_temp
         // Calls job's callback once complete

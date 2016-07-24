@@ -1,15 +1,15 @@
-﻿import autobid = require("../lib/ad/autobid");
-import db = require("../lib/db");
+﻿const autobid = require("lib/ad/autobid");
+const db = require("lib/db");
 
 /*
     Generate a new bid for all ad campaigns with autobid
 */
-export = (fn: any): void => db(cn => {
+module.exports = (fn) => db(cn => {
 
     // Needed to pass to autobid since cn will be paused
     db(cn2 => {
 
-        var onError = (err: any): void => {
+        const onError = (err) => {
             cn.release();
             cn2.release();
             fn(true);
@@ -34,4 +34,5 @@ export = (fn: any): void => db(cn => {
                 fn(false);
             });
     });
+
 });

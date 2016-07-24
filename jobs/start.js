@@ -1,12 +1,11 @@
-﻿/// <reference path="../typings/cron/cron.d.ts" />
-
-import cron = require("cron");
+﻿const cron = require("cron");
 
 /*
     Sets cronjobs to run at appropriate times
     Handles errors / responses from jobs
 */
-export = (): void => {
+module.exports = function() {
+    
     var jobs = {
         autobid: require("./autobid"),
         deleteReports: require("./deleteReports"),
@@ -32,7 +31,7 @@ export = (): void => {
     // Retries indefinitely on error
     new cron.CronJob("30 23 * * *", () => {
 
-        var run = (): void => jobs.createReports(err => {
+        const run = () => jobs.createReports(err => {
             if (err) run();
         });
 
@@ -54,7 +53,7 @@ export = (): void => {
     // Retries indefinitely on error
     new cron.CronJob("0 0 * * *", () => {
 
-        var run = (): void => jobs.dailyAllocatedFunds(err => {
+        const run = () => jobs.dailyAllocatedFunds(err => {
             if (err) run();
         });
 
@@ -67,7 +66,7 @@ export = (): void => {
     // Retries indefinitely on error
     new cron.CronJob("2 0 * * *", () => {
 
-        var run = (): void => jobs.validateClicks(err => {
+        const run = () => jobs.validateClicks(err => {
             if (err) run();
         });
 

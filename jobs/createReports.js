@@ -1,11 +1,11 @@
-﻿import db = require("../lib/db");
+﻿const db = require("lib/db");
 
 /*
     Creates new reports for ad and pub campaigns for next day
 */
-export = (fn: any): void => db(cn => {
+module.exports = (fn) => db(cn => {
     
-    var sql: string = "";
+    let sql = "";
 
         // Insert into ad_reports with id and day
     sql = "INSERT INTO ad_reports (id, day) "
