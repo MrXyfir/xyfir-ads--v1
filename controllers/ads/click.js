@@ -1,12 +1,10 @@
-/// <reference path="../typings/controllers/click.d.ts" />
-
-import mergeObject = require("../lib/merge/object");
-import mergeList = require("../lib/merge/list");
-import ip2geo = require("../lib/ip2geo");
-import db = require("../lib/db");
+const mergeObject = require("lib/merge/object");
+const mergeList = require("lib/merge/list");
+const ip2geo = require("lib/ip2geo");
+const db = require("lib/db");
 
 /*
-    GET /click
+    GET api/click
     REQUIRED
         pub: number, ad: number, served: unix-timestamp
     OPTIONAL
@@ -17,10 +15,9 @@ import db = require("../lib/db");
         Saves information about click in clicks table
         Redirects user to ad's provided link
 */
-export = (req, res) => {
+module.exports = function(req, res) {
 
-    var adReport: IAdReport, pubReport: IPubReport, geo: IGeo, cn: any, sql: string,
-        link: string, cpc: boolean = false, cost: number = 0, testMode: boolean;
+    let adReport, pubReport, geo, cn, sql, link, cpc = false, cost = 0, testMode;
 
     db(connection => {
         cn = connection;
@@ -40,7 +37,7 @@ export = (req, res) => {
     });
 
     /* Grab Initial Data / Update Ad */
-    var getData = (): void => {
+    const getData = () => {
         geo = ip2geo(req.ip);
 
         // Grab data we need to update for ad report
@@ -96,7 +93,7 @@ export = (req, res) => {
     };
 
     /* Update Values for Pub/Ad Reports */
-    var updateReports = (): void => {
+    const updateReports = () => {
         // Increment optional ad_reports values
         if (req.query.a)
             adReport.dem_age = mergeList(adReport.dem_age.split(','), [req.query.a + ":1"]);
@@ -125,7 +122,7 @@ export = (req, res) => {
         sql = "UPDATE ad_reports SET dem_age = ?, dem_gender = ?, dem_geo = ?, publishers = ?, "
             + "clicks = clicks + 1, cost = CASE WHEN ? THEN cost + ? ELSE cost END "
             + "WHERE id = ? AND day = CURDATE()";
-        var values = [
+        let values = [
             adReport.dem_age, adReport.dem_gender, adReport.dem_geo,
             adReport.publishers, cpc, cost, req.query.ad
         ];
@@ -145,12 +142,13 @@ export = (req, res) => {
     };
 
     /* Clicks Table / Redirect User */
-    var finish = (): void => {
+    const finish = () => {
         // Only clicks on CPC ads need to be validated
         // Don't add click to table if in test mode
         if (cpc && !testMode) {
             // Generate browser signature
-            var signature: string = req.useragent.browser + ';' + req.useragent.version + ';' + req.useragent.os;
+            let signature = req.useragent.browser + ';' + req.useragent.version
+                + ';' + req.useragent.os;
 
             signature = signature // Shorten length of signature
                 .replace(/\s/g, "").replace("Windows", "Win")
@@ -161,7 +159,7 @@ export = (req, res) => {
             signature = signature.length > 32 ? signature.substr(0, 32) : signature;
 
             // Add row to clicks table
-            var insert = {
+            let insert = {
                 ad_id: req.query.ad, pub_id: req.query.pub, served: req.query.served,
                 ip: req.ip, clicked: (new Date().getTime() / 1000), signature: signature,
                 xad_id: "", cost: cost
