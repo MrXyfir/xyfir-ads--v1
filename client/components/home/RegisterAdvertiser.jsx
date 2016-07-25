@@ -1,25 +1,32 @@
-var Button = require('../forms/Button');
+import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
 
-    register: function() {
-        ajax({
-            url: 'api/advertisers/account/register',
-            method: 'POST',
-            dataType: 'json',
-            data: {
+// Modules
+import request from "lib/request";
 
-            },
-            success: function(response) {
+export default class RegisterAdvertiser extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.register = this.register.bind(this);
+    }
+
+    register() {
+        request({
+            url: "api/advertisers/account/register",
+            method: "POST", success: (response) => {
                 if (response.error)
                     alert(response.message);
                 else
-                    location.href = 'advertisers';
+                    location.href = "advertisers";
             }
         });
-    },
+    }
 
-    render: function() {
+    render() {
         return (
             <div className="home-register-advertiser">
                 <h3>Become an Advertiser</h3>
@@ -28,4 +35,4 @@ module.exports = React.createClass({
         );
     }
 
-});
+}

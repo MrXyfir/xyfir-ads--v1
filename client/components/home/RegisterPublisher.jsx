@@ -1,40 +1,51 @@
-var Button = require('../forms/Button');
+import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
 
-    register: function() {
-        var data = {
+// Modules
+import request from "lib/request";
+
+export default class RegisterPublisher extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.register = this.register.bind(this);
+    }
+
+    register() {
+        const data = {
             name: this.refs.name.value,
             email: this.refs.email.value,
             application: this.refs.info.value
         };
 
         if (data.name.length > 25)
-            alert('Name cannot be over 25 characters.');
+            alert("Name cannot be over 25 characters.");
         else if (data.email.length > 50)
-            alert('Email cannot be over 50 characters.');
+            alert("Email cannot be over 50 characters.");
         else if (data.application.length > 1500)
-            alert('Application cannot be over 1,500 characters.');
+            alert("Application cannot be over 1,500 characters.");
         else {
-            ajax({
-                url: 'api/publishers/account/register',
-                method: 'POST',
-                dataType: 'json',
-                data: data,
-                success: function (response) { alert(response.message); }
+            request({
+                url: "api/publishers/account/register",
+                method: "POST", data, success: (response) => {
+                    alert(response.message);
+                }
             });
         }
-    },
+    }
 
-    render: function() {
+    render() {
         return (
             <div className="home-register-publisher">
                 <h3>Publisher Application</h3>
                 <p>
-                    Interested in utilizing Xyfir Ads on your site or app? Not all publishers who apply will be accepted, but it can't hurt to try. Once you apply a staff member will manually approve or deny your application. If you're denied, you can apply again every 3 months.
+                    Interested in utilizing Xyfir Ads on your site or app? Not all publishers who apply will be accepted, but it can"t hurt to try. Once you apply a staff member will manually approve or deny your application. If you"re denied, you can apply again every 3 months.
                 </p>
                 <p>
-	                <b>Information we're looking for in your application:</b>
+	                <b>Information we"re looking for in your application:</b>
 	                <br />
                     a brief description of and links to sites, apps, or other service that you plan to integrate Xyfir Ads with
 	                <br />
@@ -47,11 +58,11 @@ module.exports = React.createClass({
 
                 <input type="text" placeholder="Name or Business" ref="name" />
                 <input type="text" placeholder="Contanct Email" ref="email" />
-                <textarea ref="info" defaultValue="Publisher application"></textarea>
+                <textarea ref="info" defaultValue="Publisher application" />
 
                 <Button type="primary" onClick={this.register}>Register</Button>
             </div>
         );
     }
 
-});
+}

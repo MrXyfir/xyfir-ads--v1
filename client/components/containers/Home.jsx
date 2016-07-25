@@ -1,31 +1,34 @@
-var RegisterAdvertiser = require('./home/RegisterAdvertiser');
-var RegisterPublisher = require('./home/RegisterPublisher');
-var Button = require('./forms/Button');
+import React from "react";
 
-var Home = React.createClass({
+// Components
+import RegisterAdvertiser from "components/home/RegisterAdvertiser";
+import RegisterPublisher from "components/home/RegisterPublisher";
+import Button from "components/forms/Button";
 
-    getInitialState: function() {
-        return {
+export default class Home extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             registerAdv: false,
             registerPub: false
         };
-    },
 
-    registerAdv: function() {
+        this.registerAdv = this.registerAdv.bind(this);
+        this.registerPub = this.registerPub.bind(this);
+    }
+
+    registerAdv() {
         this.setState({ registerAdv: true });
-    },
+    }
 
-    registerPub: function() {
+    registerPub() {
         this.setState({ registerPub: true });
-    },
+    }
 
-    login: function() {
-        // accounts.xyfir.com/login/11
-        location.href = XACC + "login/11";
-    },
-
-    render: function() {
-        var registerAdvertiser;
+    render() {
+        let registerAdvertiser;
         if (this.state.registerAdv) {
             registerAdvertiser = <RegisterAdvertiser />;
         }
@@ -38,7 +41,7 @@ var Home = React.createClass({
             );
         }
 
-        var registerPublisher;
+        let registerPublisher;
         if (this.state.registerPub) {
             registerPublisher = <RegisterPublisher />;
         }
@@ -66,9 +69,9 @@ var Home = React.createClass({
 
             <div className="home-section-dashboards">
                 <h2>Dashboards</h2>
-                <a href="advertisers" className="btn btn-lg btn-primary">Advertiser</a>
-                <a href="publishers" className="btn btn-lg btn-primary">Publisher</a>
-                <a className="link-lg" onClick={this.login}>LOGIN WITH XYFIR ACCOUNT</a>
+                <a href="#/advertisers" className="btn btn-lg btn-primary">Advertiser</a>
+                <a href="#/publishers" className="btn btn-lg btn-primary">Publisher</a>
+                <a className="link-lg" href={XACC + "login/11"}>LOGIN WITH XYFIR ACCOUNT</a>
             </div>
 
             <hr />
@@ -133,6 +136,4 @@ var Home = React.createClass({
         );
     }
 
-});
-
-ReactDOM.render(<Home />, $("#content"));
+}
