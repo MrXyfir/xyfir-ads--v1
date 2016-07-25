@@ -1,62 +1,58 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
+
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
+
+// Module
+import request from "lib/request";
 
 // ** Allow user to modify their categories
-module.exports = React.createClass({
+export default class EditPublisherCampaign extends React.Component {
 
-    getInitialState: function () {
-        return {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             name: "", categories: "", keywords: "", site: "", type: 0, test: "",
             error: false, message: ""
         };
-    },
+    }
 
-    componentWillMount: function () {
-        ajax({
-            url: API + "publishers/campaigns/" + this.props.id,
-            dataType: "json",
-            success: function (res) {
-                this.setState(res);
-            }.bind(this)
+    componentWillMount() {
+        request({
+            url: "api/publishers/campaigns/" + this.props.id,
+            success: (res) => this.setState(res)
         });
-    },
+    }
 
-    update: function() {
-        var data = {
+    onUpdate() {
+        const data = {
             name: this.refs.name.value, type: +this.refs.type.value, site: this.refs.site.value,
             keywords: this.refs.keywords.value, categories: this.state.categories
         };
 
-        ajax({
-            url: API + "publishers/campaigns/" + this.props.id,
-            data: data,
-            method: "PUT",
-            dataType: "json",
-            success: function (res) {
-                this.setState(res);
-            }.bind(this)
+        request({
+            url: "api/publishers/campaigns/" + this.props.id,
+            data, method: "PUT", success: (res) => this.setState(res)
         });
-    },
+    }
 
-    generateTestKey: function() {
-        ajax({
-            url: API + "publishers/campaigns/" + this.props.id + "/test",
-            method: "PUT",
-            dataType: "json",
-            success: function (res) {
+    onGenerateTestKey() {
+        request({
+            url: "api/publishers/campaigns/" + this.props.id + "/test",
+            method: "PUT", success: (res) => {
                 if (res.key != "") {
                     this.setState({ test: res.key });
                 }
-            }.bind(this)
+            }
         });
-    },
+    }
 
-    render: function() {
-        if (this.state.name == "") {
-            return <div></div>;
-        }
+    render() {
+        if (this.state.name == "") return <div />
 
-        var c = this.state, alert;
+        let c = this.state, alert;
 
         if (this.state.error)
             alert = <Alert type="error" title="Error!">{this.state.message}</Alert>
@@ -74,7 +70,7 @@ module.exports = React.createClass({
                 <input type="text" ref="site" defaultValue={c.site} />
 
                 <h3>Keywords</h3>
-                <textarea ref="keywords" defaultValue={c.keywords}></textarea>
+                <textarea ref="keywords" defaultValue={c.keywords} />
 
                 <h3>Type</h3>
                 <select ref="type" defaultValue={c.type}>
@@ -82,13 +78,15 @@ module.exports = React.createClass({
                     <option value="2">App / Web App</option>
                 </select>
 
-                <Button onClick={this.update}>Update</Button>
+                <Button onClick={() => this.onUpdate}>Update</Button>
 
                 <hr />
 
                 <h3>Test Key</h3>
                 <input type="text" onclick="this.select()" value={c.test} />
-                <Button type="secondary" onClick={this.generateTestKey}>Generate New Key</Button>
+                <Button type="secondary" onClick={() => this.onGenerateTestKey}>
+                    Generate New Key
+                </Button>
             </div>
         );
     }

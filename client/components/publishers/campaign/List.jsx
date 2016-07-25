@@ -1,26 +1,29 @@
-﻿module.exports = React.createClass({
+﻿import React from "react";
 
-    getInitialState: function() {
-        return {
+// Modules
+import request from "lib/request";
+
+export default class PublisherCampaignsList extends React.Component {
+
+    constructor(props) {
+        super(props);
+        
+        this.state = {
             campaigns: [
                 /* { id: number, name: string, site: string, type: number } */
             ]
         };
-    },
+    }
 
-    componentWillMount: function () {
-        ajax({
-            url: API + "publishers/campaigns",
-            dataType: "json",
-            success: function(res) {
-                console.log(res);
-                this.setState(res);
-            }.bind(this)
+    componentWillMount() {
+        request({
+            url: "api/publishers/campaigns",
+            success: res => this.setState(res)
         });
-    },
+    }
 
-    render: function () {
-        var campaigns = [];
+    render() {
+        let campaigns = [];
 
         if (!this.state.campaigns.length) {
             return(
@@ -30,19 +33,19 @@
             );
         }
         else {
-            campaigns = this.state.campaigns.map(function(c) {
-                c.link = "campaign/" + c.id;
+            campaigns = this.state.campaigns.map(c => {
+                c.link = "#/publishers/campaign/" + c.id;
                 
                 return(
                     <tr className="campaign">
                         <td className="name">
-                            <a onClick={this.props.updateRoute.bind(this,c.link)}>{c.name}</a>
+                            <a href={c.link}>{c.name}</a>
                         </td>
                         <td className="site">{c.site}</td>
                         <td className="type">{c.type == 1 ? "Site" : "App"}</td>
                     </tr>
                 ); 
-            }.bind(this));
+            });
         }
 
         return (
@@ -52,4 +55,4 @@
         );
     }
 
-});
+}

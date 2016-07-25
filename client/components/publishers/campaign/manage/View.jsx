@@ -1,31 +1,35 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function() {
-        return {
+// Module
+import request from "lib/request";
+
+export default class ViewPublisherCampaign extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             name: "", categories: "", keywords: "", site: "",
             type: 0, clicks: 0, views: 0, test: "",
             earnings: 0, pending: 0
         };
-    },
+    }
 
-    componentWillMount: function() {
-        ajax({
-            url: API + "publishers/campaigns/" + this.props.id,
-            dataType: "json",
-            success: function(res) {
-                this.setState(res);
-            }.bind(this)
+    componentWillMount() {
+        request({
+            url: "api/publishers/campaigns/" + this.props.id,
+            success: (res) => this.setState(res)
         });
-    },
+    }
 
-    render: function() {
-        if (this.state.name == "")
-            return <div></div>;
+    render() {
+        if (this.state.name == "") return <div />;
 
-        var c = this.state;
+        let c = this.state;
 
         return(
             <div className="publishers-campaign">
@@ -63,14 +67,14 @@ module.exports = React.createClass({
 
                 <h4>Keywords</h4>
                 <div className="keywords">{
-                    c.keywords.split(',').map(function(kw) {
+                    c.keywords.split(',').map(kw => {
                         return(<span>{kw}</span>);
                     })
                 }</div>
 
                 <h4>Categories</h4>
                 <div className="category-selected">{
-                    c.categories.split(',').map(function(cat) {
+                    c.categories.split(',').map(cat => {
                         return(<span>{cat}</span>);
                     })
                 }</div>
@@ -86,4 +90,4 @@ module.exports = React.createClass({
         );
     }
 
-});
+}

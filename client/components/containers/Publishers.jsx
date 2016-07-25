@@ -1,31 +1,15 @@
-﻿/* Route Components */
-var Campaigns = require("./publishers/Campaigns");
-var Account = require("./publishers/Account");
+﻿// Components
+import Campaigns from "components/publishers/Campaigns";
+import Account from "components/publishers/Account";
 
-var Publishers = React.createClass({
+export default class Publishers extends React.Component {
 
-    getInitialState: function() {
-        return { view: "account" };
-    },
+    constructor(props) {
+        super(props);
+        this.state = { view: "account" };
+    }
 
-    componentWillMount: function () {
-        // Set view based on current URL
-        this.routeUpdated();
-    },
-
-    /*
-        Update URL and call routeUpdate()
-    */
-    updateRoute: function(route) {
-        route = URL + "publishers/" + route;
-        history.pushState({}, '', route);
-        this.routeUpdated();
-    },
-
-    /*
-        Set state.view based on current URL
-    */
-    routeUpdated: function() {
+    routeUpdated() {
         // Parse url
         var a = document.createElement('a');
         a.href = location.href;
@@ -45,30 +29,29 @@ var Publishers = React.createClass({
                 if (a.pathname.indexOf("/publishers/campaign/") == 0)
                     this.setState({ view: "campaign-manage" });
         }
-    },
+    }
 
-    render: function () {
-        var view;
-        if (this.state.view.indexOf("campaign") == 0) {
-            view = <Campaigns view={this.state.view} updateRoute={this.updateRoute} />;
-        }
-        else if (this.state.view == "account") {
-            view = <Account view={this.state.view} updateRoute={this.updateRoute} />;
+    render() {
+        let view;
+        switch (this.props.hash[2]) {
+            case "campaigns":
+            case "campaign":
+                view = <Campaigns {...this.props} />; break;
+            default:
+                view = <Account {...this.props} />;
         }
 
         return (
             <div className="publishers">
-                <div className="publishers-nav">
-                    <a onClick={this.updateRoute.bind(this, "campaign/create")} className="link-lg">Create Campaign</a>
-                    <a onClick={this.updateRoute.bind(this, "campaigns")} className="link-lg">View Campaigns</a>
-                    <a onClick={this.updateRoute.bind(this, "account")} className="link-lg">My Account</a>
-                </div>
+                <nav className="publishers-nav">
+                    <a href="#/publishers/campaign/create" className="link-lg">Create Campaign</a>
+                    <a href="#/publishers/campaigns" className="link-lg">View Campaigns</a>
+                    <a href="#/publishers/account" className="link-lg">My Account</a>
+                </nav>
 
-        {view}
-        </div>
+                {view}
+            </div>
         );
     }
 
-});
-
-ReactDOM.render(<Publishers />, $("#content"));
+}

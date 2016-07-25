@@ -1,65 +1,64 @@
-﻿var Button = require("../../../forms/Button");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
 
-    getInitialState: function() {
-        return {
+// Module
+import request from "lib/request";
+
+export default class PublisherCampaignReports extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             clicks: 0, views: 0, earnings: 0,
             pending: 0, ads: "", loading: true
         };
-    },
+    }
 
-    componentWillMount: function() {
-        var url = API + "publishers/campaigns/" + this.props.id + "/reports"
+    componentWillMount() {
+        const url = "api/publishers/campaigns/" + this.props.id + "/reports"
             + "?dates=" + (new Date().toISOString().substr(0, 10));
 
-        ajax({
-            url: url,
-            dataType: "json",
-            success: function(res) {
-                res.loading = false;
-                this.setState(res, function () { this.idToAd(); });
-            }.bind(this)
-        });
-    },
+        request({url, success: (res) => {
+            res.loading = false;
+            this.setState(res, () => this._idToAd());
+        }});
+    }
 
-    generateReport: function() {
-        var dates = this.refs.start.value;
+    onGenerateReport() {
+        let dates = this.refs.start.value;
         if (this.refs.end.value != "")
             dates += '|' + this.refs.end.value;
 
-        var url = API + "publishers/campaigns/" + this.props.id + "/reports"
+        const url = "api/publishers/campaigns/" + this.props.id + "/reports"
             + "?dates=" + dates;
 
-        ajax({
-            url: url,
-            dataType: "json",
-            success: function(res) {
-                this.setState(res, function () { this.idToAd(); });
-            }.bind(this)
-        });
-    },
+        request({url, success: res => {
+            this.setState(res, () => this._idToAd());
+        }});
+    }
 
     // Take list of ad campaign ids:clicks and convert id to ad's title
-    idToSite: function () {
+    _idToSite() {
         if (this.state.ads == "")
             return;
 
-        var arr = this.ads.publishers.split(',');
+        let arr = this.ads.publishers.split(',');
 
-        var convert = function (i) {
+        const convert = (i) => {
             // Looped through all ids, set state.ads
             if (arr[i] == undefined) {
                 this.setState({ ads: arr.join(',') });
                 return;
             }
 
-            var temp = arr[i].split(':');
+            let temp = arr[i].split(':');
 
-            ajax({
-                url: API + "ad/info?id=" + temp[0],
-                dataType: "json",
-                success: function (res) {
+            request({
+                url: "api/ad/info?id=" + temp[0],
+                success: (res) => {
                     arr[i] = res.title + ':' + temp[1];
                     convert(i++);
                 }
@@ -67,13 +66,12 @@ module.exports = React.createClass({
         };
 
         convert(0);
-    },
+    }
 
-    render: function() {
-        if (this.state.loading)
-            return <div></div>;
+    render() {
+        if (this.state.loading) return <div />;
 
-        var s = this.state;
+        const s = this.state;
 
         return(
             <div className="campaign-reports">
@@ -85,7 +83,7 @@ module.exports = React.createClass({
                 <label>End Date</label>
                 <input type="text" ref="end" />
 
-                <Button onClick={this.generateReport}>Generate</Button>
+                <Button onClick={() => this.onGenerateReport()}>Generate</Button>
 
                 <hr />
 
@@ -116,7 +114,7 @@ module.exports = React.createClass({
                     <h3>Top Advertisements</h3>
                     <p>Advertisements your users are clicking most.</p>
                     <table className="top-advertisers">{
-                        s.ads.split(',').map(function(ad) {
+                        s.ads.split(',').map(ad => {
                             return(
                                 <tr>
                                     <th>{ad.split(':')[0]}</th>
@@ -128,6 +126,6 @@ module.exports = React.createClass({
                 </div>
             </div>
         );
-}
+    }
 
-});
+}

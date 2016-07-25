@@ -1,10 +1,18 @@
-﻿var Button = require("../forms/Button");
-var Alert = require("../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function () {
-        return {
+// Modules
+import request from "lib/request";
+
+export default class PublisherAccount extends React.Component {
+
+    constructor(props) {
+        super(props);
+        
+        this.state = {
             error: false, message: "", paymentMethod: 1,
             payment: {
                 method: 0, info: ""
@@ -16,25 +24,23 @@ module.exports = React.createClass({
                 { id: "", amount: 0, tstamp: "" }
             ]
         };
-    },
+    }
 
-    componentWillMount: function () {
+    componentWillMount() {
         // Get account info
-        ajax({
-            url: API + "publishers/account",
-            method: "GET",
-            dataType: "json",
-            success: function(response) {
+        request({
+            url: "api/publishers/account",
+            success: (response) => {
                 if (response.payment.info != "")
                     response.payment.info = JSON.parse(response.payment.info);
                 this.setState(response);
-            }.bind(this)
+            }
         });
-    },
+    }
 
-    updatePaymentInfo: function () {
-        ajax({
-            url: API + "publishers/account",
+    onUpdatePaymentInfo() {
+        request({
+            url: "api/publishers/account",
             data: {
                 paymentMethod: +this.refs.paymentMethod.value,
                 paymentInfo: JSON.stringify({
@@ -45,32 +51,32 @@ module.exports = React.createClass({
                     country: this.refs.country.value
                 })
             },
-            method: "PUT",
-            dataType: "json",
-            success: function(res) {
-                this.setState(res);
-            }.bind(this)
+            method: "PUT", success: (res) => this.setState(res)
         });
-    },
+    }
 
-    updatePaymentInfoForm: function() {
+    onUpdatePaymentInfoForm() {
         this.setState({ paymentMethod: +this.refs.paymentMethod.value });
-    },
+    }
 
-    render: function () {
-        var alert, payments = [], paymentInfoForm, s = this.state;
+    render() {
+        let alert, payments = [], paymentInfoForm, s = this.state;
 
         /* Error/Success Alert */
         if (this.state.message) {
-            if (this.state.error) var type = "error", title = "Error!";
-            else var type = "info", title = "Success!";
+            let type, title;
+
+            if (this.state.error)
+                type = "error", title = "Error!";
+            else
+                type = "info", title = "Success!";
 
             alert = <Alert type={type} title={title}>{this.state.message}</Alert>
         }
 
         /* Previous Payments Array */
         if (!!this.state.payments.length) {
-            this.state.payments.forEach(function(payment) {
+            this.state.payments.forEach(payment => {
                 if (payment.id != "") {
                     payments.push(
                         <tr>
@@ -134,15 +140,15 @@ module.exports = React.createClass({
                 {alert}
 
                 <h3>Payment Information</h3>
-                <select ref="paymentMethod" onChange={this.updatePaymentInfoForm}>
+                <select ref="paymentMethod" onChange={() => this.onUpdatePaymentInfoForm}>
                     <option value="1">Check (US ONLY)</option>
                     <option value="2">Bank Wire</option>
                 </select>
                 {paymentInfoForm}
 
-                <Button onClick={this.updatePaymentInfo}>Update</Button>
+                <Button onClick={() => this.onUpdatePaymentInfo}>Update</Button>
             </div>
         );
     }
 
-});
+}

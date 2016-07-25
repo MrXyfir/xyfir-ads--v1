@@ -1,36 +1,43 @@
-﻿var Reports = require("./manage/Reports");
-var View = require("./manage/View");
-var Edit = require("./manage/Edit");
-var End = require("./manage/End");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Reports from "./manage/Reports";
+import View from "./manage/View";
+import Edit from "./manage/Edit";
+import End from "./manage/End";
 
-    render: function () {
-        var step, route = "campaign/" + this.props.id;
+export default class ManagePublisherCampaign extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        let view, hash = "#/publishers/campaign/" + this.props.id;
 
         switch (this.props.action) {
             case "end":
-                step = <End id={this.props.id} />; break;
+                view = <End id={this.props.id} />; break;
             case "view":
-                step = <View id={this.props.id} />; break;
+                view = <View id={this.props.id} />; break;
             case "edit":
-                step = <Edit id={this.props.id} />; break;
+                view = <Edit id={this.props.id} />; break;
             case "reports":
-                step = <Reports id={this.props.id} />;
+                view = <Reports id={this.props.id} />;
         }
 
         return (
             <div className="publishers-campaign-manage">
-                <div className="publishers-nav-sub">
-                    <a onClick={this.props.updateRoute.bind(this, route)} className="link-lg">View</a>
-                    <a onClick={this.props.updateRoute.bind(this, route + "/reports")} className="link-lg">Reports</a>
-                    <a onClick={this.props.updateRoute.bind(this, route + "/edit")} className="link-lg">Edit</a>
-                    <a onClick={this.props.updateRoute.bind(this, route + "/end" )} className="link-lg">End</a>
-                </div>
+                <nav className="publishers-nav-sub">
+                    <a href={hash + "/view"} className="link-lg">View</a>
+                    <a href={hash + "/reports"} className="link-lg">Reports</a>
+                    <a href={hash + "/edit"} className="link-lg">Edit</a>
+                    <a href={hash + "/end" } className="link-lg">End</a>
+                </nav>
 
-                {step}
+                {view}
             </div>
         );
     }
 
-});
+}

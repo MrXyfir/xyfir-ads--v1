@@ -1,30 +1,36 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function() {
-        return { error: false, message: "", confirm: false };
-    },
+// Module
+import request from "lib/request";
 
-    confirm: function() {
-        ajax({
-            url: API + "publishers/campaigns/" + this.props.id,
-            method: "DELETE",
-            dataType: "json",
-            success: function(res) {
+export default class EndPublisherCampaign extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = { error: false, message: "", confirm: false };
+    }
+
+    onConfirm() {
+        request({
+            url: "api/publishers/campaigns/" + this.props.id,
+            method: "DELETE", success: (res) => {
                 res.confirm = true;
                 this.setState(res);
 
                 // Send user back to their campaigns
-                setTimeout(function () {
-                    window.location.href = "../../campaigns";
+                setTimeout(() => {
+                    location.href = "#/publishers/campaigns";
                 }, 7 * 1000);
-            }.bind(this)
+            }
         });
-    },
+    }
 
-    render: function() {
+    render() {
         if (this.state.confirm) {
             return(
                 <div className="end-campaign">
@@ -40,10 +46,10 @@ module.exports = React.createClass({
                     <Alert alert="danger" title="Warning!">
                         Are you sure you want to end this campaign? Any pending or confirmed earnings in the campaign will be lost!
                     </Alert>
-                    <Button onClick={this.confirm}>End Campaign</Button>
+                    <Button onClick={() => this.onConfirm}>End Campaign</Button>
                 </div>
             );
         }
     }
 
-});
+}
