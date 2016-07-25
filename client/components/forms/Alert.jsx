@@ -1,16 +1,18 @@
-﻿module.exports = React.createClass({
+﻿import React from "react";
 
-    getDefaultProps: function () {
-        return { type: "info" };
-    },
+export default class Alert extends React.Component {
+
+    constructor(props) {
+        this.state = { type: this.props.type || "info" };
+    }
 	
-    render: function() {
+    render() {
         return (
-			<div className={"alert alert-" + this.props.type}>
+			<div className={"alert alert-" + this.state.type}>
 				<h3>{this.props.title}</h3>
 				<p>{this.props.children}</p>
 			</div>
 		);
     }
 
-});
+}

@@ -1,18 +1,24 @@
-module.exports = React.createClass({
+import React from "react";
 
-    getDefaultProps: function() {
-        return {
-            type: "primary", disabled: false
+export default class Button extends React.Component {
+
+    constructor(props) {
+        this.state = {
+            type: this.props.type || "primary",
+            disabled: this.props.disabled || false
         };
-    },
+    }
 
-    render: function () {
-        var classn = "btn-" + this.props.type;
+    render() {
         return (
-            <button className={classn} onClick={this.props.onClick} disabled={this.props.disabled}>
-                {this.props.children}
-            </button>
+            <button
+                className={"btn-" + this.props.type}
+                onClick={this.props.onClick}
+                disabled={this.state.disabled}
+            >{
+                this.props.children
+            }</button>
         );
     }
 
-});
+}
