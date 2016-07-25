@@ -1,59 +1,65 @@
-﻿var Button = require("../../forms/Button");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
 
-    getInitialState: function() {
-        return { loading: true };
-    },
+// Modules
+import request from "lib/request";
 
-    componentWillMount: function() {
-        ajax({
-            url: API + "panel/awaiting/ads/" + this.props.id,
-            dataType: "json",
-            success: function(res) {
+export default class Ad extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = { loading: true };
+
+        this.onApprove = this.onApprove.bind(this);
+        this.onDeny = this.onDeny.bind(this);
+    }
+
+    componentWillMount() {
+        request({
+            url: "api/panel/awaiting/ads/" + this.props.id,
+            success: (res) => {
                 res.loading = false;
                 this.setState(res);
-            }.bind(this)
+            }
         });
-    },
+    }
 
-    approve: function() {
-        ajax({
-            url: API + "panel/awaiting/ads/" + this.props.id,
+    onApprove() {
+        request({
+            url: "api/panel/awaiting/ads/" + this.props.id,
             method: "POST",
-            dataType: "json",
-            success: function(res) {
+            success: (res) => {
                 if (res.error)
                     alert("An error occured. Try again!");
                 else
                     alert("Approved");
             }
         });
-    },
+    }
 
-    deny: function() {
-        ajax({
-            url: API + "panel/awaiting/ads/" + this.props.id,
+    onDeny() {
+        request({
+            url: "api/panel/awaiting/ads/" + this.props.id,
             data: {
                 reason: this.refs.denyReason.value
             },
-            method: "DELETE",
-            dataType: "json",
-            success: function(res) {
+            method: "DELETE", success: (res) => {
                 if (res.error)
                     alert("An error occured. Try again!");
                 else
                     alert("Denied");
             }
         });
-    },
+    }
 
-    render: function() {
-        if (this.state.loading)
-            return <div></div>;
+    render() {
+        if (this.state.loading) return <div />;
 
-        var ad = [];
-        for (var prop in this.state) {
+        let ad = [];
+        for (let prop in this.state) {
             if (this.state.hasOwnProperty(prop) && prop != "loading") {
                 ad.push([prop, this.state[prop]]);
             }
@@ -62,22 +68,22 @@ module.exports = React.createClass({
         return (
             <div className="panel-awaiting-ad">
                 <table>{
-                    ad.map(function(c) {
+                    ad.map(c => {
                         return(<tr><th>{c[0]}</th><td>{c[1]}</td></tr>);
                     })
                 }</table>
 
                 <div className="action">
-                    <Button onClick={this.approve}>Approve Advert</Button>
+                    <Button onClick={this.onApprove}>Approve Advert</Button>
 
                     <h3>~ or ~</h3>
 
-                    <Button onClick={this.deny}>Deny Advert</Button>
+                    <Button onClick={this.onDeny}>Deny Advert</Button>
 
-                    <textarea ref="denyReason"></textarea>
+                    <textarea ref="denyReason" />
                 </div>
             </div>  
         );
     }
 
-});
+}

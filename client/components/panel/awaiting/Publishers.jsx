@@ -1,25 +1,29 @@
-﻿module.exports = React.createClass({
+﻿import React from "react";
 
-    getInitialState: function() {
-        return {
+// Modules
+import request from "lib/request";
+
+export default class Publishers extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             publishers: [
                 /* { user_id: number, name: string } */
             ]
         };
-    },
+    }
 
-    componentWillMount: function () {
-        ajax({
-            url: API + "panel/awaiting/publishers",
-            dataType: "json",
-            success: function(res) {
-                this.setState(res);
-            }.bind(this)
+    componentWillMount() {
+        request({
+            url: "api/panel/awaiting/publishers",
+            success: (res) => this.setState(res)
         });
-    },
+    }
 
-    render: function () {
-        var publishers = [];
+    render() {
+        let publishers = [];
 
         if (!this.state.publishers.length) {
             return(
@@ -27,16 +31,16 @@
             );
         }
         else {
-            publishers = this.state.publishers.map(function(pub) {
-                pub.link = "publisher/" + pub.user_id;
+            publishers = this.state.publishers.map(pub => {
+                pub.link = "#/panel/awaiting/publisher/" + pub.user_id;
                 
                 return(
                     <tr>
-                        <td><a onClick={this.props.updateRoute.bind(this,pub.link)}>{pub.name}</a></td>
+                        <td><a href={pub.link}>{pub.name}</a></td>
                     </tr>
                 ); 
-        }.bind(this));
-    }
+            });
+        }
 
         return (
             <table className="panel-awaiting-publishers">
@@ -48,4 +52,4 @@
         );
     }
 
-});
+}
