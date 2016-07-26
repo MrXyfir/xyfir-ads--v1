@@ -1,19 +1,27 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function() {
-        return {
+// Modules
+import request from "lib/request";
+
+export default class Final extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             loading: true, error: false, message: ''
         };
-    },
+    }
 
-    componentWillMount: function() {
+    componentWillMount() {
         // Build data object from campaignData for 
-        var cd = window.campaignData;
+        let cd = window.campaignData;
 
-        var data = {
+        let data = {
             c_name: cd.name, a_type: cd.type, a_paytype: cd.payType, c_availability: cd.available,
             ct_category: cd.category, ct_keywords: cd.keywords,
             ct_sites: (cd.sites[0] == '' ? '*' : cd.sites.join(',')),
@@ -24,23 +32,28 @@ module.exports = React.createClass({
         };
 
         // If all values in cd.genders/cd.age are the same, ut_value = 0
-        var allGenders = true, allAges = true;
-        for (var i = 1; i < 4; i++) if (cd.genders[i] != cd.genders[1]) allGenders = false;
-        for (var i = 1; i < 7; i++) if (cd.age[i] != cd.age[1]) allAges = false;
+        let allGenders = true, allAges = true;
+        for (let i = 1; i < 4; i++)
+            if (cd.genders[i] != cd.genders[1]) allGenders = false;
+        
+        for (let i = 1; i < 7; i++)
+            if (cd.age[i] != cd.age[1]) allAges = false;
 
         if (!allGenders) {
             data.ut_genders = '';
-            for (var i = 1; i < 4; i++) {
+            
+            for (let i = 1; i < 4; i++)
                 if (cd.genders[i]) data.ut_genders += i + ','
-            }
+
             data.ut_genders = data.ut_genders.substr(0, data.ut_genders.length - 1);
         }
 
         if (!allAges) {
             data.ut_age = '';
-            for (var i = 1; i < 7; i++) {
+            
+            for (let i = 1; i < 7; i++)
                 if (cd.age[i]) data.ut_age += i + ','
-            }
+            
             data.ut_age = data.ut_age.substr(0, data.ut_age.length - 1);
         }
 
@@ -49,9 +62,9 @@ module.exports = React.createClass({
             data.ut_regions = data.ut_countries = '*';
         }
         else {
-            cd.countriesRegions.split('|').forEach(function (cr) {
+            cd.countriesRegions.split('|').forEach(cr => {
                 // cr == US:CA,FL,OR,...
-                var temp = cr.split(':');
+                let temp = cr.split(':');
 
                 data.ut_countries += ',' + temp[0];
                 data.ut_regions += '|' + temp[1];
@@ -65,31 +78,29 @@ module.exports = React.createClass({
         console.log(data);
 
         // Send campaign to API
-        ajax({
-            url: API + "advertisers/campaigns",
-            data: data,
-            method: "POST",
-            dataType: "json",
-            success: function(res) {
+        request({
+            url: "api/advertisers/campaigns",
+            data, method: "POST", success: (res) => {
                 res.loading = false;
                 this.setState(res);
-            }.bind(this)
+            }
         });
-    },
+    }
 
-    back: function() {
+    onBack() {
         this.props.step('-');
-    },
+    }
 
-    render: function () {
+    render() {
         if (!this.state.loading) {
-            var back;
+            let back, type, title;
+
             if (this.state.error) {
-                var type = "error", title = "Error!";
-                back = <Button onClick={this.back}>Back</Button>
+                type = "error", title = "Error!";
+                back = <Button onClick={() => this.onBack()}>Back</Button>
             }
             else {
-                var type = "success", title = "Success!";
+                type = "success", title = "Success!";
             }
 
             return (
@@ -107,4 +118,4 @@ module.exports = React.createClass({
         }
     }
 
-});
+}

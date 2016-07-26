@@ -1,74 +1,36 @@
-﻿/* Route Components */
-var Campaigns = require("./advertisers/Campaigns");
-var Account = require("./advertisers/Account");
+﻿import React from "react";
 
-var Advertisers = React.createClass({
+// Components
+import Campaigns from "components/advertisers/Campaigns";
+import Account from "components/advertisers/Account";
 
-    getInitialState: function() {
-        return { view: "account" };
-    },
+export default class Advertisers extends React.Component {
 
-    componentWillMount: function () {
-        // Set view based on current URL
-        this.routeUpdated();
-    },
+    constructor(props) {
+        super(props);
+    }
 
-    /*
-        Update URL and call routeUpdate()
-    */
-    updateRoute: function(route) {
-        route = URL + "advertisers/" + route;
-        history.pushState({}, '', route);
-        this.routeUpdated();
-    },
-
-    /*
-        Set state.view based on current URL
-    */
-    routeUpdated: function() {
-        // Parse url
-        var a = document.createElement('a');
-        a.href = location.href;
-
-        // Set state.view based on route
-        switch (a.pathname) {
-            case "/advertisers":
-                this.setState({ view: "account" }); break;
-            case "/advertisers/account":
-                this.setState({ view: "account" }); break;
-            case "/advertisers/campaigns":
-                this.setState({ view: "campaign-list" }); break;
-            case "/advertisers/campaign/create":
-                this.setState({ view: "campaign-create" }); break;
+    render() {
+        let view;
+        switch (this.props.hash[2]) {
+            case "campaigns":
+            case "campaign":
+                view = <Campaigns {...this.props} />; break;
             default:
-                // User is viewing/editing/etc a single campaign
-                if (a.pathname.indexOf("/advertisers/campaign/") == 0)
-                    this.setState({ view: "campaign-manage" });
-        }
-    },
-
-    render: function () {
-        var view;
-        if (this.state.view.indexOf("campaign") == 0) {
-            view = <Campaigns view={this.state.view} updateRoute={this.updateRoute} />;
-        }
-        else if (this.state.view == "account") {
-            view = <Account view={this.state.view} updateRoute={this.updateRoute} />;
+                view = <Account {...this.props} />;
         }
 
         return (
             <div className="advertisers">
-                <div className="advertisers-nav">
-                    <a onClick={this.updateRoute.bind(this, "campaign/create")} className="link-lg">Create Campaign</a>
-                    <a onClick={this.updateRoute.bind(this, "campaigns")} className="link-lg">View Campaigns</a>
-                    <a onClick={this.updateRoute.bind(this, "account")} className="link-lg">My Account</a>
-                </div>
+                <nav className="advertisers-nav">
+                    <a href="#/advertisers/campaign/create" className="link-lg">Create Campaign</a>
+                    <a href="#/advertisers/campaigns" className="link-lg">View Campaigns</a>
+                    <a href="#/advertisers/account" className="link-lg">My Account</a>
+                </nav>
 
                 {view}
             </div>
         );
     }
 
-});
-
-ReactDOM.render(<Advertisers />, $("#content"));
+}

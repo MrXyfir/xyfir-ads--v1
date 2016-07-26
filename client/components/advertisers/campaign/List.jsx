@@ -1,26 +1,28 @@
-﻿var round = require("../../../lib/round");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Modules
+import request from "lib/request";
+import round from "lib/../lib/round";
 
-    getInitialState: function() {
-        return {
+export default class AdvertiserCampaignsList extends React.Component {
+
+    constructor(props) {
+        super(props);
+        
+        this.state = {
             campaigns: []
         };
-    },
+    }
 
-    componentWillMount: function () {
-        ajax({
-            url: URL + "api/advertisers/campaigns",
-            method: "GET",
-            dataType: "json",
-            success: function (response) {
-                this.setState(response);
-            }.bind(this)
+    componentWillMount() {
+        request({
+            url: "api/advertisers/campaigns",
+            success: (response) => this.setState(response)
         });
-    },
+    }
 
-    render: function () {
-        var campaigns = [];
+    render() {
+        let campaigns = [];
 
         if (!this.state.campaigns.length) {
             campaigns.push(
@@ -30,9 +32,9 @@ module.exports = React.createClass({
             );
         }
         else {
-            var c;
+            let c;
 
-            for (var i = 0; i < this.state.campaigns.length; i++) {
+            for (let i = 0; i < this.state.campaigns.length; i++) {
                 c = this.state.campaigns[i];
 
                 c.link = "campaign/" + c.id;
@@ -73,4 +75,4 @@ module.exports = React.createClass({
         );
     }
 
-});
+}

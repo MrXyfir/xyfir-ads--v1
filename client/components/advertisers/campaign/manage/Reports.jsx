@@ -1,66 +1,64 @@
-﻿var Button = require("../../../forms/Button");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
 
-    getInitialState: function() {
-        return {
+// Module
+import request from "lib/request";
+
+export default class AdvertiserCampaignReports extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             clicks: 0, views: 0, cost: 0, publishers: "",
             dem_age: "", dem_gender: "", dem_geo: "",
             loading: true
         };
-    },
+    }
 
-    componentWillMount: function() {
-        var url = API + "advertisers/campaigns/" + this.props.id + "/reports"
+    componentWillMount() {
+        const url = "api/advertisers/campaigns/" + this.props.id + "/reports"
             + "?dates=" + (new Date().toISOString().substr(0, 10));
 
-        ajax({
-            url: url,
-            dataType: "json",
-            success: function(res) {
-                res.loading = false;
-                this.setState(res, function () { this.idToSite(); });
-            }.bind(this)
-        });
-    },
+        request({url, success: (res) => {
+            res.loading = false;
+            this.setState(res, () => { this._idToSite(); });
+        }});
+    }
 
-    generateReport: function() {
-        var dates = this.refs.start.value;
+    onGenerateReport() {
+        let dates = this.refs.start.value;
         if (this.refs.end.value != "")
             dates += '|' + this.refs.end.value;
 
-        var url = API + "advertisers/campaigns/" + this.props.id + "/reports"
+        const url = "api/advertisers/campaigns/" + this.props.id + "/reports"
             + "?dates=" + dates;
 
-        ajax({
-            url: url,
-            dataType: "json",
-            success: function(res) {
-                this.setState(res, function() { this.idToSite(); });
-            }.bind(this)
-        });
-    },
+        request({url, success: (res) => {
+            this.setState(res, () => { this._idToSite(); });
+        }});
+    }
 
     // Take list of pub campaign ids:clicks and convert id to site address
-    idToSite: function() {
-        if (this.state.publishers == "")
-            return;
+    _idToSite() {
+        if (this.state.publishers == "") return;
 
-        var arr = this.state.publishers.split(',');
+        let arr = this.state.publishers.split(',');
 
-        var convert = function(i) {
+        const convert = (i) => {
             // Looped through all ids, set state.publishers
             if (arr[i] == undefined) {
                 this.setState({ publishers: arr.join(',') });
                 return;
             }
 
-            var temp = arr[i].split(':');
+            let temp = arr[i].split(':');
 
-            ajax({
-                url: API + "pub/info?id=" + temp[0],
-                dataType: "json",
-                success: function(res) {
+            request({
+                url: "api/pub/info?id=" + temp[0],
+                success: (res) => {
                     arr[i] = res.site + ':' + temp[1];
                     convert(i++);
                 }
@@ -68,27 +66,27 @@ module.exports = React.createClass({
         };
 
         convert(0);
-    },
+    }
 
-    render: function() {
-        if (this.state.loading) return <div></div>;
+    render() {
+        if (this.state.loading) return <div />;
 
-        var s = this.state, ages = ["Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"],
-            genders = ["Unkown", "Male", "Female", "Other"], geo = [];
+        let s = this.state, genders = ["Unkown", "Male", "Female", "Other"], geo = [],
+            ages = ["Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
         
         // Convert {CO:{RE:20,RE:20},CO:{...}...}
         // to [{country:"",regions:[{region:"",clicks:0},...]},...]
         if (s.dem_geo != "") {
             s.dem_geo = JSON.parse(s.dem_geo);
-            var temp;
+            let temp;
 
-            for (var country in s.dem_geo) {
+            for (let country in s.dem_geo) {
                 if (s.dem_geo.hasOwnProperty(country)) {
                     temp = {};
 
                     temp.country = country, temp.regions = [];
 
-                    for (var region in s.dem_geo[country]) {
+                    for (let region in s.dem_geo[country]) {
                         if (s.dem_geo[country].hasOwnProperty(region)) {
                             temp.regions.push({
                                 region: region, clicks: s.dem_geo[country][region],
@@ -106,12 +104,18 @@ module.exports = React.createClass({
                 <h3>Generate Report</h3>
 
                 <label>Start Date</label>
-                <input type="text" ref="start" defaultValue={new Date().toISOString().substr(0, 10)} />
+                <input
+                    type="text"
+                    ref="start"
+                    defaultValue={
+                        new Date().toISOString().substr(0, 10)
+                    }
+                />
                 
                 <label>End Date</label>
                 <input type="text" ref="end" />
 
-                <Button onClick={this.generateReport}>Generate</Button>
+                <Button onClick={this.onGenerateReport}>Generate</Button>
 
                 <hr />
 
@@ -140,8 +144,8 @@ module.exports = React.createClass({
                             <th>Ages</th>
                             <td>
                                 {
-                                    s.dem_age.split(',').map(function(age) {
-                                        var temp = age.split(':');
+                                    s.dem_age.split(',').map((age) => {
+                                        let temp = age.split(':');
                                         return(<span><b>{ages[temp[0]]}:</b> {temp[1]}</span>);
                                     })
                                 }
@@ -151,8 +155,8 @@ module.exports = React.createClass({
                             <th>Genders</th>
                             <td>
                                 {
-                                    s.dem_gender.split(',').map(function(gender) {
-                                        var temp = gender.split(':');
+                                    s.dem_gender.split(',').map((gender) => {
+                                        let temp = gender.split(':');
                                         return(<span><b>{genders[temp[0]]}:</b> {temp[1]}</span>);
                                     })
                                 }
@@ -163,12 +167,12 @@ module.exports = React.createClass({
                     <h3>Countries / Regions</h3>
                     <p>Geographic demographics are <em>only</em> for clicks received.</p>
                     <table className="geo">{
-                        geo.map(function(c) {
+                        geo.map(c => {
                             return(
                                 <tr>
                                     <th>{c.country}</th>
                                     <td>{
-                                        c.regions.map(function(r) {
+                                        c.regions.map(r => {
                                             return(
                                                 <span>{r.name}({r.clicks})</span>
                                             );
@@ -183,7 +187,7 @@ module.exports = React.createClass({
                     <p>Publishers who are serving your ad the most.</p>
                     <table>
                         {
-                            s.publishers.split(',').map(function(publisher) {
+                            s.publishers.split(',').map(publisher => {
                                 return(
                                     <tr>
                                         <th>{publisher.split(':')[0]}</th>
@@ -198,4 +202,4 @@ module.exports = React.createClass({
         );
     }
 
-});
+}

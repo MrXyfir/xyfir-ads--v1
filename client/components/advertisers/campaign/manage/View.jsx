@@ -1,12 +1,20 @@
-﻿var dimensions = require("../../../../lib/file/dimensions");
-var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
-var round = require("../../../../lib/round");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Modules
+import dimensions from "lib/../lib/file/dimensions";
+import request from "lib/request";
+import round from "lib/../lib/round";
 
-    getInitialState: function() {
-        return {
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
+
+export default class ViewAdvertiserCampaign extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             name: "", funds: 0, dailyFunds: 0, dailyFundsUsed: 0, ended: false,
             payType: 0, cost: 0, autobid: false, requested: 0,
             provided: 0, available: "", approved: false,
@@ -21,23 +29,20 @@ module.exports = React.createClass({
             },
             error: false, message: ""
         };
-    },
+    }
 
-    componentWillMount: function() {
-        ajax({
-            url: API + "advertisers/campaigns/" + this.props.id,
-            dataType: "json",
-            success: function(res) {
-                this.setState(res);
-            }.bind(this)
+    componentWillMount() {
+        request({
+            url: "api/advertisers/campaigns/" + this.props.id,
+            success: (res) => this.setState(res)
         });
-    },
+    }
 
-    render: function() {
+    render() {
         if (this.state.name == "")
             return <div></div>;
 
-        var c = this.state, status = "", alert;
+        let c = this.state, status = "", alert;
 
         if (this.state.error) {
             alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
@@ -62,23 +67,31 @@ module.exports = React.createClass({
                 <h3>Statistics</h3>
                 <table className="campaign-statistics">
                     <tr>
-                        <th>Pay Type</th><td>{c.payType == 1 ? "Pay-Per-Click" : "Pay-Per-View"}</td>
+                        <th>Pay Type</th>
+                        <td>{c.payType == 1 ? "Pay-Per-Click" : "Pay-Per-View"}</td>
                     </tr>
                     <tr>
-                        <th>Requested {c.payType == 1 ? "Clicks" : "Views"}</th><td>{c.requested}</td>
+                        <th>Requested {c.payType == 1 ? "Clicks" : "Views"}</th>
+                        <td>{c.requested}</td>
                     </tr>
                     <tr>
-                        <th>Provided {c.payType == 1 ? "Clicks" : "Views"}</th><td>{c.provided}</td>
+                        <th>Provided {c.payType == 1 ? "Clicks" : "Views"}</th>
+                        <td>{c.provided}</td>
                     </tr>
                     <tr>
-                        <th>{c.autobid ? "Autobid" : "Bid"}</th><td>{c.autobid ? "Enabled" : '$' + c.cost}</td>
+                        <th>{c.autobid ? "Autobid" : "Bid"}</th>
+                        <td>{c.autobid ? "Enabled" : '$' + c.cost}</td>
                     </tr>
                     <tr>
                         <th>Funds Available</th><td>{'$' + c.funds}</td>
                     </tr>
                     <tr>
                         <th>Daily Funds Limit</th>
-                        <td>{c.dailyFunds > 0 ? ('$' + c.dailyFundsUsed + ' of $' + c.dailyFunds) : "No Limit"}</td>
+                        <td>{c.dailyFunds > 0 ? (
+                            '$' + c.dailyFundsUsed + ' of $' + c.dailyFunds
+                        ) : (
+                            "No Limit"
+                        )}</td>
                     </tr>
                 </table>
 
@@ -92,9 +105,15 @@ module.exports = React.createClass({
                             {
                                 c.userTargets.age == 0
                                 ? "All Age Ranges"
-                                : c.userTargets.age.split(',').map(function(range) {
-                                    var ranges = ['', "18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
-                                    return(<span>{ranges[+range]}</span>);
+                                : c.userTargets.age.split(',').map(range => {
+                                    return(
+                                        <span>{
+                                            [
+                                                '', "18-24", "25-34", "35-44", "45-54",
+                                                 "55-64", "65+"
+                                            ][+range]
+                                        }</span>
+                                    );
                                 })
                             }
                         </td>
@@ -105,8 +124,8 @@ module.exports = React.createClass({
                             {
                                 c.userTargets.genders == 0
                                 ? "All Genders"
-                                : c.userTargets.genders.split(',').map(function(gender) {
-                                    var genders = ['', "Male", "Female", "Other"];
+                                : c.userTargets.genders.split(',').map(gender => {
+                                    let genders = ['', "Male", "Female", "Other"];
                                     return(<span>{genders[+gender]}</span>);
                                 })
                             }
@@ -114,15 +133,17 @@ module.exports = React.createClass({
                     </tr>
                     <tr className="geo">
                         <th>Countries</th>
-                        <td>
-                            {
-                                c.userTargets.countries == '*'
-                                ? <span><b>All Countries:</b><br /> All Regions</span>
-                                : c.userTargets.countries.split(',').map(function(country, i) {
-                                    return(<span><b>{country}:</b><br /> {c.userTargets.regions.split('|')[i]}</span>);
-                                })
-                            }
-                        </td>
+                        <td>{ c.userTargets.countries == '*' ? (
+                            <span><b>All Countries:</b><br /> All Regions</span>
+                        ) : (
+                            c.userTargets.countries.split(',').map((country, i) => {
+                                return (
+                                    <span>
+                                        <b>{country}:</b><br /> {c.userTargets.regions.split('|')[i]}
+                                    </span>
+                                );
+                            })
+                        )}</td>
                     </tr>
                 </table>
 
@@ -135,15 +156,19 @@ module.exports = React.createClass({
                     </tr>
                     <tr className="keywords">
                         <th>Keywords</th>
-                        <td>{c.contentTargets.keywords.split(',').map(function(kw) { return(<span>{kw}</span>); })}</td>
+                        <td>{c.contentTargets.keywords.split(',').map(kw => {
+                            return <span>{kw}</span>;
+                        })}</td>
                     </tr>
                     <tr className="sites">
                         <th>Sites</th>
-                        <td>{
-                            c.contentTargets.sites == '*'
-                            ? "All Sites"
-                            : c.contentTargets.sites.split(',').map(function(site) { return(<span>{site}</span>); })
-                        }</td>
+                        <td>{c.contentTargets.sites == '*' ? (
+                            "All Sites"
+                        ) : (
+                            c.contentTargets.sites.split(',').map(site => {
+                                return(<span>{site}</span>);
+                            })
+                        )}</td>
                     </tr>
                 </table>
 
@@ -153,10 +178,14 @@ module.exports = React.createClass({
 
                 <table className="campaign-advertisement">
                     <tr>
-                        <th>Type</th><td>{['', "Text", "Short Text", "Image", "Video"][c.ad.type]}</td>
+                        <th>Type</th>
+                        <td>{
+                            ['', "Text", "Short Text", "Image", "Video"][c.ad.type]
+                        }</td>
                     </tr>
                     <tr>
-                        <th>Link</th><td><a target="_blank" href={c.ad.link}>{c.ad.link}</a></td>
+                        <th>Link</th>
+                        <td><a target="_blank" href={c.ad.link}>{c.ad.link}</a></td>
                     </tr>
                     <tr>
                         <th>Title</th><td>{c.ad.title}</td>
@@ -170,9 +199,10 @@ module.exports = React.createClass({
                             {
                                 c.ad.media == ''
                                 ? "None"
-                                : c.ad.media.split(',').map(function(media, i) {
-                                    var type = c.ad.type == 3 ? "image" : "video";
-                                    var link = media.split(':')[1];
+                                : c.ad.media.split(',').map((media, i) => {
+                                    const type = c.ad.type == 3 ? "image" : "video";
+                                    const link = media.split(':')[1];
+                                    
                                     return(
                                         <span>
                                             <b>{dimensions[type][i].width}x{dimensions[type][i].height}:</b> 
@@ -188,4 +218,4 @@ module.exports = React.createClass({
         );
     }
 
-});
+}

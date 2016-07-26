@@ -1,18 +1,29 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function() {
-        return { error: false, message: '' };
-    },
+export default class BasicInfo extends React.Component {
 
-    next: function () {
-        var name = this.refs.name.value, type = this.refs.type.value, payType = this.refs.payType.value;
+    constructor(props) {
+        super(props);
+
+        this.state = { error: false, message: '' };
+    }
+
+    onNext() {
+        let name = this.refs.name.value,
+            type = this.refs.type.value,
+            payType = this.refs.payType.value;
 
         // Save data to window.campaignData even if it's not valid
-        window.campaignData.name = name, window.campaignData.type = type, window.campaignData.payType = payType;
-        window.campaignData.available = Math.round((new Date().getTime() - (86400 * 1000)) / 1000) + '-';
+        window.campaignData.name = name,
+        window.campaignData.type = type,
+        window.campaignData.payType = payType;
+        window.campaignData.available = Math.round(
+            (new Date().getTime() - (86400 * 1000)) / 1000
+        ) + '-';
 
         // Validate data
         if (!name.match(/^[\w\d -]{3,25}$/))
@@ -25,12 +36,14 @@ module.exports = React.createClass({
             this.setState({ error: true, message: "Video ads cannot be pay per click" });
         else // Next step if data is valid
             this.props.step('+');
-    },
+    }
 
     // ** Implement ability for user to choose ad availability
-    render: function () {
-        var alert;
-        if (this.state.error) alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
+    render() {
+        let alert;
+        if (this.state.error) {
+            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>
+        };
 
         return (
             <div className="form-step">
@@ -54,17 +67,20 @@ module.exports = React.createClass({
                     </select>
 
                     <label>Payment Type</label>
-                    <select ref="payType" defaultValue={window.campaignData.payType}>
+                    <select
+                        ref="payType"
+                        defaultValue={window.campaignData.payType}
+                    >
                         <option value="1">Pay Per Click</option>
                         <option value="2">Pay Per View</option>
                     </select>
                 </div>
 
                 <div className="form-step-nav">
-                    <Button onClick={this.next}>Next</Button>
+                    <Button onClick={() => this.onNext()}>Next</Button>
                 </div>
             </div>
         );
     }
 
-});
+}

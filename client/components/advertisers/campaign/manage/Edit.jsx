@@ -1,11 +1,19 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
+
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
+
+// Module
+import request from "lib/request";
 
 // ** Allow user to edit other variables accepted by API
-module.exports = React.createClass({
+export default class EditAdvertiserCampaign extends React.Component {
 
-    getInitialState: function () {
-        return {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             name: "", ended: false, available: "", approved: false, payType: 0,
             dailyFunds: 0, funds: 0, autobid: false, cost: 0,
             userTargets: {
@@ -22,99 +30,78 @@ module.exports = React.createClass({
             },
             error: false, message: "", loading: true
         };
-    },
+    }
 
-    componentWillMount: function() {
+    componentWillMount() {
         // Campaign data
-        ajax({
-            url: API + "advertisers/campaigns/" + this.props.id,
-            dataType: "json",
-            success: function(res) {
+        request({
+            url: "api/advertisers/campaigns/" + this.props.id,
+            success: (res) => {
                 res.loading = false;
 
-                this.setState(res, function() {
-                    var url = API + "ad/pricing?adType=" + this.state.ad.type
+                this.setState(res, () => {
+                    const url = API + "ad/pricing?adType=" + this.state.ad.type
                         + "&payType=" + this.state.payType + "&category="
                         + encodeURIComponent(this.state.contentTargets.categories);
 
                     // Get pricing data
-                    ajax({
-                        url: url,
-                        dataType: "json",
-                        success: function(res) {
-                            this.setState({
-                                pricing: {
-                                    base: res.base,
-                                    competitors: res.competitors,
-                                    average: (res.average == null ? res.base : res.average),
-                                    highest: (res.highest == null ? res.base : res.highest)
-                                }
-                            });
-                        }.bind(this)
-                    });
-                }.bind(this));
-            }.bind(this)
+                    request({url, success: (res) => {
+                        this.setState({
+                            pricing: {
+                                base: res.base,
+                                competitors: res.competitors,
+                                average: (res.average == null ? res.base : res.average),
+                                highest: (res.highest == null ? res.base : res.highest)
+                            }
+                        });
+                    }});
+                });
+            }
         });
-    },
+    }
 
     // Add or remove funds from campaign
-    modifyFunds: function () {
-        ajax({
-            url: API + "advertisers/campaigns/" + this.props.id + "/funds",
+    onModifyFunds() {
+        request({
+            url: "api/advertisers/campaigns/" + this.props.id + "/funds",
             data: {
                 action: this.refs.addFundsAction.value,
                 amount: this.refs.addFundsAmount.value
-            },
-            method: "PUT",
-            dataType: "json",
-            success: function (res) {
-                this.setState(res);
-            }.bind(this)
+            }, method: "PUT", success: (res) => this.setState(res)
         });
-    },
+    }
 
     // Set daily allocated funds limit
-    dailyBudget: function() {
-        ajax({
-            url: API + "advertisers/campaigns/" + this.props.id + "/budget",
-            data: {
-                dailyBudget: +this.refs.dailyBudget.value
-            },
-            method: "PUT",
-            dataType: "json",
-            success: function(res) {
-                this.setState(res);
-            }.bind(this)
+    onDailyBudget() {
+        request({
+            url: "api/advertisers/campaigns/" + this.props.id + "/budget",
+            data: { dailyBudget: +this.refs.dailyBudget.value },
+            method: "PUT", success: (res) => this.setState(res)
         });
-    },
+    }
 
-    toggleBidType: function() {
+    onToggleBidType() {
         this.setState({ autobid: !this.state.autobid });
-    },
+    }
 
     // Enable autobid / set bid
-    updateBid: function() {
-        var data = {};
+    onUpdateBid() {
+        let data = {};
         
         if (this.state.autobid)
             data.autobid = true;
         else
             data.bid = +this.refs.bid.value;
 
-        ajax({
-            url: API + "advertisers/campaigns/" + this.props.id + "/bid",
-            data: data,
-            method: "PUT",
-            dataType: "json",
-            success: function(res) {
-                this.setState(res);
-            }.bind(this)
+        request({
+            url: "api/advertisers/campaigns/" + this.props.id + "/bid",
+            data, method: "PUT", success: (res) => this.setState(res)
         });
-    },
+    }
 
     // Update name/requested/keywords
-    update: function() {
-        var data = {
+    onUpdate() {
+        const data = {
             name: this.refs.name.value, requested: +this.refs.requested.value,
             available: this.state.available, ut_age: this.state.userTargets.age,
             ct_keywords: this.refs.keywords.value, ct_sites: this.state.contentTargets.sites,
@@ -122,26 +109,25 @@ module.exports = React.createClass({
             ut_regions: this.state.userTargets.regions
         };
 
-        ajax({
-            url: API + "advertisers/campaigns/" + this.props.id,
-            data: data,
-            method: "PUT",
-            dataType: "json",
-            success: function (res) {
-                this.setState(res);
-            }.bind(this)
+        request({
+            url: "api/advertisers/campaigns/" + this.props.id,
+            data, method: "PUT", success: (res) => this.setState(res)
         });
-    },
+    }
 
-    render: function() {
+    render() {
         if (this.state.loading) {
             return <div></div>;
         }
         else if (this.state.ended || !this.state.approved) {
-            return <Alert type="error" title="Error!">You cannot edit pending or ended campaigns.</Alert>;
+            return (
+                <Alert type="error" title="Error!">
+                    You cannot edit pending or ended campaigns.
+                </Alert>
+            );
         }
 
-        var c = this.state, alert, bidding;
+        let c = this.state, alert, bidding;
 
         // Alert
         if (c.error || c.message != "") {
@@ -188,7 +174,7 @@ module.exports = React.createClass({
                     <h3>Keywords</h3>
                     <textarea ref="keywords" defaultValue={c.contentTargets.keywords}></textarea>
 
-                    <Button onClick={this.update}>Update</Button>
+                    <Button onClick={() => this.onUpdate()}>Update</Button>
                 </div>
                 
                 <hr />
@@ -200,7 +186,7 @@ module.exports = React.createClass({
                         <option value="rem">Remove Funds From Campaign</option>
                     </select>
                     <input ref="addFundsAmount" type="number" step="5.00" />
-                    <Button onClick={this.modifyFunds}>Update Funds</Button>
+                    <Button onClick={() => this.onModifyFunds()}>Update Funds</Button>
                 </div>
 
                 <hr />
@@ -208,8 +194,14 @@ module.exports = React.createClass({
                 <h3>Daily Budget</h3>
                 <p>Set a limit on how much you can be charged per day. Leave at $0.00 for no limit.</p>
                 <div className="form-group daily-budget">
-                    <input type="number" ref="dailyBudget" defaultValue={c.dailyFunds} max={c.funds} step="1.00" />
-                    <Button onClick={this.dailyBudget}>Set Daily Budget</Button>
+                    <input
+                        type="number"
+                        ref="dailyBudget"
+                        defaultValue={c.dailyFunds}
+                        max={c.funds}
+                        step="1.00"
+                    />
+                    <Button onClick={() => this.onDailyBudget()}>Set Daily Budget</Button>
                 </div>
 
                 <hr />
@@ -236,14 +228,16 @@ module.exports = React.createClass({
                         </div>
                     </div>
                     
-                    <a onClick={this.toggleBidType}>Switch to {c.autobid ? "Manual" : "Automatic"} Bidding</a>
+                    <a onClick={() => this.onToggleBidType()}>
+                        Switch to {c.autobid ? "Manual" : "Automatic"} Bidding
+                    </a>
                     
                     {bidding}
                     
-                    <Button onClick={this.updateBid}>Update Bid</Button>
+                    <Button onClick={() => this.updateBid()}>Update Bid</Button>
                 </div>
             </div>
         );
     }
 
-});
+}

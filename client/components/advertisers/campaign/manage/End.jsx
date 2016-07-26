@@ -1,30 +1,36 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function() {
-        return { error: false, message: "", confirm: false };
-    },
+// Module
+import request from "lib/request";
 
-    confirm: function() {
-        ajax({
-            url: API + "advertisers/campaigns/" + this.props.id,
-            method: "DELETE",
-            dataType: "json",
-            success: function(res) {
+export default class EndAdvertiserCampaign extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = { error: false, message: "", confirm: false };
+    }
+
+    onConfirm() {
+        request({
+            url: "api/advertisers/campaigns/" + this.props.id,
+            method: "DELETE", success: (res) => {
                 res.confirm = true;
                 this.setState(res);
 
                 // Send user back to their campaigns
                 setTimeout(function () {
-                    window.location.href = "../../campaigns";
+                    location.href = "#/advertisers/campaigns";
                 }, 7 * 1000);
-            }.bind(this)
+            }
         });
-    },
+    }
 
-    render: function() {
+    render() {
         if (this.state.confirm) {
             return(
                 <div className="end-campaign">
@@ -40,10 +46,10 @@ module.exports = React.createClass({
                     <Alert alert="danger" title="Warning!">
                         Are you sure you want to end this campaign? Any funds in the campaign will be lost!
                     </Alert>
-                    <Button onClick={this.confirm}>End Campaign</Button>
+                    <Button onClick={() => this.onConfirm}>End Campaign</Button>
                 </div>
             );
         }
     }
 
-});
+}

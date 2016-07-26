@@ -1,33 +1,40 @@
-﻿var Button = require("../forms/Button");
-var Alert = require("../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function () {
-        return {
+// Modules
+import request from "lib/request";
+
+// Constants
+import { STRIPE_KEY } from "constants/config";
+
+export default class AdvertiserAccount extends React.Component {
+
+    constructor(props) {
+        super(props);
+        
+        this.state = {
             funds: 0, payments: [], purchaseActive: false,
             error: false, message: "", addFunds: false
         };
-    },
+    }
 
-    componentWillMount: function () {
+    componentWillMount() {
         // Get account info
-        ajax({
-            url: API + "advertisers/account",
-            method: "GET",
-            dataType: "json",
-            success: function (response) {
-                this.setState(response);
-            }.bind(this)
+        request({
+            url: "api/advertisers/account",
+            success: (response) => this.setState(response)
         });
 
         // Add Stripe.js to page
-        var stripe = document.createElement("script");
+        let stripe = document.createElement("script");
         stripe.setAttribute("src", "https://js.stripe.com/v2/");
         document.head.appendChild(stripe);
-    },
+    }
 
-    addFunds: function () {
+    onAddFunds() {
         if (!this.state.addFunds) {
             this.setState({ addFunds: true });
             return;
@@ -35,43 +42,41 @@ module.exports = React.createClass({
 
         this.setState({ purchaseActive: true });
 
-        Stripe.setPublishableKey("pk_test_jOclCjtuiGoSuz36gJ8BxWqk");
+        Stripe.setPublishableKey(STRIPE_KEY);
 
-        if (+$("#amount").value < 10) {
-            this.setState({ purchaseActive: false, error: true, message: "Amount cannot be less than $10.00" });
-            return;
+        if (+document.querySelector("#amount").value < 10) {
+            this.setState({
+                purchaseActive: false, error: true,
+                message: "Amount cannot be less than $10.00"
+            }); return;
         }
 
-        Stripe.card.createToken(this.refs.stripeForm, function (status, response) {
+        Stripe.card.createToken(this.refs.stripeForm, (status, response) => {
             // Error when trying to create charge token
             if (response.error) {
                 this.setState({
                     error: true, purchaseActive: false, message: response.error.message
-                });
-                return;
+                }); return;
             }
 
             // Send token + amount to XAd API to finish purchase
-            ajax({
-                url: API + "advertisers/account/funds",
-                method: "POST",
-                dataType: "json",
-                data: {
+            request({
+                url: "api/advertisers/account/funds",
+                method: "POST", data: {
                     amount: $("#amount").value,
                     stripeToken: response.id
-                },
-                success: function (response) {
+                }, success: (response) => {
                     response.purchaseActive = false;
                     response.addFunds = false;
                     console.log(response);
                     this.setState(response);
-                }.bind(this)
+                }
             });
-        }.bind(this));
-    },
+        });
+    }
 
-    render: function () {
-        var addFunds, alert, payments = [];
+    render() {
+        let addFunds, alert, payments = [];
 
         /* Add Funds Button/Form */
         if (this.state.addFunds) {
@@ -86,14 +91,26 @@ module.exports = React.createClass({
 				
 					<label>Expiration (MM/YYYY)</label>
                     <div>
-                        <input type="text" data-stripe="exp-month" placeholder="07" className="card-exp-month" />
-					    <input type="text" data-stripe="exp-year" placeholder="2020" className="card-exp-year" />
+                        <input
+                            type="text"
+                            data-stripe="exp-month"
+                            placeholder="07"
+                            className="card-exp-month"
+                        />
+					    <input
+                            type="text"
+                            data-stripe="exp-year"
+                            placeholder="2020"
+                            className="card-exp-year"
+                        />
                     </div>
 					
 					<label>Amount</label>
                     <input type="number" placeholder="10.00" id="amount" />
 					
-					<Button onClick={this.addFunds} disabled={this.state.purchaseActive}>Complete Purchase</Button>
+					<Button onClick={this.addFunds} disabled={this.state.purchaseActive}>
+                        Complete Purchase
+                    </Button>
 				</form>  
             );
         }
@@ -103,18 +120,24 @@ module.exports = React.createClass({
 
         /* Error/Success Alert */
         if (this.state.message) {
-            if (this.state.error) var type = "error", title = "Error!";
-            else var type = "info", title = "Success!";
+            let type, title;
+            
+            if (this.state.error)
+                type = "error", title = "Error!";
+            else
+                type = "info", title = "Success!";
 
             alert = <Alert type={type} title={title}>{this.state.message}</Alert>
         }
 
         /* Previous Payments Array */
         if (!!this.state.payments.length) {
-            this.state.payments.forEach(function (payment) {
+            this.state.payments.forEach((payment) => {
                 payments.push(
                     <tr>
-                        <td>{payment.id}</td><td>{'$' + payment.amount}</td><td>{payment.tstamp}</td>
+                        <td>{payment.id}</td>
+                        <td>{'$' + payment.amount}</td>
+                        <td>{payment.tstamp}</td>
                     </tr>
                 );
             });
@@ -141,4 +164,4 @@ module.exports = React.createClass({
         );
     }
 
-});
+}

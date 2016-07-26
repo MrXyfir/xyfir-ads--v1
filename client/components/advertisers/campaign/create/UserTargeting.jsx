@@ -1,35 +1,41 @@
-﻿var Button = require("../../../forms/Button");
-var Alert = require("../../../forms/Alert");
+﻿import React from "react";
 
-module.exports = React.createClass({
+// Components
+import Button from "components/forms/Button";
+import Alert from "components/forms/Alert";
 
-    getInitialState: function() {
-        return {
-            error: false, message: '', countriesRegions: window.campaignData.countriesRegions
+export default class UserTargeting extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            error: false, message: '',
+            countriesRegions: window.campaignData.countriesRegions
         };
-    },
+    }
 
-    back: function () {
-        this.step('-');
-    },
+    onBack() {
+        this._step('-');
+    }
 
-    next: function() {
-        this.step('+');
-    },
+    onNext() {
+        this._step('+');
+    }
 
-    componentWillMount: function () {
+    componentWillMount() {
         // Add country-region-selector to page
-        var crs = document.createElement("script");
+        let crs = document.createElement("script");
         crs.setAttribute("src", URL + "js/crs.js");
         document.head.appendChild(crs);
-    },
+    }
 
-    step: function(action) {
+    _step(action) {
         // Set checkbox values of genders
-        for (var i = 1; i < 4; i++)
+        for (let i = 1; i < 4; i++)
             window.campaignData.genders[i] = this.refs["gender-" + i].checked;
         // Set checkbox values of age ranges
-        for (var i = 1; i < 7; i++)
+        for (let i = 1; i < 7; i++)
             window.campaignData.age[i] = this.refs["age-" + i].checked;
 
         if (this.state.countriesRegions == '')
@@ -38,39 +44,40 @@ module.exports = React.createClass({
             window.campaignData.countriesRegions = this.state.countriesRegions;
 
         this.props.step(action);
-    },
+    }
 
-    crAdd: function(action) {
+    onCrAdd(action) {
         // Split this.state.countriesRegions by '|'
-        var crs = this.state.countriesRegions.split('|');
-        var countryExists = false, regionExists = false;
+        let crs = this.state.countriesRegions.split('|');
+        let countryExists = false, regionExists = false;
 
         // Loop through each country:region,... and split by ':'
-        crs.forEach(function(cr) {
+        crs.forEach(cr => {
             // Look for country
             if (cr.split(':')[0] == this.refs.country.value) {
                 countryExists = true;
 
                 // Look for region
-                cr.split(':')[1].split(',').forEach(function(region) {
+                cr.split(':')[1].split(',').forEach((region) => {
                     if (region == this.refs.region.value) {
                         regionExists = true;
                     }
-                }.bind(this));
+                });
             }
-        }.bind(this));
+        });
 
         // Add the country and region
         if (!countryExists) {
             this.setState({
-                countriesRegions: this.state.countriesRegions + (this.state.countriesRegions == '' ? '' : '|')
+                countriesRegions: this.state.countriesRegions
+                    + (this.state.countriesRegions == '' ? '' : '|')
                     + (!this.refs.country.value ? '*' : this.refs.country.value) + ':'
                     + (!this.refs.region.value ? '*' : this.refs.region.value)
             });
         }
         // Add region to the country
         else if (!regionExists) {
-            for (var i = 0; i < crs.length; i++) {
+            for (let i = 0; i < crs.length; i++) {
                 if (crs[i].split(':')[0] == this.refs.country.value) {
                     crs[i] += ',' + (!this.refs.region.value ? '*' : this.refs.region.value);
                     this.setState({ countriesRegions: crs.join('|') });
@@ -79,23 +86,25 @@ module.exports = React.createClass({
                 }
             }
         }
-    },
+    }
 
-    crReset: function() {
+    onCrReset() {
         this.setState({ countriesRegions: '' });
         window.campaignData.countriesRegions = '';
-    },
+    }
 
-    render: function() {
-        var alert;
-        if (this.state.error) alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
+    render() {
+        let alert;
+        if (this.state.error) {
+            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
+        }
 
         // Build crList
-        var crList = [];
+        let crList = [];
         if (this.state.countriesRegions != '') {
 
-            this.state.countriesRegions.split('|').forEach(function(cr) {
-                var temp = cr.split(':');
+            this.state.countriesRegions.split('|').forEach(cr => {
+                const temp = cr.split(':');
 
                 crList.push(
                     <span>
@@ -117,17 +126,53 @@ module.exports = React.createClass({
                     {alert}
 
                     <label>Genders</label>
-                    <input type="checkbox" ref="gender-1" defaultChecked={window.campaignData.genders[1]} />Male
-                    <input type="checkbox" ref="gender-2" defaultChecked={window.campaignData.genders[2]} />Female
-                    <input type="checkbox" ref="gender-3" defaultChecked={window.campaignData.genders[3]} />Other
+                    <input
+                        type="checkbox"
+                        ref="gender-1"
+                        defaultChecked={window.campaignData.genders[1]}
+                    />Male
+                    <input
+                        type="checkbox"
+                        ref="gender-2"
+                        defaultChecked={window.campaignData.genders[2]}
+                    />Female
+                    <input
+                        type="checkbox"
+                        ref="gender-3"
+                        defaultChecked={window.campaignData.genders[3]}
+                    />Other
 
                     <label>Age Ranges</label>
-                    <input type="checkbox" ref="age-1" defaultChecked={window.campaignData.age[1]} />18-24
-                    <input type="checkbox" ref="age-2" defaultChecked={window.campaignData.age[2]} />25-34
-                    <input type="checkbox" ref="age-3" defaultChecked={window.campaignData.age[3]} />35-44
-                    <input type="checkbox" ref="age-4" defaultChecked={window.campaignData.age[4]} />45-54
-                    <input type="checkbox" ref="age-5" defaultChecked={window.campaignData.age[5]} />55-64
-                    <input type="checkbox" ref="age-6" defaultChecked={window.campaignData.age[6]} />65+
+                    <input
+                        type="checkbox"
+                        ref="age-1"
+                        defaultChecked={window.campaignData.age[1]}
+                    />18-24
+                    <input
+                        type="checkbox"
+                        ref="age-2"
+                        defaultChecked={window.campaignData.age[2]}
+                    />25-34
+                    <input
+                        type="checkbox"
+                        ref="age-3"
+                        defaultChecked={window.campaignData.age[3]}
+                    />35-44
+                    <input
+                        type="checkbox"
+                        ref="age-4"
+                        defaultChecked={window.campaignData.age[4]}
+                    />45-54
+                    <input
+                        type="checkbox"
+                        ref="age-5"
+                        defaultChecked={window.campaignData.age[5]}
+                    />55-64
+                    <input
+                        type="checkbox"
+                        ref="age-6"
+                        defaultChecked={window.campaignData.age[6]}
+                    />65+
 
                     <label>Countries / Regions</label>
                     <small>
@@ -136,15 +181,24 @@ module.exports = React.createClass({
                         Leave 'Region' selector blank to target all regions in a country.
                     </small>
                     <div className="country-region-selector">
-                        <select className="crs-country" ref="country" data-region-id="crs-region" data-value="shortcode">
+                        <select
+                            className="crs-country"
+                            ref="country"
+                            data-region-id="crs-region"
+                            data-value="shortcode"
+                        >
                             <option value="*">All Countries</option>
                         </select>
-                        <select id="crs-region" ref="region" data-value="shortcode">
+                        <select
+                            id="crs-region"
+                            ref="region"
+                            data-value="shortcode"
+                        >
                             <option value="*">All Regions</option>
                         </select>
                         
-                        <a className="link-sm" onClick={this.crAdd}>Add to List</a>
-                        <a className="link-sm" onClick={this.crReset}>Reset List</a>
+                        <a className="link-sm" onClick={() => this.onCrAdd()}>Add to List</a>
+                        <a className="link-sm" onClick={() => this.onCrReset()}>Reset List</a>
 
                         <div className="country-region-list">
                             {crList}
@@ -153,11 +207,11 @@ module.exports = React.createClass({
                 </div>
 
                 <div className="form-step-nav">
-                    <Button type="secondary" onClick={this.back}>Back</Button>
-                    <Button onClick={this.next}>Next</Button>
+                    <Button type="secondary" onClick={() => this.onBack()}>Back</Button>
+                    <Button onClick={() => this.onNext()}>Next</Button>
                 </div>
             </div>
         );
     }
 
-});
+}
