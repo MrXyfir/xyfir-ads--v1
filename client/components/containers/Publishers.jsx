@@ -1,4 +1,6 @@
-﻿// Components
+﻿import React from "react";
+
+// Components
 import Campaigns from "components/publishers/Campaigns";
 import Account from "components/publishers/Account";
 
@@ -6,29 +8,6 @@ export default class Publishers extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { view: "account" };
-    }
-
-    routeUpdated() {
-        // Parse url
-        var a = document.createElement('a');
-        a.href = location.href;
-
-        // Set state.view based on route
-        switch (a.pathname) {
-            case "/publishers":
-                this.setState({ view: "account" }); break;
-            case "/publishers/account":
-                this.setState({ view: "account" }); break;
-            case "/publishers/campaigns":
-                this.setState({ view: "campaign-list" }); break;
-            case "/publishers/campaign/create":
-                this.setState({ view: "campaign-create" }); break;
-            default:
-                // User is viewing/editing/etc a single campaign
-                if (a.pathname.indexOf("/publishers/campaign/") == 0)
-                    this.setState({ view: "campaign-manage" });
-        }
     }
 
     render() {
