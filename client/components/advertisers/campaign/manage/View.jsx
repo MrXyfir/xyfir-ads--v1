@@ -1,9 +1,9 @@
 ﻿import React from "react";
 
 // Modules
-import dimensions from "lib/../lib/file/dimensions";
+import dimensions from "lib/../../lib/file/dimensions";
 import request from "lib/request";
-import round from "lib/../lib/round";
+import round from "lib/../../lib/round";
 
 // Components
 import Button from "components/forms/Button";

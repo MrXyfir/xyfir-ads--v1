@@ -1,7 +1,7 @@
 ﻿import React from "react";
 
 // Modules
-import dimensions from "lib/../lib/file/dimensions";
+import dimensions from "lib/../../lib/file/dimensions";
 
 // Components
 import Button from "components/forms/Button";

@@ -1,12 +1,12 @@
 ﻿import React from "react";
 
 // Components
-import ContentTargeting from "components/advertisers/create/ContentTargeting";
-import UserTargeting from "components/advertisers/create/UserTargeting";
-import BasicInfo from "components/advertisers/create/BasicInfo";
-import AdInfo from "components/advertisers/create/AdInfo";
-import Funds from "components/advertisers/create/Funds";
-import Final from "components/advertisers/create/Final";
+import ContentTargeting from "components/advertisers/campaign/create/ContentTargeting";
+import UserTargeting from "components/advertisers/campaign/create/UserTargeting";
+import BasicInfo from "components/advertisers/campaign/create/BasicInfo";
+import AdInfo from "components/advertisers/campaign/create/AdInfo";
+import Funds from "components/advertisers/campaign/create/Funds";
+import Final from "components/advertisers/campaign/create/Final";
 
 export default class CreateAdvertiserCampaign extends React.Component {
 

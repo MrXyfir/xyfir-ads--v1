@@ -3,6 +3,8 @@ import React from "react";
 export default class Button extends React.Component {
 
     constructor(props) {
+        super(props);
+        
         this.state = {
             type: this.props.type || "primary",
             disabled: this.props.disabled || false

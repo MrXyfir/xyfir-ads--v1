@@ -3,6 +3,8 @@
 export default class Alert extends React.Component {
 
     constructor(props) {
+        super(props);
+        
         this.state = { type: this.props.type || "info" };
     }
 	

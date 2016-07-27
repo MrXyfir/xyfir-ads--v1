@@ -2,7 +2,7 @@
 
 // Modules
 import request from "lib/request";
-import round from "lib/../lib/round";
+import round from "lib/../../lib/round";
 
 export default class AdvertiserCampaignsList extends React.Component {
 
