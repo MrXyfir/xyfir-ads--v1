@@ -42,7 +42,7 @@ router.get("/pub/categories", require("./pub/categories"));
 
 /* Publishers - Account */
 router.get("/publishers/account", require("./publishers/account/info"));
-router.put("/publishers/account", require("./publishers/a/ccount/update"));
+router.put("/publishers/account", require("./publishers/account/update"));
 router.post("/publishers/account/register", require("./publishers/account/register"));
 
 /* Publishers - Campaigns */
@@ -53,7 +53,7 @@ router.delete("/publishers/campaigns/:id", require("./publishers/campaigns/remov
 router.get("/publishers/campaigns/:id", require("./publishers/campaigns/get-single"));
 router.get("/publishers/campaigns/:id", require("./publishers/campaigns/get-single"));
 router.get("/publishers/campaigns/:id/reports", require("./publishers/campaigns/reports"));
-router.put("/publishers/campaigns/:id/test", require("/publishers/campaigns/generate-test-key"));
+router.put("/publishers/campaigns/:id/test", require("./publishers/campaigns/generate-test-key"));
 
 /* Misc */
 router.get("/login", require("./login"));
