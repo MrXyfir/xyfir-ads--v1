@@ -273,7 +273,7 @@ module.exports = function(req, res) {
                 if (ad.ad_media != "") tAd.media = ad.ad_media;
 
                 // Build link user will go to when clicking ad
-                tAd.link = "https://ads.xyfir.com/click?pub=" + q.pubid
+                tAd.link = "https://ads.xyfir.com/api/click?pub=" + q.pubid
                     + "&ad=" + ad.id + "&score=" + score + "&served=" + time
                     + ((q.gender || user.gender) ? ("&g=" + gender) : "")
                     + ((q.age || user.age) ? ("&a=" + age) : "")
