@@ -38,6 +38,20 @@ app.use(session({
     }
 }));
 
+/* Middleware */
+app.use("/api/panel", (req, res, next) => {
+    if (req.session.uid <= 1000) next();
+    else res.json({ error: true }); 
+});
+app.use("/api/advertisers", (req, res, next) => {
+    if (req.session.advertiser) next();
+    else res.json({ error: true }); 
+});
+app.use("/api/publishers", (req, res, next) => {
+    if (req.session.publisher) next();
+    else res.json({ error: true }); 
+});
+
 /* Routes */
 app.use("/", express.static(__dirname + "/public"));
 app.use("/api", require("./controllers/"));
@@ -45,6 +59,8 @@ app.use("/api", require("./controllers/"));
 app.get("/*", (req, res) => {
     if (config.environment.type == "dev") {
         req.session.uid = 1;
+        req.session.advertiser = true;
+        req.session.publisher = true;
     }
     res.sendFile(__dirname + "/views/App.html");
 });
