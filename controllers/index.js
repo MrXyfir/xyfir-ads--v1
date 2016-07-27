@@ -1,5 +1,9 @@
 const router = require("express").Router();
 
+/* Account */
+router.get("/account/login", require("./account/login"));
+router.get("/account/status", require("./account/status"));
+
 /* Ads */
 router.get("/ads", require("./ads/get"));
 router.get("/click", require("./ads/click"));
@@ -56,7 +60,6 @@ router.get("/publishers/campaigns/:id/reports", require("./publishers/campaigns/
 router.put("/publishers/campaigns/:id/test", require("./publishers/campaigns/generate-test-key"));
 
 /* Misc */
-router.get("/login", require("./login"));
 router.post("/upload", require("./upload"));
 
 /* Xyfir Ads ID */
