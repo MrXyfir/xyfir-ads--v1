@@ -85,7 +85,7 @@ export default class ViewPublisherCampaign extends React.Component {
                 <p>
                     Read more about Test Mode in our <a href="https://xyfir.github.io/ads/developers#TestMode" target="_blank">developer documentation.</a>
                 </p>
-                <input type="text" onclick="this.select()" value={c.test} />
+                <input type="text" onFocus={(e) => e.target.select()} value={c.test} />
             </div>
         );
     }
