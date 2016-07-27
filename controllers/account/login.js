@@ -22,7 +22,9 @@ module.exports = function(req, res) {
         return;
     }
 
-    let url = config.addresses.xacc + "api/service/11/" + req.query.xid
+    let url = config.addresses.xacc
+        + "api/service/11/" + config.keys.xacc
+        + "/" + req.query.xid
         + "/" + req.query.auth;
 
 
