@@ -42,10 +42,10 @@ export default class RegisterPublisher extends React.Component {
             <div className="home-register-publisher">
                 <h3>Publisher Application</h3>
                 <p>
-                    Interested in utilizing Xyfir Ads on your site or app? Not all publishers who apply will be accepted, but it can"t hurt to try. Once you apply a staff member will manually approve or deny your application. If you"re denied, you can apply again every 3 months.
+                    Interested in utilizing Xyfir Ads on your site or app? Not all publishers who apply will be accepted, but it can't hurt to try. Once you apply a staff member will manually approve or deny your application. If you're denied, you can apply again every 3 months.
                 </p>
                 <p>
-	                <b>Information we"re looking for in your application:</b>
+	                <b>Information we're looking for in your application:</b>
 	                <br />
                     a brief description of and links to sites, apps, or other service that you plan to integrate Xyfir Ads with
 	                <br />
