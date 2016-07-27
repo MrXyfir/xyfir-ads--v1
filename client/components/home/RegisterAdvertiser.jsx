@@ -21,7 +21,7 @@ export default class RegisterAdvertiser extends React.Component {
                 if (response.error)
                     alert(response.message);
                 else
-                    location.href = "advertisers";
+                    location.hash = "/advertisers";
             }
         });
     }

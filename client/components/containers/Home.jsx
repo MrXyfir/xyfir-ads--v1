@@ -5,6 +5,9 @@ import RegisterAdvertiser from "components/home/RegisterAdvertiser";
 import RegisterPublisher from "components/home/RegisterPublisher";
 import Button from "components/forms/Button";
 
+// Constants
+import { XACC } from "constants/config";
+
 export default class Home extends React.Component {
 
     constructor(props) {

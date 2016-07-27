@@ -37,7 +37,7 @@ export default class AdvertiserCampaignsList extends React.Component {
             for (let i = 0; i < this.state.campaigns.length; i++) {
                 c = this.state.campaigns[i];
 
-                c.link = "campaign/" + c.id;
+                c.link = "#/advertisers/campaign/" + c.id;
                 c.status = "campaign-status-" + (!!c.approved ? "approved" : "pending");
                 c.payType = c.payType == 1 ? "clicks" : "views";
                 
@@ -51,7 +51,7 @@ export default class AdvertiserCampaignsList extends React.Component {
                         <div className="campaign-top">
                             <span className={c.status}></span>
                             <span className="campaign-name">
-                                <a onClick={this.props.updateRoute.bind(this, c.link)}>{c.name}</a>
+                                <a href={c.link}>{c.name}</a>
                             </span>
                             <span className="campaign-completed">
                                 {c.provided == 0 ? "0.00%" :  round(c.provided / c.requested, 2) + '%'}

@@ -173,7 +173,7 @@ module.exports = function(req, res) {
                                     require("lib/email")(rows[0].email, "Ad Campaign Created",
                                         "You have successfully created a new ad campaign."
                                         + "<br /><br />"
-                                        + "<a href='https://ads.xyfir.com/advertisers/campaign/" + ad + "'>View Details</a>"
+                                        + "<a href='https://ads.xyfir.com/#/advertisers/campaign/" + ad + "'>View Details</a>"
                                         + "<br /><br />"
                                         + "You will receive an email when your campaign is approved or denied."
                                     );

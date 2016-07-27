@@ -24,7 +24,7 @@ export default class EndAdvertiserCampaign extends React.Component {
 
                 // Send user back to their campaigns
                 setTimeout(function () {
-                    location.href = "#/advertisers/campaigns";
+                    location.hash = "/advertisers/campaigns";
                 }, 7 * 1000);
             }
         });

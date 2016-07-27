@@ -20,7 +20,7 @@ module.exports = function(req, res) {
             cn.query(sql, [req.params.id], (e, r) => {
                 cn.release();
 
-                let campaign = "https://ads.xyfir.com/advertisers/campaign/" + req.params.id;
+                let campaign = "https://ads.xyfir.com/#/advertisers/campaign/" + req.params.id;
 
                 // Email user notice of approval
                 email(uEmail, "Advertising Campaign - Approved",

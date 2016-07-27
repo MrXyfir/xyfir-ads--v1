@@ -58,7 +58,7 @@ module.exports = function(req, res) {
                             // Email user notice of approval
                             email(req.body.email, "Publisher Application - Approved",
                                 "Congratulations, your application was approved! You can now login to your publisher's dashboard: "
-                                + "<a href='https://ads.xyfir.com/publishers/'>Publisher Dashboard</a>"
+                                + "<a href='https://ads.xyfir.com/#/publishers/'>Publisher Dashboard</a>"
                             );
                         }
                     }); // commit transaction

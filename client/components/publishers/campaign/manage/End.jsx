@@ -24,7 +24,7 @@ export default class EndPublisherCampaign extends React.Component {
 
                 // Send user back to their campaigns
                 setTimeout(() => {
-                    location.href = "#/publishers/campaigns";
+                    location.hash = "/publishers/campaigns";
                 }, 7 * 1000);
             }
         });
