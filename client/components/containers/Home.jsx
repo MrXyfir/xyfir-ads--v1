@@ -101,7 +101,7 @@ export default class Home extends React.Component {
                 {registerAdvertiser}
 
 	            <h3 className="header-doc-resources">Documentation / Resources</h3>
-	            <a className="link-lg">https://xyfir.github.io/ads/advertisers</a>
+	            <a href="https://xyfir.github.io/ads/advertisers" target="_blank" className="link-lg">https://xyfir.github.io/ads/advertisers</a>
             </div>
 
             <hr />
@@ -118,7 +118,7 @@ export default class Home extends React.Component {
                 {registerPublisher}
 
 	            <h3 className="header-doc-resources">Documentation / Resources</h3>
-	            <a className="link-lg">https://xyfir.github.io/ads/publishers</a>
+	            <a className="link-lg" target="_blank" href="https://xyfir.github.io/ads/publishers">https://xyfir.github.io/ads/publishers</a>
             </div>
 
             <hr />
@@ -133,7 +133,7 @@ export default class Home extends React.Component {
 	            </p>
 
 	            <h3 className="header-doc-resources">Documentation / Resources</h3>
-	            <a className="link-lg">https://xyfir.github.io/ads/api</a>
+	            <a className="link-lg" target="_blank" href="https://xyfir.github.io/ads/api">https://xyfir.github.io/ads/api</a>
             </div>
         </div>
         );
