@@ -26,7 +26,7 @@ export default class UserTargeting extends React.Component {
     componentWillMount() {
         // Add country-region-selector to page
         let crs = document.createElement("script");
-        crs.setAttribute("src", URL + "js/crs.js");
+        crs.setAttribute("src", "js/crs.js");
         document.head.appendChild(crs);
     }
 

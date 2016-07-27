@@ -40,7 +40,7 @@ export default class EditAdvertiserCampaign extends React.Component {
                 res.loading = false;
 
                 this.setState(res, () => {
-                    const url = API + "ad/pricing?adType=" + this.state.ad.type
+                    const url = "api/ad/pricing?adType=" + this.state.ad.type
                         + "&payType=" + this.state.payType + "&category="
                         + encodeURIComponent(this.state.contentTargets.categories);
 
