@@ -63,7 +63,7 @@ export default class AdvertiserAccount extends React.Component {
             request({
                 url: "api/advertisers/account/funds",
                 method: "POST", data: {
-                    amount: $("#amount").value,
+                    amount: document.querySelector("#amount").value,
                     stripeToken: response.id
                 }, success: (response) => {
                     response.purchaseActive = false;
