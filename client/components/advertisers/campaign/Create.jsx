@@ -24,6 +24,8 @@ export default class CreateAdvertiserCampaign extends React.Component {
             requested: 0, allocated: 10.00, dailyFunds: 0.00, autobid: false,
             bid: 0.00, title: "", link: "", description: "", media: ""
         };
+        
+        this._step = this._step.bind(this);
     }
 
     _step(action) {
