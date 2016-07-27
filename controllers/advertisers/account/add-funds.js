@@ -16,7 +16,7 @@ module.exports = function(req, res) {
         return;
     }
 
-    let stripeKey = require("config").secrets.stripe;
+    let stripeKey = require("config").keys.stripe;
     
     // Attempt to charge user's card
     require("stripe")(stripeKey).charges.create({

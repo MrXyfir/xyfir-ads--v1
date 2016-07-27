@@ -1,4 +1,4 @@
-const secret = require("config").secrets.xadid;
+const secret = require("config").keys.xadid;
 const db = require("lib/db");
 
 /*
