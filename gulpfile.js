@@ -62,3 +62,14 @@ gulp.task("client", function () {
 		.pipe(!isDev ? gzip() : gutil.noop())
 		.pipe(gulp.dest('./public/js/'));
 });
+
+/*
+	copy-libs
+    - get localforage / sweetalert
+    - copy to ./public/js
+*/
+gulp.task("copy-libs", function () {
+    return gulp.src([
+        "./client/lib/crs.js",
+    ]).pipe(gulp.dest("./public/js"));
+});
