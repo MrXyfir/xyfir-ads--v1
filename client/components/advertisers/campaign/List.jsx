@@ -38,7 +38,6 @@ export default class AdvertiserCampaignsList extends React.Component {
                 c = this.state.campaigns[i];
 
                 c.link = "#/advertisers/campaign/" + c.id;
-                c.status = "campaign-status-" + (!!c.approved ? "approved" : "pending");
                 c.payType = c.payType == 1 ? "clicks" : "views";
                 
                 if (c.dailyFunds == 0)
@@ -49,13 +48,25 @@ export default class AdvertiserCampaignsList extends React.Component {
                 campaigns.push(
                     <div className="advertisers-campaigns-campaign">
                         <div className="campaign-top">
-                            <span className={c.status}></span>
+                            {!!c.approved ? (
+                                <span
+                                    title="Approved Campaign"
+                                    className="icon-ok"
+                                />
+                            ) : (
+                                <span
+                                    title="Campaign Approval Pending"
+                                    className="icon-pending"
+                                />
+                            )}
                             <span className="campaign-name">
                                 <a href={c.link}>{c.name}</a>
                             </span>
-                            <span className="campaign-completed">
-                                {c.provided == 0 ? "0.00%" :  round(c.provided / c.requested, 2) + '%'}
-                            </span>
+                            <span className="campaign-completed">{c.provided == 0 ? (
+                                "0.00%"
+                            ) : (
+                                round(c.provided / c.requested, 2) + '%'
+                            )}</span>
                         </div>
 
                         <div className="campaign-bottom">
