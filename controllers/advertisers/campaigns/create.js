@@ -119,6 +119,7 @@ module.exports = function(req, res) {
                 ut_regions: req.body.ut_regions,
                 ct_keywords: req.body.ct_keywords,
                 daily_funds: !!req.body.f_daily ? req.body.f_daily : 0,
+                pay_modifier: req.body.a_type == 1 ? 500 : 70,
                 ut_countries: req.body.ut_countries,
                 ct_categories: req.body.ct_category,
                 ad_description: req.body.a_description
