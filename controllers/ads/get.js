@@ -1,6 +1,7 @@
 const categoryMatch = require("lib/category/match");
 const mergeObject = require("lib/merge/object");
 const ip2geo = require("lib/ip2geo");
+const rand = require("lib/rand");
 const db = require("lib/db");
 
 /*
@@ -100,11 +101,15 @@ module.exports = function(req, res) {
         // Select approved ads where advertiser wants more views or clicks,
         // has enough funds to pay cost, daily funds hasn't reached limit,
         // and targetted sites are empty or pub's site is listed
-        sql = "SELECT id, pay_type, cost, available, ad_type, ad_title, ad_description, ad_media, "
-            + "ut_age, ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords FROM ads "
-            + "WHERE approved = 1 AND requested > provided AND funds > cost "
-            + "AND IF(ct_sites = '*', 1, INSTR(ct_sites, '" + pub.site + "') > 0) "
-            + "AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used) AND ad_type ";
+        sql = `
+            SELECT
+                id, pay_type, cost, available, ad_type, ad_title, ad_description, ad_media
+                pay_modifier, ut_age, ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords
+            FROM ads WHERE
+                approved = 1 AND requested > provided AND funds > cost
+                AND IF(ct_sites = '*', 1, INSTR(ct_sites, '" + pub.site + "') > 0)
+                AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used) AND ad_type
+        `;
 
         // Validate types if multiple provided
         if (!q.type) {
@@ -140,8 +145,8 @@ module.exports = function(req, res) {
             cn.pause();
 
             // If publisher is requesting a speedy response, we have enough ads,
-            // and random() returns a 1: skip this row
-            if (q.speed > 0 && ads.length >= q.count && Math.round(Math.random()) == 1) {
+            // and rand() returns a 1: skip this row
+            if (q.speed > 0 && ads.length >= q.count && rand(0, 2) == 1) {
                 cn.resume();
                 return;
             }
@@ -371,27 +376,58 @@ module.exports = function(req, res) {
             return;
         }
 
+        // Determine if we should charge campaign for view 
+        // CPC ads have chance of being charged click amount for view
+        const chargeView = ads[i].pay_type == 1
+            ? rand(1, ads[i].pay_modifier) == 1
+            : rand(1, 101) < ads[i].pay_modifier;
+
         // Update Ad Campaign
-        // Decrement funds by cost of CPV
-        // Increment requested if CPV
-        // Increment daily_funds_used if daily_funds > 0
-        sql = "UPDATE ads SET "
-            + "funds = CASE WHEN pay_type = 2 THEN funds - cost ELSE funds END, "
-            + "requested = CASE WHEN pay_type = 2 THEN requested + 1 ELSE requested END, "
-            + "daily_funds_used = CASE WHEN pay_type = 2 AND daily_funds > 0 THEN daily_funds_used + cost ELSE daily_funds_used END "
-            + "WHERE id = ?";
+        // CPC
+        if (ads[i].pay_type == 1 && chargeView) {
+            // Decrement funds by cost of click
+            // Increment daily_funds_used if daily_funds > 0
+            sql = `
+                UPDATE ads SET
+                    funds = funds - cost,
+                    daily_funds_used = CASE WHEN daily_funds > 0
+                        THEN daily_funds_used + cost ELSE 0 END
+                WHERE id = ?
+            `;
+        }
+        // CPV
+        else if (ads[i].pay_type == 2 && chargeView) {
+            // Decrement funds by cost of CPV
+            // Increment requested
+            // Increment daily_funds_used if daily_funds > 0
+            sql = `
+                UPDATE ads SET
+                    funds = funds - cost,
+                    requested = FROM ads requested + 1 ELSE requested END,
+                    daily_funds_used = CASE WHEN daily_funds > 0
+                        THEN daily_funds_used + cost ELSE 0 END
+                WHERE id = ?
+            `;
+        }
+        else {
+            sql = "SELECT 1";
+        }
         
         cn.query(sql, [ads[i].id], (err, result) => {
             // Update ad report: views / cost
-            sql = "UPDATE ad_reports SET views = views + 1"
-                + (ads[i].payType == 2 ? ", cost = cost + " + ads[i].cost + " " : " ")
-                + "WHERE id = ? AND day = CURDATE()";
+            sql = `
+                UPDATE ad_reports SET views = views + 1,
+                cost = cost ${chargeView ? `+ ${ads[i].cost}` : ""}
+                WHERE id = ? AND day = CURDATE()
+            `;
 
             cn.query(sql, [ads[i].id], (err, result) => {
                 // Update pub report: views / earnings
-                sql = "UPDATE pub_reports SET views = views + 1"
-                    + (ads[i].payType == 2 ? ", earnings = earnings + " + (ads[i].cost * 0.70) + " " : " ")
-                    + "WHERE id = ? AND day = CURDATE()";
+                sql = `
+                    UPDATE pub_reports SET views = views + 1,
+                        earnings = earnings ${chargeView ? `+ ${ads[i].cost}` : ""}
+                    WHERE id = ? AND day = CURDATE()
+                `;
 
                 cn.query(sql, [q.pubid], (err, result) => {
                     // Update values for next add in array
