@@ -1,5 +1,5 @@
-@import "constants.css";
-@import "grid.css";
-@import "main.css";
-@import "home.css";
-@import "dashboards.css";
+@import "constants.scss";
+@import "grid.scss";
+@import "main.scss";
+@import "home.scss";
+@import "dashboards.scss";
