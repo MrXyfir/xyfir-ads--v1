@@ -210,7 +210,7 @@ export default class Funds extends React.Component {
                         </div>
                     </div>
 
-                    <a onClick={this.toggleBidType}>
+                    <a onClick={() => this.onToggleBidType()}>
                         Switch to {this.state.autobid ? "Manual" : "Automatic"} Bidding
                     </a>                    
                     

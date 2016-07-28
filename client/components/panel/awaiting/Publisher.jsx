@@ -78,11 +78,11 @@ export default class Publisher extends React.Component {
                 }</table>
 
                 <div className="action">
-                    <Button onClick={this.onApprove}>Approve Publisher</Button>
+                    <Button onClick={() => this.onApprove()}>Approve Publisher</Button>
 
                     <h3>~ or ~</h3>
 
-                    <Button onClick={this.onDeny}>Deny Publisher</Button>
+                    <Button onClick={() => this.onDeny()}>Deny Publisher</Button>
 
                     <textarea ref="denyReason"></textarea>
                 </div>

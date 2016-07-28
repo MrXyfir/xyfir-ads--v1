@@ -14,7 +14,7 @@ export default class RegisterAdvertiser extends React.Component {
         this.register = this.register.bind(this);
     }
 
-    register() {
+    onRegister() {
         request({
             url: "api/advertisers/account/register",
             method: "POST", success: (response) => {
@@ -30,7 +30,7 @@ export default class RegisterAdvertiser extends React.Component {
         return (
             <div className="home-register-advertiser">
                 <h3>Become an Advertiser</h3>
-                <Button type="primary" onClick={this.register}>Register</Button>
+                <Button type="primary" onClick={() => this.onRegister()}>Register</Button>
             </div>
         );
     }

@@ -115,7 +115,7 @@ export default class AdvertiserCampaignReports extends React.Component {
                 <label>End Date</label>
                 <input type="text" ref="end" />
 
-                <Button onClick={this.onGenerateReport}>Generate</Button>
+                <Button onClick={() => this.onGenerateReport()}>Generate</Button>
 
                 <hr />
 

@@ -74,11 +74,11 @@ export default class Ad extends React.Component {
                 }</table>
 
                 <div className="action">
-                    <Button onClick={this.onApprove}>Approve Advert</Button>
+                    <Button onClick={() => this.onApprove()}>Approve Advert</Button>
 
                     <h3>~ or ~</h3>
 
-                    <Button onClick={this.onDeny}>Deny Advert</Button>
+                    <Button onClick={() => this.onDeny()}>Deny Advert</Button>
 
                     <textarea ref="denyReason" />
                 </div>

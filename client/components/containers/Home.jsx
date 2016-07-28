@@ -22,11 +22,11 @@ export default class Home extends React.Component {
         this.registerPub = this.registerPub.bind(this);
     }
 
-    registerAdv() {
+    onRegisterAdv() {
         this.setState({ registerAdv: true });
     }
 
-    registerPub() {
+    onRegisterPub() {
         this.setState({ registerPub: true });
     }
 
@@ -39,7 +39,9 @@ export default class Home extends React.Component {
             registerAdvertiser = (
                 <div>
                     <h3>How do I become an advertiser?</h3>
-                    <Button type="primary" onClick={this.registerAdv}>Register</Button>
+                    <Button type="primary" onClick={() => this.onRegisterAdv()}>
+                        Register
+                    </Button>
                 </div>
             );
         }
@@ -52,8 +54,12 @@ export default class Home extends React.Component {
             registerPublisher = (
                 <div>
                     <h3>How do I become a publisher?</h3>
-                    <p>Registration does not come with guaranteed acceptance. All publishers must be verified prior to being able to use our services.</p>
-                    <Button type="primary" onClick={this.registerPub}>Register</Button>
+                    <p>
+                        Registration does not come with guaranteed acceptance. All publishers must be verified prior to being able to use our services.
+                    </p>
+                    <Button type="primary" onClick={() => this.onRegisterPub()}>
+                        Register
+                    </Button>
                 </div>
             );
         }

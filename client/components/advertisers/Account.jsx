@@ -108,14 +108,17 @@ export default class AdvertiserAccount extends React.Component {
 					<label>Amount</label>
                     <input type="number" placeholder="10.00" id="amount" />
 					
-					<Button onClick={this.addFunds} disabled={this.state.purchaseActive}>
+					<Button
+                        onClick={() => this.onAddFunds()}
+                        disabled={this.state.purchaseActive}
+                    >
                         Complete Purchase
                     </Button>
 				</form>  
             );
         }
         else {
-            addFunds = <Button onClick={this.addFunds}>Add Funds</Button>;
+            addFunds = <Button onClick={() => this.onAddFunds()}>Add Funds</Button>;
         }
 
         /* Error/Success Alert */

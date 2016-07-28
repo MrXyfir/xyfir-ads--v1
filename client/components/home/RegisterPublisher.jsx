@@ -14,7 +14,7 @@ export default class RegisterPublisher extends React.Component {
         this.register = this.register.bind(this);
     }
 
-    register() {
+    onRegister() {
         const data = {
             name: this.refs.name.value,
             email: this.refs.email.value,
@@ -60,7 +60,7 @@ export default class RegisterPublisher extends React.Component {
                 <input type="text" placeholder="Contanct Email" ref="email" />
                 <textarea ref="info" defaultValue="Publisher application" />
 
-                <Button type="primary" onClick={this.register}>Register</Button>
+                <Button type="primary" onClick={() => this.onRegister()}>Register</Button>
             </div>
         );
     }
