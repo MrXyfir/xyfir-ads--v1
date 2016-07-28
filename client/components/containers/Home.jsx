@@ -17,9 +17,6 @@ export default class Home extends React.Component {
             registerAdv: false,
             registerPub: false
         };
-
-        this.registerAdv = this.registerAdv.bind(this);
-        this.registerPub = this.registerPub.bind(this);
     }
 
     onRegisterAdv() {
