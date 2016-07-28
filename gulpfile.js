@@ -73,3 +73,14 @@ gulp.task("copy-libs", function () {
         "./client/lib/crs.js",
     ]).pipe(gulp.dest("./public/js"));
 });
+
+/*
+	fontello
+    - get font and css files from fontello
+    - place in ./public/fontello
+*/
+gulp.task("fontello", function () {
+    return gulp.src("fontello.json")
+        .pipe(require("gulp-fontello")())
+        .pipe(gulp.dest("./public/fontello"));
+});
