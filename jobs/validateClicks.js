@@ -155,7 +155,7 @@ module.exports = (fn) => db(cn => {
             sql = "UPDATE pub_reports SET earnings = earnings + ?, earnings_temp = 0 "
                 + "WHERE id = ? AND day = DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
             data = [
-                round(campaigns.publish[pubIndex].amount * 0.70, 6),
+                round(campaigns.publish[pubIndex].amount, 6),
                 campaigns.publish[pubIndex].id
             ];
 
