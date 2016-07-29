@@ -1,6 +1,7 @@
 ﻿import React from "react";
 
 // Components
+import Blacklist from "./manage/Blacklist";
 import Reports from "./manage/Reports";
 import View from "./manage/View";
 import Edit from "./manage/Edit";
@@ -23,7 +24,9 @@ export default class ManagePublisherCampaign extends React.Component {
             case "edit":
                 view = <Edit id={this.props.id} />; break;
             case "reports":
-                view = <Reports id={this.props.id} />;
+                view = <Reports id={this.props.id} />; break;
+            case "blacklist":
+                view = <Blacklist id={this.props.id} />; break;
         }
 
         return (
@@ -33,6 +36,7 @@ export default class ManagePublisherCampaign extends React.Component {
                     <a href={hash + "/reports"} className="link-lg">Reports</a>
                     <a href={hash + "/edit"} className="link-lg">Edit</a>
                     <a href={hash + "/end" } className="link-lg">End</a>
+                    <a href={hash + "/blacklist" } className="link-lg">Blacklist</a>
                 </nav>
 
                 {view}
