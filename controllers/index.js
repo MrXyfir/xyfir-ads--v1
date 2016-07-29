@@ -8,6 +8,7 @@ router.get("/account/status", require("./account/status"));
 router.get("/ads", require("./ads/get"));
 router.get("/click", require("./ads/click"));
 router.get("/ad/info", require("./ads/info"));
+router.get("/ad/search", require("./ads/search"));
 router.get("/ad/pricing", require("./ads/pricing"));
 
 /* Advertisers - Account */
