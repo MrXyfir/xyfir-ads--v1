@@ -100,15 +100,18 @@ module.exports = function(req, res) {
     const buildQuery = () => {
         // Select approved ads where advertiser wants more views or clicks,
         // has enough funds to pay cost, daily funds hasn't reached limit,
-        // and targetted sites are empty or pub's site is listed
+        // targetted sites are empty or pub's site is listed,
+        // and is not in publisher's blacklisted ads
         sql = `
             SELECT
-                id, pay_type, cost, available, ad_type, ad_title, ad_description, ad_media
+                id, pay_type, cost, available, ad_type, ad_title, ad_description, ad_media,
                 pay_modifier, ut_age, ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords
-            FROM ads WHERE
-                approved = 1 AND requested > provided AND funds > cost
+            FROM ads WHERE approved = 1
+                AND requested > provided AND funds > cost
                 AND IF(ct_sites = '*', 1, INSTR(ct_sites, '" + pub.site + "') > 0)
-                AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used) AND ad_type
+                AND id NOT IN (
+                    SELECT ad_id FROM ads_blacklisted WHERE pub_id = ${+req.query.pubid}
+                ) AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used) AND ad_type
         `;
 
         // Validate types if multiple provided
