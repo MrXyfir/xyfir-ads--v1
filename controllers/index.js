@@ -59,6 +59,11 @@ router.get("/publishers/campaigns/:id", require("./publishers/campaigns/get-sing
 router.get("/publishers/campaigns/:id/reports", require("./publishers/campaigns/reports"));
 router.put("/publishers/campaigns/:id/test", require("./publishers/campaigns/generate-test-key"));
 
+/* Publishers - Campaign - Ad Blacklist */
+router.get("/publishers/campaigns/:id/blacklist", require("./publishers/campaigns/blacklist/get"));
+router.post("/publishers/campaigns/:id/blacklist/:ad", require("./publishers/campaigns/blacklist/add-to"));
+router.delete("/publishers/campaigns/:id/blacklist/:ad", require("./publishers/campaigns/blacklist/remove-from"));
+
 /* Misc */
 router.post("/upload", require("./upload"));
 
