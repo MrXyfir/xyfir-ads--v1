@@ -18,6 +18,24 @@ a {
 	cursor: pointer;
 }
 
+/* DEFINITION LISTS */
+dl {
+
+	dt {
+		font-weight: bold;
+	}
+
+	dd {
+		margin: 0em;
+		font-size: 90%;
+	}
+
+	dl {
+		margin: 0em;
+	}
+
+}
+
 /* FOOTER */
 .footer {
 	border-top: solid .13em $lblack;
@@ -75,7 +93,7 @@ a {
 	background-color: $lblue;
 }
 .alert-error {
-	background-color: $danger;
+	background-color: $red;
 }
 .alert-warning {
 	background-color: #fa6800;
@@ -120,7 +138,8 @@ input[type=submit], button, .btn {
 	background-color: #2652ec;
 }
 .btn-primary:hover {
-	background-color: #5a94f1; 
+	background-color: #5a94f1;
+	color: #fff;
 }
 .btn-secondary {
 	background-color: $gray;
@@ -128,11 +147,11 @@ input[type=submit], button, .btn {
 .btn-secondary:hover {
 	background-color: $lgray;
 }
-.btn-danger {
-	background-color: $danger;
+.btn-red {
+	background-color: $red;
 }
-.btn-danger:hover {
-	background-color: $ldanger;
+.btn-red:hover {
+	background-color: $lred;
 }
 input[type=submit]:focus, button:focus {
 	background-color: $lblack;
@@ -158,10 +177,10 @@ input[type=text], input[type=password], input[type=email], input[type=number], i
 	margin: 1em auto;
 }
 input[type=text].input-error, input[type=password].input-error, input[type=email].input-error, input[type=number].input-error, input[type=tel].input-error, input[type=search].input-error, textarea.input-error {
-	border-color: $ddanger;
+	border-color: $dred;
 }
 p.input-error {
-	color: $ddanger;
+	color: $dred;
 }
 textarea {
 	width: 20em;
@@ -169,35 +188,47 @@ textarea {
 }
 
 /* STEP FORMS */
-.form-step-body > input[type=text], .form-step-body > input[type=password], .form-step-body > input[type=email], .form-step-body > input[type=tel] {
-	height: 1.5em;
-	width: 18em;
-	font-size: 125%;
-	margin: 1em auto;
+.form-step-body {
+
+	input[type=text], input[type=password], input[type=email], input[type=tel] {
+		height: 1.5em;
+		width: 18em;
+		font-size: 125%;
+		margin: 1em auto;
+	}
+
+	select {
+		height: 2em;
+		width: 12em;
+		font-size: 125%;
+		margin: 1em auto;
+	}
+
+	label {
+		display: block;
+		margin: auto;
+		font-weight: bold;
+	}
+
+	input[type=checkbox] {
+		margin-bottom: 2em;
+	}
+
 }
-.form-step-body > select {
-    height: 2em;
-    width: 12em;
-    font-size: 125%;
-	margin: 1em auto;
-}
-.form-step-body > label {
-    display: block;
-    margin: auto;
-    font-weight: bold;
-}
-.form-step-body > input[type=checkbox] {
-    margin-bottom: 2em;
-}
+
 .form-step-head {
-    border-bottom: .13em solid #777;
+    
+	border-bottom: .13em solid #777;
     width: 60%;
     margin: auto;
     margin-bottom: 2em;
+
+	p {
+		margin-top: -1em;
+	}
+
 }
-.form-step-head > p {
-	margin-top: -1em;
-}
+
 .form-step-nav {
     margin-top: 2em;
 }
