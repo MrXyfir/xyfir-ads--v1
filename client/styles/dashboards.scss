@@ -12,9 +12,6 @@ table.demographics > tbody > tr > td > span > b,
 table.geo > tbody > tr > td > b {
     color: #777;
 }
-.advertisers-campaign > table > tbody > tr > td {
-    max-width: 35em;
-}
 .campaign-user-targeting > tbody > .geo > td > span > b {
     color: #777;
 }
@@ -26,12 +23,6 @@ table.geo > tbody > tr > td > b {
 .campaign-user-targeting > tbody > .age-ranges > td > span,
 .campaign-user-targeting > tbody > .genders > td > span {
     margin: 0.2em;
-}
-.campaign-edit > .basic-info {
-    margin-top: 2em;
-}
-.campaign-edit > div > h3 {
-    margin-bottom: 0em;
 }
 .advertisers-account-payments {
     margin-top: 2em;
@@ -76,6 +67,27 @@ table.geo > tbody > tr > td > b {
 .manage-media > table {
     margin: auto;
 }
+.advertisers-campaign-manage {
+
+    .campaign-edit {
+
+        .bid-cost {
+            margin-top: 1em;
+        }
+
+        .basic-info {
+            margin-top: 2em;
+        }
+
+    }
+
+}
+
+/* SHARED */
+.keywords > span, .sites > span, .media > span {
+    margin: 0.2em;
+    font-size: 90%;
+}
 
 
 /* PUBLISHERS DASHBORD */
@@ -97,10 +109,6 @@ table.geo > tbody > tr > td > b {
 }
 .publishers-campaigns > .campaign > .site {
     color: #777;
-}
-.keywords > span {
-    margin: 0.2em;
-    font-size: 90%;
 }
 .publishers-campaign > h3 {
     margin-bottom: 0em;
@@ -166,7 +174,7 @@ table.geo > tbody > tr > td > b {
 .publishers-nav, .publishers-nav-sub {
     padding: 1em;
     background-color: #f7f7f7;
-    margin: auto;
+    margin: 1em auto;
     border: 1px solid #f0f0f0;
 }
 .advertisers-nav > .link-lg, .advertisers-nav-sub > .link-lg, .nav > .link-lg,
@@ -178,7 +186,6 @@ table.geo > tbody > tr > td > b {
 }
 .advertisers-nav-sub, .publishers-nav-sub, .nav-sub {
     width: 60%;
-    margin-top: 1em;
 }
 .advertisers-campaign > table, .report > table,
 .publishers-account-payments > table,
