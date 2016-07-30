@@ -108,8 +108,38 @@ table.geo > tbody > tr > td > b {
 .publishers-campaign > h4 {
     margin-bottom: 0.3em;
 }
-.publishers-campaign-manage > .campaign-reports > .report > h3 {
-    margin-bottom: 0em;
+.publishers-campaign-manage {
+
+    .campaign-reports > .report > h3 {
+        margin-bottom: 0em;
+    }
+
+    .ad-blacklist {
+
+        .search-ads, .blacklisted-ads {
+            
+            max-height: 15em;
+            overflow-y: auto;
+
+            .ad {
+
+                margin: 1em;
+
+                .title {
+                    font-weight: bold;
+                }
+
+                .description {
+                    font-size: 90%;
+                    display: block;
+                }
+
+            }
+
+        }
+
+    }
+
 }
 
 /* PANEL - AWAITING */
