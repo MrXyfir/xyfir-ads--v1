@@ -48,25 +48,28 @@ export default class AdvertiserCampaignsList extends React.Component {
                 campaigns.push(
                     <div className="advertisers-campaigns-campaign">
                         <div className="campaign-top">
+                            <span className="campaign-name">
+                                <a href={c.link}>{c.name}</a>
+                            </span>
+                        </div>
+
+                        <div className="campaign-middle">
                             {!!c.approved ? (
                                 <span
                                     title="Approved Campaign"
                                     className="icon-ok"
-                                />
+                                >Approved | </span>
                             ) : (
                                 <span
                                     title="Campaign Approval Pending"
                                     className="icon-pending"
-                                />
+                                >Pending | </span>
                             )}
-                            <span className="campaign-name">
-                                <a href={c.link}>{c.name}</a>
-                            </span>
                             <span className="campaign-completed">{c.provided == 0 ? (
                                 "0.00%"
                             ) : (
                                 round(c.provided / c.requested, 2) + '%'
-                            )}</span>
+                            )} Complete</span>
                         </div>
 
                         <div className="campaign-bottom">
