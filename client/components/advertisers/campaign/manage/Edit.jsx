@@ -152,8 +152,8 @@ export default class EditAdvertiserCampaign extends React.Component {
         else {
             bidding = (
                 <div>
-                    <h3>Bid</h3>
-                    <small>Cannot be lower than category's base price.</small>
+                    <label>Bid</label>
+                    <span className="input-description">Cannot be lower than category's base price.</span>
                     <input type="number" step="0.001" ref="bid" min={c.pricing.base} defaultValue={c.cost} />
                 </div>
             );
@@ -164,14 +164,14 @@ export default class EditAdvertiserCampaign extends React.Component {
                 {alert}
 
                 <div className="form-group basic-info">
-                    <h3>Campaign Name</h3>
+                    <label>Campaign Name</label>
                     <input type="text" ref="name" defaultValue={c.name} />
 
-                    <h3>Requested</h3>
-                    <small>Add amount to requested {c.payType == 1 ? "clicks" : "views"}.</small>
+                    <label>Requested</label>
+                    <span className="input-description">Add amount to requested {c.payType == 1 ? "clicks" : "views"}.</span>
                     <input type="number" ref="requested" step="1000" />
 
-                    <h3>Keywords</h3>
+                    <label>Keywords</label>
                     <textarea ref="keywords" defaultValue={c.contentTargets.keywords}></textarea>
 
                     <Button onClick={() => this.onUpdate()}>Update</Button>
@@ -179,7 +179,7 @@ export default class EditAdvertiserCampaign extends React.Component {
                 
                 <hr />
 
-                <h3>Funds</h3>
+                <label>Funds</label>
                 <div className="form-group add-funds">
                     <select ref="addFundsAction">
                         <option value="add">Add Funds to Campaign</option>
@@ -191,8 +191,10 @@ export default class EditAdvertiserCampaign extends React.Component {
 
                 <hr />
 
-                <h3>Daily Budget</h3>
-                <p>Set a limit on how much you can be charged per day. Leave at $0.00 for no limit.</p>
+                <label>Daily Budget</label>
+                <span className="input-description">
+                    Set a limit on how much you can be charged per day. Leave at $0.00 for no limit.
+                </span>
                 <div className="form-group daily-budget">
                     <input
                         type="number"
@@ -206,8 +208,10 @@ export default class EditAdvertiserCampaign extends React.Component {
 
                 <hr />
 
-                <h3>Bid Cost</h3>
-                <p>Determine how much you'll pay per {c.payType == 1 ? "click" : "view"}.</p>
+                <label>Bid Cost</label>
+                <span className="input-description">
+                    Determine how much you'll pay per {c.payType == 1 ? "click" : "view"}.
+                </span>
                 <div className="form-group bid-cost">
                     <div className="panels ad-pricing-info">
                         <div className="panel">
