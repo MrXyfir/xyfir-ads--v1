@@ -65,43 +65,37 @@ export default class ViewAdvertiserCampaign extends React.Component {
                 <hr />
 
                 <h3>Statistics</h3>
-                <table className="campaign-statistics">
-                    <tr>
-                        <th>Pay Type</th>
-                        <td>{c.payType == 1 ? "Pay-Per-Click" : "Pay-Per-View"}</td>
-                    </tr>
-                    <tr>
-                        <th>Requested {c.payType == 1 ? "Clicks" : "Views"}</th>
-                        <td>{c.requested}</td>
-                    </tr>
-                    <tr>
-                        <th>Provided {c.payType == 1 ? "Clicks" : "Views"}</th>
-                        <td>{c.provided}</td>
-                    </tr>
-                    <tr>
-                        <th>{c.autobid ? "Autobid" : "Bid"}</th>
-                        <td>{c.autobid ? "Enabled" : '$' + c.cost}</td>
-                    </tr>
-                    <tr>
-                        <th>Funds Available</th><td>{'$' + c.funds}</td>
-                    </tr>
-                    <tr>
-                        <th>Daily Funds Limit</th>
-                        <td>{c.dailyFunds > 0 ? (
-                            '$' + c.dailyFundsUsed + ' of $' + c.dailyFunds
-                        ) : (
-                            "No Limit"
-                        )}</td>
-                    </tr>
-                </table>
+                <dl className="campaign-statistics">
+                    <dt>Pay Type</dt>
+                    <dd>{c.payType == 1 ? "Pay-Per-Click" : "Pay-Per-View"}</dd>
+                    
+                    <dt>Requested {c.payType == 1 ? "Clicks" : "Views"}</dt>
+                    <dd>{c.requested}</dd>
+                
+                    <dt>Provided {c.payType == 1 ? "Clicks" : "Views"}</dt>
+                    <dd>{c.provided}</dd>
+                
+                    <dt>{c.autobid ? "Autobid" : "Bid"}</dt>
+                    <dd>{c.autobid ? "Enabled" : '$' + c.cost}</dd>
+                
+                    <dt>Funds Available</dt>
+                    <dd>{'$' + c.funds}</dd>
+                
+                    <dt>Daily Funds Limit</dt>
+                    <dd>{c.dailyFunds > 0 ? (
+                        '$' + c.dailyFundsUsed + ' of $' + c.dailyFunds
+                    ) : (
+                        "No Limit"
+                    )}</dd>
+                </dl>
 
                 <hr />
 
                 <h3>User Targeting</h3>
-                <table className="campaign-user-targeting">
-                    <tr className="age-ranges">
-                        <th>Ages Ranges</th>
-                        <td>
+                <dl className="campaign-user-targeting">
+                    <div className="age-ranges">
+                        <dt>Ages Ranges</dt>
+                        <dd>
                             {
                                 c.userTargets.age == 0
                                 ? "All Age Ranges"
@@ -116,11 +110,11 @@ export default class ViewAdvertiserCampaign extends React.Component {
                                     );
                                 })
                             }
-                        </td>
-                    </tr>
-                    <tr className="genders">
-                        <th>Genders</th>
-                        <td>
+                        </dd>
+                    </div>
+                    <div className="genders">
+                        <dt>Genders</dt>
+                        <dd>
                             {
                                 c.userTargets.genders == 0
                                 ? "All Genders"
@@ -129,91 +123,89 @@ export default class ViewAdvertiserCampaign extends React.Component {
                                     return(<span>{genders[+gender]}</span>);
                                 })
                             }
-                        </td>
-                    </tr>
-                    <tr className="geo">
-                        <th>Countries</th>
-                        <td>{ c.userTargets.countries == '*' ? (
-                            <span><b>All Countries:</b><br /> All Regions</span>
+                        </dd>
+                    </div>
+                    <div className="geo">
+                        <dt>Countries</dt>
+                        <dd><dl>{c.userTargets.countries == '*' ? (
+                            <div>
+                                <dt>All Countries</dt>
+                                <dd>All Regions</dd>
+                            </div>
                         ) : (
                             c.userTargets.countries.split(',').map((country, i) => {
                                 return (
-                                    <span>
-                                        <b>{country}:</b><br /> {c.userTargets.regions.split('|')[i]}
-                                    </span>
+                                    <div>
+                                        <dt>{country}</dt>
+                                        <dd>{c.userTargets.regions.split('|')[i]}</dd>
+                                    </div>
                                 );
                             })
-                        )}</td>
-                    </tr>
-                </table>
+                        )}</dl></dd>
+                    </div>
+                </dl>
 
                 <hr />
 
                 <h3>Content Targeting</h3>
-                <table className="campaign-content-targeting">
-                    <tr className="category">
-                        <th>Category</th><td>{c.contentTargets.categories}</td>
-                    </tr>
-                    <tr className="keywords">
-                        <th>Keywords</th>
-                        <td>{c.contentTargets.keywords.split(',').map(kw => {
-                            return <span>{kw}</span>;
-                        })}</td>
-                    </tr>
-                    <tr className="sites">
-                        <th>Sites</th>
-                        <td>{c.contentTargets.sites == '*' ? (
-                            "All Sites"
-                        ) : (
-                            c.contentTargets.sites.split(',').map(site => {
-                                return(<span>{site}</span>);
-                            })
-                        )}</td>
-                    </tr>
-                </table>
+                <dl className="campaign-content-targeting">
+                    <dt>Category</dt>
+                    <dd className="category">{c.contentTargets.categories}</dd>
+                    
+
+                    <dt>Keywords</dt>
+                    <dd className="keywords">{c.contentTargets.keywords.split(',').map(kw => {
+                        return <span>{kw}</span>;
+                    })}</dd>
+                    
+                    <dt>Sites</dt>
+                    <dd className="sites">{c.contentTargets.sites == '*' ? (
+                        "All Sites"
+                    ) : (
+                        c.contentTargets.sites.split(',').map(site => {
+                            return(<span>{site}</span>);
+                        })
+                    )}</dd>
+                </dl>
 
                 <hr />
 
                 <h3>Advertisement</h3>
 
-                <table className="campaign-advertisement">
-                    <tr>
-                        <th>Type</th>
-                        <td>{
-                            ['', "Text", "Short Text", "Image", "Video"][c.ad.type]
-                        }</td>
-                    </tr>
-                    <tr>
-                        <th>Link</th>
-                        <td><a target="_blank" href={c.ad.link}>{c.ad.link}</a></td>
-                    </tr>
-                    <tr>
-                        <th>Title</th><td>{c.ad.title}</td>
-                    </tr>
-                    <tr>
-                        <th>Description</th><td>{c.ad.description}</td>
-                    </tr>
-                    <tr className="media">
-                        <th>Media</th>
-                        <td>
-                            {
-                                c.ad.media == ''
-                                ? "None"
-                                : c.ad.media.split(',').map((media, i) => {
-                                    const type = c.ad.type == 3 ? "image" : "video";
-                                    const link = media.split(':')[1];
-                                    
-                                    return(
-                                        <span>
-                                            <b>{dimensions[type][i].width}x{dimensions[type][i].height}:</b> 
-                                            <a href={link} target="_blank">{link}</a>
-                                        </span>
-                                    );
-                                })
-                            }
-                        </td>
-                    </tr>
-                </table>
+                <dl className="campaign-advertisement">
+                    <dt>Type</dt>
+                    <dd>{
+                        ['', "Text", "Short Text", "Image", "Video"][c.ad.type]
+                    }</dd>
+                    
+                    <dt>Link</dt>
+                    <dd><a target="_blank" href={c.ad.link}>{c.ad.link}</a></dd>
+                    
+                    <dt>Title</dt>
+                    <dd>{c.ad.title}</dd>
+                
+                    <dt>Description</dt>
+                    <dd>{c.ad.description}</dd>
+                    
+                    <dt>Media</dt>
+                    <dd className="media">{
+                        c.ad.media == ''
+                        ? "None"
+                        : <dl>{c.ad.media.split(',').map((media, i) => {
+                            const type = c.ad.type == 3 ? "image" : "video";
+                            const link = media.split(':')[1];
+                            
+                            return(
+                                <div>
+                                    <dt>{
+                                        dimensions[type][i].width + "x" + dimensions[type][i].height
+                                    }</dt> 
+                                    <dd><a href={link} target="_blank">{link}</a></dd>
+                                </div>
+                            );
+                        })}</dl>
+                    }</dd>
+                </dl>
             </div>
         );
     }
