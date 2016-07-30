@@ -59,7 +59,7 @@ export default class PublisherCampaignAdBlacklist extends React.Component {
             method: "DELETE", success: (res) => {
                 if (!res.error) {
                     this.setState({
-                        blacklisted: this.state.blacklisted.filter(a => a.id == id)
+                        blacklisted: this.state.blacklisted.filter(a => a.id != id)
                     });
                 }
             }
@@ -68,16 +68,23 @@ export default class PublisherCampaignAdBlacklist extends React.Component {
 
     render() {
         return(
-            <div className="campaign-blacklist">
+            <div className="ad-blacklist">
+                <p>
+                    Ads in your blacklist will not be available to your campaign.
+                </p>
+
+                <h3>Search Advertisements</h3>
                 <section className="add-to">
-                    <h3>Add Advert to Blacklist</h3>
                     <input
                         ref="search"
-                        type="search"
+                        type="text"
                         onChange={() => this.onSearch()}
                         placeholder="Search"
                     />
                     
+                    <p>
+                        <strong>Note:</strong> Some ads in this list may not be eligible for output to your campaign due to targeting incompatibilities.
+                    </p>
                     <div className="search-ads">{
                         this.state.search.map(ad => {
                             return (
@@ -96,6 +103,7 @@ export default class PublisherCampaignAdBlacklist extends React.Component {
 
                 <hr />
 
+                <h3>Blacklisted Ads</h3>
                 <section className="blacklisted-ads">{
                     this.state.blacklisted.map(ad => {
                         return (
@@ -104,7 +112,7 @@ export default class PublisherCampaignAdBlacklist extends React.Component {
                                 <span className="description">{ad.description}</span>
                                 <a
                                     onClick={() => this.onRemove(ad.id)}
-                                    className="icon-remove"
+                                    className="icon-delete"
                                 >Remove From Blacklist</a>
                             </div>
                         )
