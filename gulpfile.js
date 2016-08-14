@@ -24,7 +24,7 @@ gulp.task("css", function () {
             nano({ autoprefixer: false, zindex: false })
         ]))
 		.pipe(!isDev ? gzip() : gutil.noop())
-		.pipe(gulp.dest("./public/css"));
+		.pipe(gulp.dest("./static/css"));
 });
 
 /*
@@ -60,27 +60,27 @@ gulp.task("client", function () {
         }))
         .on('error', gutil.log))
 		.pipe(!isDev ? gzip() : gutil.noop())
-		.pipe(gulp.dest('./public/js/'));
+		.pipe(gulp.dest('./static/js/'));
 });
 
 /*
 	copy-libs
     - get localforage / sweetalert
-    - copy to ./public/js
+    - copy to ./static/js
 */
 gulp.task("copy-libs", function () {
     return gulp.src([
         "./client/lib/crs.js",
-    ]).pipe(gulp.dest("./public/js"));
+    ]).pipe(gulp.dest("./static/js"));
 });
 
 /*
 	fontello
     - get font and css files from fontello
-    - place in ./public/fontello
+    - place in ./static/fontello
 */
 gulp.task("fontello", function () {
     return gulp.src("fontello.json")
         .pipe(require("gulp-fontello")())
-        .pipe(gulp.dest("./public/fontello"));
+        .pipe(gulp.dest("./static/fontello"));
 });

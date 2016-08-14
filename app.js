@@ -10,7 +10,7 @@ const config = require("./config");
 let app = express();
 
 /* Serve Static Files */
-app.use(express.static(__dirname + "/public"));
+app.use("/static", express.static(__dirname + "/static"));
 
 /* Body Parser */
 app.use(parser.json());
