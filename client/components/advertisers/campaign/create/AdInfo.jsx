@@ -130,7 +130,7 @@ export default class AdInfo extends React.Component {
             manageMedia = (
                 <div className="manage-media">
                     <h3>Upload {window.campaignData.type == 3 ? "Images" : "Videos"} for Advertisement</h3>
-                    <p>Files can only be uploaded via URL. Click <a href="">here</a> for more information regarding uploading.</p>
+                    <p>Files can only be uploaded via URL. Click <a href="https://xyfir.com/#/documentation/xyfir-ads/advertisers">here</a> for more information regarding uploading.</p>
                     <table>
                         <tr>
                             <th>Resolution</th><th>File URL</th><th>Type</th><th>Upload</th>
