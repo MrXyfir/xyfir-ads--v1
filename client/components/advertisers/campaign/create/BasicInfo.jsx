@@ -49,7 +49,11 @@ export default class BasicInfo extends React.Component {
             <div className="form-step">
                 <div className="form-step-head">
                     <h2>Basic Information</h2>
-                    <p>Tell us what type of ad you want and then give your ad campaign a name.</p>
+                    <p>
+                        Tell us what type of ad you want and then give your ad campaign a name.
+                        <br />
+                        <strong>Note:</strong> Image and video ads are currently disabled until further notice.
+                    </p>
                 </div>
 
                 <div className="form-step-body">
@@ -62,8 +66,8 @@ export default class BasicInfo extends React.Component {
                     <select ref="type" defaultValue={window.campaignData.type}>
                         <option value="1">Text</option>
                         <option value="2">Short</option>
-                        <option value="3">Image</option>
-                        <option value="4">Video</option>
+                        <option value="3" disabled>Image</option>
+                        <option value="4" disabled>Video</option>
                     </select>
 
                     <label>Payment Type</label>
