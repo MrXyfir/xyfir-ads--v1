@@ -44,9 +44,9 @@ export default class EndAdvertiserCampaign extends React.Component {
             return(
                 <div className="end-campaign">
                     <Alert alert="danger" title="Warning!">
-                        Are you sure you want to end this campaign? Any funds in the campaign will be lost!
+                        Are you sure you want to end this campaign? This action cannot be undone.
                     </Alert>
-                    <Button onClick={() => this.onConfirm}>End Campaign</Button>
+                    <Button onClick={() => this.onConfirm()}>End Campaign</Button>
                 </div>
             );
         }
