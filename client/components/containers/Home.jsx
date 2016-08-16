@@ -36,6 +36,9 @@ export default class Home extends React.Component {
             registerAdvertiser = (
                 <div>
                     <h3>How do I become an advertiser?</h3>
+                    <p>
+                        While anyone can become an advertiser, all advertisement campaigns will be verified before going live.
+                    </p>
                     <Button type="primary" onClick={() => this.onRegisterAdv()}>
                         Register
                     </Button>
