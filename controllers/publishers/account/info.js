@@ -22,7 +22,7 @@ module.exports = function(req, res) {
     // Find all of user's pub campaigns
     sql = "SELECT id FROM pubs WHERE owner = ?";
     db(cn => cn.query(sql, [req.session.uid], (err, rows) => {
-        // Unkown database error
+        // Unknown database error
         if (err) {
             cn.release();
             res.json(response);

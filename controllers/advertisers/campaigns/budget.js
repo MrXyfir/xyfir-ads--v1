@@ -25,7 +25,7 @@ module.exports = function(req, res) {
         cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
             if (err || rows.length == 0) {
                 cn.release();
-                res.json({ error: true, message: "An unkown error occured" });
+                res.json({ error: true, message: "An unknown error occured" });
                 return;
             }
 
@@ -43,7 +43,7 @@ module.exports = function(req, res) {
                 cn.release();
 
                 if (err || !result.affectedRows)
-                    res.json({ error: true, message: "An unkown error occured-" });
+                    res.json({ error: true, message: "An unknown error occured-" });
                 else
                     res.json({ error: false, message: "Daily allocated funds updated successfully" });
             }); // update daily_funds

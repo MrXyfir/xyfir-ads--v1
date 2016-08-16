@@ -22,7 +22,7 @@ module.exports = function(req, res) {
             cn.release();
 
             if (err)
-                res.json({ error: true, message: "An unkown error occured" });
+                res.json({ error: true, message: "An unknown error occured" });
             else
                 res.json({ error: false, message: "Payment info updated successfully" });
         });

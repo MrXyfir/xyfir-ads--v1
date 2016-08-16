@@ -19,7 +19,7 @@ module.exports = function(req, res) {
             sql = "SELECT funds FROM advertisers WHERE user_id = ?";
             cn.query(sql, [req.session.uid], (err, rows) => {
                 if (err || rows.length == 0) {
-                    res.json({ error: true, message: "An unkown error occured" });
+                    res.json({ error: true, message: "An unknown error occured" });
                     return;
                 }
 
@@ -33,7 +33,7 @@ module.exports = function(req, res) {
                 cn.beginTransaction(err => {
                     if (err) {
                         cn.release();
-                        res.json({ error: true, message: "An unkown error occured-" });
+                        res.json({ error: true, message: "An unknown error occured-" });
                         return;
                     }
 
@@ -42,7 +42,7 @@ module.exports = function(req, res) {
                     cn.query(sql, [req.body.amount, req.session.uid], (err, result) => {
                         if (err || !result.affectedRows) {
                             cn.rollback(() => cn.release());
-                            res.json({ error: true, message: "An unkown error occured--" });
+                            res.json({ error: true, message: "An unknown error occured--" });
                             return;
                         }
 
@@ -51,14 +51,14 @@ module.exports = function(req, res) {
                         cn.query(sql, [req.body.amount, req.params.id], (err, result) => {
                             if (err || !result.affectedRows) {
                                 cn.rollback(() => cn.release());
-                                res.json({ error: true, message: "An unkown error occured---" });
+                                res.json({ error: true, message: "An unknown error occured---" });
                                 return;
                             }
 
                             cn.commit(err => {
                                 if (err) {
                                     cn.rollback(() => cn.release());
-                                    res.json({ error: true, message: "An unkown error occured----" });
+                                    res.json({ error: true, message: "An unknown error occured----" });
                                     return;
                                 }
 
@@ -75,7 +75,7 @@ module.exports = function(req, res) {
             sql = "SELECT funds, daily_funds, daily_funds_used FROM ads WHERE id = ? AND owner = ?";
             cn.query(sql, [req.params.id, req.session.uid], (err, rows) => {
                 if (err || rows.length == 0) {
-                    res.json({ error: true, message: "An unkown error occured" });
+                    res.json({ error: true, message: "An unknown error occured" });
                     return;
                 }
 
@@ -103,7 +103,7 @@ module.exports = function(req, res) {
                 cn.beginTransaction(err => {
                     if (err) {
                         cn.release();
-                        res.json({ error: true, message: "An unkown error occured-" });
+                        res.json({ error: true, message: "An unknown error occured-" });
                         return;
                     }
 
@@ -112,7 +112,7 @@ module.exports = function(req, res) {
                     cn.query(sql, [req.body.amount, req.params.id], (err, result) => {
                         if (err || !result.affectedRows) {
                             cn.rollback(() => cn.release());
-                            res.json({ error: true, message: "An unkown error occured--" });
+                            res.json({ error: true, message: "An unknown error occured--" });
                             return;
                         }
 
@@ -121,14 +121,14 @@ module.exports = function(req, res) {
                         cn.query(sql, [req.body.amount, req.session.uid], (err, result) => {
                             if (err || !result.affectedRows) {
                                 cn.rollback(() => cn.release());
-                                res.json({ error: true, message: "An unkown error occured---" });
+                                res.json({ error: true, message: "An unknown error occured---" });
                                 return;
                             }
 
                             cn.commit(err => {
                                 if (err) {
                                     cn.rollback(() => cn.release());
-                                    res.json({ error: true, message: "An unkown error occured----" });
+                                    res.json({ error: true, message: "An unknown error occured----" });
                                     return;
                                 }
 

@@ -58,7 +58,7 @@ module.exports = function(req, res) {
         cn.release();
 
         if (err || !result.affectedRows)
-            response = { error: true, message: "An unkown error occured" };
+            response = { error: true, message: "An unknown error occured" };
 
         res.json(response);
     }));

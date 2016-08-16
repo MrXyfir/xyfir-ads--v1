@@ -47,7 +47,7 @@ module.exports = function(req, res) {
 
         if (err || !result.insertId) {
             cn.release();
-            res.json({ error: true, message: "An unkown error occured" });
+            res.json({ error: true, message: "An unknown error occured" });
             return;
         }
 

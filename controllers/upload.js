@@ -35,7 +35,7 @@ module.exports = function(req, res) {
             let dimensions = require("lib/file/dimensions");
 
             if (!result.secure_url)
-                return "An unkown error occured";
+                return "An unknown error occured";
             else if (result.bytes > 104857600)
                 return "File size limit exceeded (100mb)";
             

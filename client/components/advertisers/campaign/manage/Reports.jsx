@@ -71,7 +71,7 @@ export default class AdvertiserCampaignReports extends React.Component {
     render() {
         if (this.state.loading) return <div />;
 
-        let s = this.state, genders = ["Unkown", "Male", "Female", "Other"], geo = [],
+        let s = this.state, genders = ["Unknown", "Male", "Female", "Other"], geo = [],
             ages = ["Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
         
         // Convert {CO:{RE:20,RE:20},CO:{...}...}

@@ -17,7 +17,7 @@ module.exports = function(req, res) {
             cn.query("INSERT INTO advertisers SET ?", { user_id: req.session.uid }, (e, r) => {
                 if (e) {
                     cn.release();
-                    res.json({ error: true, message: "An unkown error occured. Please try again." });
+                    res.json({ error: true, message: "An unknown error occured. Please try again." });
                     return;
                 }
 
@@ -25,7 +25,7 @@ module.exports = function(req, res) {
                     cn.release();
 
                     if (e)
-                        res.json({ error: true, message: "An unkown error occured. Please try again." });
+                        res.json({ error: true, message: "An unknown error occured. Please try again." });
                     else
                         res.json({ error: false, message: "" });
                 });
