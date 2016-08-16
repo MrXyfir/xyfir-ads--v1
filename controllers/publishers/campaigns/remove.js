@@ -14,22 +14,12 @@ module.exports = function(req, res) {
 
     sql = "DELETE FROM pubs WHERE id = ? AND owner = ?";
     db(cn => cn.query(sql, [req.params.id, req.session.uid], (err, result) => {
-        if (err || !result.affectedRows) {
-            cn.release();
-            res.json({ error: true, message: "An unkown error occured" });
-            return;
-        }
+        cn.release();
 
-        sql = "DELETE FROM clicks WHERE pub_id = ?";
-        cn.query(sql, [req.params.id], (err, result) => {
-
-            sql = "DELETE FROM pub_reports WHERE id = ?";
-            cn.query(sql, [req.params.id], (err, result) => {
-                cn.release();
-
-                res.json({ error: false, message: "Campaign successfully deleted" });
-            });
-        });
+        if (err || !result.affectedRows)
+            res.json({ error: true, message: "An unknown error occured" });
+        else
+            res.json({ error: false, message: "Campaign successfully deleted" });
     }));
 
 }
