@@ -140,13 +140,13 @@ export default class PublisherAccount extends React.Component {
                 {alert}
 
                 <h3>Payment Information</h3>
-                <select ref="paymentMethod" onChange={() => this.onUpdatePaymentInfoForm}>
+                <select ref="paymentMethod" onChange={() => this.onUpdatePaymentInfoForm()}>
                     <option value="1">Check (US ONLY)</option>
                     <option value="2">Bank Wire</option>
                 </select>
                 {paymentInfoForm}
 
-                <Button onClick={() => this.onUpdatePaymentInfo}>Update</Button>
+                <Button onClick={() => this.onUpdatePaymentInfo()}>Update</Button>
             </div>
         );
     }

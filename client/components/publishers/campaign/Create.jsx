@@ -131,9 +131,9 @@ export default class CreatePublisherCampaign extends React.Component {
                     <input
                         type="text"
                         ref="category"
-                        onChange={() => this.onCategorySearch}
+                        onChange={() => this.onCategorySearch()}
                     />
-                    <Button type="primary btn-sm" onClick={() => this.onAddCategory}>
+                    <Button type="primary btn-sm" onClick={() => this.onAddCategory()}>
                         Add Category
                     </Button>
 
@@ -151,7 +151,7 @@ export default class CreatePublisherCampaign extends React.Component {
                 </div>
 
                 <div className="form-step-nav">
-                    <Button onClick={() => this.onCreateCampaign}>Create Campaign</Button>
+                    <Button onClick={() => this.onCreateCampaign()}>Create Campaign</Button>
                 </div>
             </div>
         );

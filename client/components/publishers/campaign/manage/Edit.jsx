@@ -78,13 +78,13 @@ export default class EditPublisherCampaign extends React.Component {
                     <option value="2">App / Web App</option>
                 </select>
 
-                <Button onClick={() => this.onUpdate}>Update</Button>
+                <Button onClick={() => this.onUpdate()}>Update</Button>
 
                 <hr />
 
                 <label>Test Key</label>
                 <input type="text" onFocus={(e) => e.target.select()} value={c.test} />
-                <Button type="secondary" onClick={() => this.onGenerateTestKey}>
+                <Button type="secondary" onClick={() => this.onGenerateTestKey()}>
                     Generate New Key
                 </Button>
             </div>
