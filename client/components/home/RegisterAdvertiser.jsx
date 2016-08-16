@@ -10,8 +10,6 @@ export default class RegisterAdvertiser extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.register = this.register.bind(this);
     }
 
     onRegister() {

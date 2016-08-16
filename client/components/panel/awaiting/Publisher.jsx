@@ -14,9 +14,6 @@ export default class Publisher extends React.Component {
         this.state = {
             loading: true, user_id: 0, name: "", application: "", email: ""
         };
-
-        this.onApprove = this.onApprove.bind(this);
-        this.onDeny = this.onDeny.bind(this);
     }
 
     componentWillMount() {

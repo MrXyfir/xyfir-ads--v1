@@ -12,9 +12,6 @@ export default class Ad extends React.Component {
         super(props);
 
         this.state = { loading: true };
-
-        this.onApprove = this.onApprove.bind(this);
-        this.onDeny = this.onDeny.bind(this);
     }
 
     componentWillMount() {
