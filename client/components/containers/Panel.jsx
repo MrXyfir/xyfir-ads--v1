@@ -1,7 +1,7 @@
 ﻿import React from "react";
 
 // Components
-import Awaiting from "components/panel/awaiting/";
+import Awaiting from "components/panel/awaiting/Index";
 
 export default class Panel extends React.Component {
 
