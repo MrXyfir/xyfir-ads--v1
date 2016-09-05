@@ -25,39 +25,34 @@ const db = require("lib/db");
 */
 module.exports = function(req, res) {
 
-    res.append("Access-Control-Allow-Origin", true);
-
     // pubid is required
     if (!req.query.pubid) {
         res.json({ ads: ['-'] });
         return;
     }
-    // Setup variables
-    else {
-        let q = req.query, ads = [], testMode, sql, cn, pub, user;
-        req.query = null;
+    
+    let q = req.query, ads = [], testMode, sql, cn, pub, user;
 
-        q.speed = !q.speed ? 0 : q.speed;
-        q.count = !q.count ? 1 : q.count;
-        q.count = q.count > 5 ? 5 : q.count;
+    q.speed = !q.speed ? 0 : q.speed;
+    q.count = !q.count ? 1 : q.count;
+    q.count = q.count > 5 ? 5 : q.count;
 
-        db(connection => {
-            cn = connection;
+    db(connection => {
+        cn = connection;
 
-            if (q.test) {
-                // If publisher provided valid test key, enable testMode
-                sql = "SELECT id FROM pubs WHERE id = ? AND test = ?";
-                cn.query(sql, [q.pubid, q.test], (err, rows) => {
-                    testMode = rows.length == 1;
-                    initialData();
-                });
-            }
-            else {
-                testMode = false;
+        if (q.test) {
+            // If publisher provided valid test key, enable testMode
+            sql = "SELECT id FROM pubs WHERE id = ? AND test = ?";
+            cn.query(sql, [q.pubid, q.test], (err, rows) => {
+                testMode = rows.length == 1;
                 initialData();
-            }
-        });
-    }
+            });
+        }
+        else {
+            testMode = false;
+            initialData();
+        }
+    });
 
     /* Get/Prepare Info Needed Later */
     const initialData = () => {
