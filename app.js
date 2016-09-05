@@ -9,6 +9,10 @@ const parser = require("body-parser");
 const config = require("./config");
 let app = express();
 
+if (config.environment.type == "dev") {
+	app.use(require("cors")());
+}
+
 /* Serve Static Files */
 app.use("/static", express.static(__dirname + "/static"));
 
