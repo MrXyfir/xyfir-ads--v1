@@ -44,7 +44,7 @@ module.exports = function(req, res) {
         }
 
         db(cn => {
-            let sql = "SELECT * FROM users WHERE xyfir_id = ?";
+            let sql = "SELECT * FROM users WHERE xid = ?";
             cn.query(sql, [req.body.xid], (err, rows) => {
 				
                 if (err) {
@@ -54,7 +54,7 @@ module.exports = function(req, res) {
                 // First login (registration)
                 else if (rows.length == 0) {
                     let insert = {
-                        xyfir_id: req.body.xid,
+                        xid: req.body.xid,
                         email: body.email
                     };
 					
@@ -63,8 +63,13 @@ module.exports = function(req, res) {
                     cn.query(sql, insert, (err, result) => {
                         cn.release();
 
-                        req.session.uid = result.insertId;
-                        res.json({ error: false });
+                        if (err || !result.insertId) {
+                            res.json({ error: true });
+                        }
+                        else {
+                            req.session.uid = result.insertId;
+                            res.json({ error: false });
+                        }
                     });
                 }
                 // Normal login
