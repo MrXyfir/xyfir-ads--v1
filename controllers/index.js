@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 /* Account */
-router.get("/account/login", require("./account/login"));
+router.post("/account/login", require("./account/login"));
 router.get("/account/status", require("./account/status"));
 
 /* Ads */
