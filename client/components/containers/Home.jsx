@@ -8,15 +8,30 @@ import Button from "components/forms/Button";
 // Constants
 import { XACC } from "constants/config";
 
+// Modules
+import request from "lib/request";
+
 export default class Home extends React.Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            registerAdv: false,
-            registerPub: false
+            registerAdv: false, registerPub: false,
+            account: {
+                loggedIn: false, admin: false, advertiser: false,
+                publisher: false
+            }
         };
+    }
+
+    componentWillMount() {
+        request({
+            url: "api/account/status",
+            success: (res) => {
+                this.setState({ account: res });
+            }
+        });
     }
 
     onRegisterAdv() {
@@ -28,64 +43,46 @@ export default class Home extends React.Component {
     }
 
     render() {
-        let registerAdvertiser;
-        if (this.state.registerAdv) {
-            registerAdvertiser = <RegisterAdvertiser />;
-        }
-        else {
-            registerAdvertiser = (
-                <div>
-                    <h3>How do I become an advertiser?</h3>
-                    <p>
-                        While anyone can become an advertiser, all advertisement campaigns will be verified before going live.
-                    </p>
-                    <Button type="primary" onClick={() => this.onRegisterAdv()}>
-                        Register
-                    </Button>
-                </div>
-            );
-        }
-
-        let registerPublisher;
-        if (this.state.registerPub) {
-            registerPublisher = <RegisterPublisher />;
-        }
-        else {
-            registerPublisher = (
-                <div>
-                    <h3>How do I become a publisher?</h3>
-                    <p>
-                        Registration does not come with guaranteed acceptance. All publishers must be verified prior to being able to use our services.
-                    </p>
-                    <Button type="primary" onClick={() => this.onRegisterPub()}>
-                        Register
-                    </Button>
-                </div>
-            );
-        }
-
         return (
         <div className="home">
-            <div className="home-section-main">
+            <section className="home-section-main">
                 <h1>Xyfir Ads</h1>
                 <p className="subtitle">Advertising for the modern web.</p>
                 <p>
                     We've done away with everything that's given online advertising a bad name: intrusive tracking, high bandwidth usage, high resource usage, flashy and distractive ads, and more. Our advertisers and publishers are all hand picked and approved by an actual human to ensure quality. Xyfir Ads has the ability to seamlessly integrate with content due to our 'native ad' system. In other words: we give the ad content to the publisher, and they decide how to implement it into their site, app, etc.
                 </p>
-            </div>
+            </section>
 
             <hr />
 
-            <div className="home-section-dashboards">
+            <section className="home-section-dashboards">
                 <h2>Dashboards</h2>
-                <a href="#/advertisers" className="btn btn-lg btn-primary">Advertiser</a>
-                <a href="#/publishers" className="btn btn-lg btn-primary">Publisher</a>
-                <a className="link-lg" href={XACC + "login/11"}>LOGIN WITH XYFIR ACCOUNT</a>
-            </div>
+                {!this.state.account.loggedIn ? (
+                    <a className="link-lg" href={XACC + "login/11"}>
+                        LOGIN WITH XYFIR ACCOUNT
+                    </a>
+                ) : (
+                    <div>
+                        {this.state.account.advertiser ? (
+                            <a href="#/advertisers" className="link-lg">
+                                Advertiser
+                            </a>
+                        ) : (<span />)}
+                        {this.state.account.publisher ? (
+                            <a href="#/publishers" className="link-lg">
+                                Publisher
+                            </a>
+                        ) : (<span />)}
+                        {!this.state.account.publisher && !this.state.account.advertiser ? (
+                            <span>You are not registered as a publisher or advertiser.</span>
+                        ) : (<span />)}
+                    </div>
+                )}
+            </section>
 
             <hr />
 
-            <div className="home-section-advertisers">
+            <section className="home-section-advertisers">
 	            <h2>For Advertisers</h2>
 	            <p className="subtitle">Capture a wider audience with native ads.</p>
 	            <p>
@@ -104,15 +101,29 @@ export default class Home extends React.Component {
 	                Another benefit to native advertising is that they are much less likely to be blocked by ad-blocking plugins, and for multiple reasons. Ad-blockers work by finding a common method of displaying ads utilized by ad networks; since the actual ad displaying is determined by the publishers the chances of someone blocking that specific method is much lower. In addition to this, ads that aren't annoying and obtrusive simply won't be blocked in most cases.
 	            </p>
 
-                {registerAdvertiser}
+                {this.state.account.advertiser ? (
+                    <span />
+                ) : this.state.registerAdv ? (
+                    <RegisterAdvertiser />
+                ) : (
+                    <div>
+                        <h3>How do I become an advertiser?</h3>
+                        <p>
+                            While anyone can become an advertiser, all advertisement campaigns will be verified before going live.
+                        </p>
+                        <Button type="primary" onClick={() => this.onRegisterAdv()}>
+                            Register
+                        </Button>
+                    </div>
+                )}
 
 	            <h3 className="header-doc-resources">Documentation / Resources</h3>
 	            <a href="https://xyfir.com/#/documentation/xyfir-ads/advertisers" target="_blank" className="link-lg">https://xyfir.com/#/documentation/xyfir-ads/advertisers</a>
-            </div>
+            </section>
 
             <hr />
 
-            <div className="home-section-publishers">
+            <section className="home-section-publishers">
 	            <h2>For Publishers</h2>
 	            <p className="subtitle">Increase your ad revenue while keeping your users happy.</p>
 
@@ -121,21 +132,35 @@ export default class Home extends React.Component {
 	                Native ads allow you to integrate advertising any way you want. Control exactly where, what, and how ads display. You tell us what kind of ads you want and we find ads relevant to your content and return not the ad itself, but the ad information. We give you the link, title, description, image, etc and let you (or your developers) decide how to display that content. The result is a multitude of benefits for both you <b>and</b> your users: cleaner site, faster page loads, no intrusive user tracking, more personalized ads, less blocked ads, and more!
 	            </p>
 
-                {registerPublisher}
+                {this.state.account.publisher ? (
+                    <span />
+                ) : this.state.registerPub ? (
+                    <RegisterPublisher />
+                ) : (
+                    <div>
+                        <h3>How do I become a publisher?</h3>
+                        <p>
+                            Registration does not come with guaranteed acceptance. All publishers must be verified prior to being able to use our services.
+                        </p>
+                        <Button type="primary" onClick={() => this.onRegisterPub()}>
+                            Register
+                        </Button>
+                    </div>
+                )}
 
 	            <h3 className="header-doc-resources">Documentation / Resources</h3>
 	            <a className="link-lg" target="_blank" href="https://xyfir.com/#/documentation/xyfir-ads/publishers">https://xyfir.com/#/documentation/xyfir-ads/publishers</a>
-            </div>
+            </section>
 
             <hr />
 
-            <div className="home-section-developers">
+            <section className="home-section-developers">
 	            <h2>For Developers</h2>
 	            <p className="subtitle">A simple-to-use API built with developers in mind.</p>
 
 	            <h3 className="header-doc-resources">Documentation / Resources</h3>
 	            <a className="link-lg" target="_blank" href="https://xyfir.com/#/documentation/xyfir-ads/developers">https://xyfir.com/#/documentation/xyfir-ads/developers</a>
-            </div>
+            </section>
         </div>
         );
     }
