@@ -23,7 +23,7 @@ export default class PublisherCampaignReports extends React.Component {
 
         request({url, success: (res) => {
             res.loading = false;
-            this.setState(res, () => this._idToAd());
+            this.setState(res, () => this._idToSite());
         }});
     }
 
@@ -36,7 +36,7 @@ export default class PublisherCampaignReports extends React.Component {
             + "?dates=" + dates;
 
         request({url, success: res => {
-            this.setState(res, () => this._idToAd());
+            this.setState(res, () => this._idToSite());
         }});
     }
 
