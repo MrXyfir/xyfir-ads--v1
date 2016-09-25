@@ -36,7 +36,7 @@ module.exports = function(req, res) {
                 
                 let i = rows[0], campaign = {
                     name: i.name, payType: i.pay_type, cost: i.cost, autobid: i.autobid,
-                    available: i.available, approved: i.approved, ended: ended,
+                    available: i.available, approved: i.approved, ended: i.ended,
                     requested: null, provided: null, funds: null,
                     dailyFunds: null, dailyFundsUsed: null,
                     ad: {
