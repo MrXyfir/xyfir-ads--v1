@@ -4,10 +4,25 @@
 import Campaigns from "components/advertisers/Campaigns";
 import Account from "components/advertisers/Account";
 
+// Modules
+import request from "lib/request";
+
 export default class Advertisers extends React.Component {
 
     constructor(props) {
         super(props);
+    }
+
+    componentWillMount() {
+        request({
+            url: "api/account/status",
+            success: (res) => {
+                if (!res.loggedIn)
+                    location.href = XACC + "login/11";
+                else if (!res.advertiser)
+                    location.hash = "";
+            }
+        });
     }
 
     render() {
