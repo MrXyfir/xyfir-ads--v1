@@ -26,7 +26,7 @@ export default class UserTargeting extends React.Component {
     componentWillMount() {
         // Add country-region-selector to page
         let crs = document.createElement("script");
-        crs.setAttribute("src", "js/crs.js");
+        crs.setAttribute("src", "static/js/crs.js");
         document.head.appendChild(crs);
     }
 
@@ -186,16 +186,12 @@ export default class UserTargeting extends React.Component {
                             ref="country"
                             data-region-id="crs-region"
                             data-value="shortcode"
-                        >
-                            <option value="*">All Countries</option>
-                        </select>
+                        />
                         <select
                             id="crs-region"
                             ref="region"
                             data-value="shortcode"
-                        >
-                            <option value="*">All Regions</option>
-                        </select>
+                        />
                         
                         <a className="link-sm" onClick={() => this.onCrAdd()}>Add to List</a>
                         <a className="link-sm" onClick={() => this.onCrReset()}>Reset List</a>
