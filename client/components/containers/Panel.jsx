@@ -3,10 +3,25 @@
 // Components
 import Awaiting from "components/panel/awaiting/Index";
 
+// Modules
+import request from "lib/request";
+
 export default class Panel extends React.Component {
 
     constructor(props) {
         super(props);
+    }
+
+    componentWillMount() {
+        request({
+            url: "api/account/status",
+            success: (res) => {
+                if (!res.loggedIn)
+                    location.href = XACC + "login/11";
+                else if (!res.admin)
+                    location.hash = "";
+            }
+        });
     }
 
     render() {
