@@ -25,6 +25,10 @@ export default class CreatePublisherCampaign extends React.Component {
         })
     }
 
+    onResetCategories() {
+        this.setState({ selectedCategories: [] });
+    }
+
     onCategorySearch() {
         // Save first 5 matches
         let categorySearchResults = [];
@@ -63,7 +67,7 @@ export default class CreatePublisherCampaign extends React.Component {
         // Validate that all selected categories exists
         this.state.selectedCategories.map((category) => {
             if (this.state.categories.indexOf(category) == -1) {
-                this.setState({ error: true, message: "Invalid category provides" });
+                this.setState({ error: true, message: "Invalid category provided" });
                 create = false;
             }
         });
@@ -135,6 +139,9 @@ export default class CreatePublisherCampaign extends React.Component {
                     />
                     <Button type="primary btn-sm" onClick={() => this.onAddCategory()}>
                         Add Category
+                    </Button>
+                    <Button type="red btn-sm" onClick={() => this.onResetCategories()}>
+                        Reset Categories
                     </Button>
 
                     <div className="search-results">{
