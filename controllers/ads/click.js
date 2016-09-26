@@ -1,15 +1,19 @@
 const mergeObject = require("lib/merge/object");
 const mergeList = require("lib/merge/list");
+const crypto = require("lib/crypto");
 const ip2geo = require("lib/ip2geo");
 const db = require("lib/db");
+
+const config = require("config");
 
 /*
     GET api/click
     REQUIRED
-        pub: number, ad: number, served: unix-timestamp
-    OPTIONAL
-        score: number, xad[id]: string, a[ge]: number, g[ender]: number,
-        test: string
+        c: encrypted-json-string {
+            pub: number, ad: number, served: unix-timestamp,
+            score: number, age: number, gender: number,
+            xad[id]?: string, test[Key]?: string
+        }
     DESCRIPTION
         Gathers information about click and updates campaigns/reports
         Saves information about click in clicks table
@@ -17,15 +21,18 @@ const db = require("lib/db");
 */
 module.exports = function(req, res) {
 
+    // Decrypt / parse req.query.c
+    const q = JSON.parse(crypto.decrypt(req.query.c), config.keys.encrypt);
+
     let adReport, pubReport, geo, cn, sql, link, cpc = false, cost = 0, testMode;
 
     db(connection => {
         cn = connection;
 
         // Set testMode boolean
-        if (req.query.test) {
+        if (q.test) {
             sql = "SELECT id FROM pubs WHERE id = ? AND test = ?";
-            cn.query(sql, [req.query.pub, req.query.test], (err, rows) => {
+            cn.query(sql, [q.pub, q.test], (err, rows) => {
                 testMode = rows.length == 1;
                 getData();
             });
@@ -43,7 +50,7 @@ module.exports = function(req, res) {
         // Grab data we need to update for ad report
         sql = "SELECT dem_age, dem_gender, dem_geo, publishers FROM ad_reports "
             + "WHERE id = ? AND day = CURDATE()";
-        cn.query(sql, [req.query.ad], (err, rows) => {
+        cn.query(sql, [q.ad], (err, rows) => {
             if (err || rows.length == 0) {
                 res.redirect("https://xyfir.com/");
                 return;
@@ -53,7 +60,7 @@ module.exports = function(req, res) {
 
             // Grab data we need to update for pub report
             sql = "SELECT ads FROM pub_reports WHERE id = ? AND day = CURDATE()";
-            cn.query(sql, [req.query.pub], (err, rows) => {
+            cn.query(sql, [q.pub], (err, rows) => {
                 if (err || rows.length == 0) {
                     res.redirect("https://xyfir.com/");
                     return;
@@ -63,7 +70,7 @@ module.exports = function(req, res) {
 
                 // Grab needed info from ad
                 sql = "SELECT ad_link, pay_type, cost FROM ads WHERE id = ?";
-                cn.query(sql, [req.query.ad], (err, rows) => {
+                cn.query(sql, [q.ad], (err, rows) => {
                     if (err || rows.length == 0) {
                         res.redirect("https://xyfir.com/");
                         return;
@@ -85,7 +92,7 @@ module.exports = function(req, res) {
                             + "requested = CASE WHEN pay_type = 1 THEN requested + 1 ELSE requested END, "
                             + "daily_funds_used = CASE WHEN daily_funds > 0 THEN daily_funds_used + cost ELSE 0 END "
                             + "WHERE id = ?";
-                        cn.query(sql, [req.query.ad], (err, result) => updateReports());
+                        cn.query(sql, [q.ad], (err, result) => updateReports());
                     }
                 }); // ad link
             }); // pub report
@@ -95,13 +102,13 @@ module.exports = function(req, res) {
     /* Update Values for Pub/Ad Reports */
     const updateReports = () => {
         // Increment optional ad_reports values
-        if (req.query.a)
-            adReport.dem_age = mergeList(adReport.dem_age.split(','), [req.query.a + ":1"]);
-        if (req.query.g)
-            adReport.dem_gender = mergeList(adReport.dem_gender.split(','), [req.query.g + ":1"]);
+        if (q.a)
+            adReport.dem_age = mergeList(adReport.dem_age.split(','), [q.a + ":1"]);
+        if (q.g)
+            adReport.dem_gender = mergeList(adReport.dem_gender.split(','), [q.g + ":1"]);
 
         // Increment required ad_reports values
-        adReport.publishers = mergeList(adReport.publishers.split(','), [req.query.pub + ":1"]);
+        adReport.publishers = mergeList(adReport.publishers.split(','), [q.pub + ":1"]);
 
         // This is the ad's first click of the day, start new dem_geo object
         if (adReport.dem_geo == "") {
@@ -116,7 +123,7 @@ module.exports = function(req, res) {
         }
 
         // Increment required pub_reports value
-        pubReport.ads = mergeList(pubReport.ads.split(','), [req.query.ad + ":1"]);
+        pubReport.ads = mergeList(pubReport.ads.split(','), [q.ad + ":1"]);
 
         // Update ad_report values
         sql = "UPDATE ad_reports SET dem_age = ?, dem_gender = ?, dem_geo = ?, publishers = ?, "
@@ -124,7 +131,7 @@ module.exports = function(req, res) {
             + "WHERE id = ? AND day = CURDATE()";
         let values = [
             adReport.dem_age, adReport.dem_gender, adReport.dem_geo,
-            adReport.publishers, cpc, cost, req.query.ad
+            adReport.publishers, cpc, cost, q.ad
         ];
         cn.query(sql, values, (err, result) => {
             if (err || !result.affectedRows) {
@@ -137,7 +144,7 @@ module.exports = function(req, res) {
             sql = "UPDATE pub_reports SET ads = ?, clicks = clicks + 1, earnings_temp = "
                 + "CASE WHEN ? THEN earnings_temp + ? ELSE earnings_temp END "
                 + "WHERE id = ? AND day = CURDATE()";
-            cn.query(sql, [pubReport.ads, cpc, cost, req.query.pub], (err, result) => finish());
+            cn.query(sql, [pubReport.ads, cpc, cost, q.pub], (err, result) => finish());
         });
     };
 
@@ -160,11 +167,11 @@ module.exports = function(req, res) {
 
             // Add row to clicks table
             let insert = {
-                ad_id: req.query.ad, pub_id: req.query.pub, served: req.query.served,
+                ad_id: q.ad, pub_id: q.pub, served: q.served,
                 ip: req.ip, clicked: (new Date().getTime() / 1000), signature: signature,
                 xad_id: "", cost: cost
             };
-            insert.xad_id = req.query.xad ? req.query.xad : "";
+            insert.xad_id = q.xad ? q.xad : "";
 
             sql = "INSERT INTO clicks SET ?";
             cn.query(sql, insert, (err, result) => cn.release());
