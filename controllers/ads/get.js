@@ -1,8 +1,11 @@
 const categoryMatch = require("lib/category/match");
 const mergeObject = require("lib/merge/object");
+const crypto = require("lib/crypto");
 const ip2geo = require("lib/ip2geo");
 const rand = require("lib/rand");
 const db = require("lib/db");
+
+const config = require("config");
 
 /*
     GET api/ads
@@ -277,13 +280,17 @@ module.exports = function(req, res) {
 
                 if (ad.ad_media != "") tAd.media = ad.ad_media;
 
+                // Build click info object
+                let c = {
+                    pub: +q.pubid, ad: ad.id, score, served: time, gender, age
+                };
+
+                if (testMode) c.test = q.test;
+                if (q.xadid) c.xad = q.xadid;
+
                 // Build link user will go to when clicking ad
-                tAd.link = "https://ads.xyfir.com/api/click?pub=" + q.pubid
-                    + "&ad=" + ad.id + "&score=" + score + "&served=" + time
-                    + ((q.gender || user.gender) ? ("&g=" + gender) : "")
-                    + ((q.age || user.age) ? ("&a=" + age) : "")
-                    + (testMode ? ("&test=" + q.test) : "")
-                    + (q.xadid ? ("&xad=" + q.xadid) : "");
+                tAd.link = "https://ads.xyfir.com/api/click?c="
+                + crypto.encrypt(JSON.stringify(c), config.keys.encrypt);
 
                 ads.push(tAd);
             };
