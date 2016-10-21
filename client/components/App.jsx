@@ -2,6 +2,7 @@ import React from "react";
 import { render } from "react-dom";
 
 // Components
+import DynamicStyles from "./misc/DynamicStyles";
 import Advertisers from "./containers/Advertisers";
 import Publishers from "./containers/Publishers";
 import Panel from "./containers/Panel";
@@ -71,19 +72,28 @@ class App extends React.Component {
     }
 	
 	render() {
+        let view;
+
 		switch (this.state.hash[1]) {
             case "advertisers":
-                return <Advertisers hash={this.state.hash} />;
+                view = <Advertisers hash={this.state.hash} />; break;
             
             case "publishers":
-                return <Publishers hash={this.state.hash} />;
+                view = <Publishers hash={this.state.hash} />; break;
 
             case "panel":
-                return <Panel hash={this.state.hash} />;
+                view = <Panel hash={this.state.hash} />; break;
             
             default:
-                return <Home hash={this.state.hash} />;
+                view = <Home hash={this.state.hash} />;
         }
+
+        return (
+            <div className="xyfir-ads">
+                {view}
+                <DynamicStyles />
+            </div>
+        );
 	}
 	
 }
