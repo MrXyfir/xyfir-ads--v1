@@ -17,7 +17,7 @@ export default class ViewAdvertiserCampaign extends React.Component {
         this.state = {
             name: "", funds: 0, dailyFunds: 0, dailyFundsUsed: 0, ended: false,
             payType: 0, cost: 0, autobid: false, requested: 0,
-            provided: 0, available: "", approved: false,
+            provided: 0, available: "", approved: 0,
             ad: {
                 type: 0, title: "", description: "", link: "", media: "",
             },
@@ -26,8 +26,7 @@ export default class ViewAdvertiserCampaign extends React.Component {
             },
             contentTargets: {
                 categories: "", keywords: "", sites: ""
-            },
-            error: false, message: ""
+            }
         };
     }
 
@@ -39,55 +38,53 @@ export default class ViewAdvertiserCampaign extends React.Component {
     }
 
     render() {
-        if (this.state.name == "")
-            return <div></div>;
+        if (this.state.name == "") return <div />;
 
-        let c = this.state, status = "", alert;
-
-        if (this.state.error) {
-            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
-        }
-
-        if (c.ended && c.approved) status = "Ended";
-        else if (c.ended && !c.approved) status = "Denied";
-        else if (!c.ended && c.approved) status = "Active";
-        else if (!c.ended && !c.approved) status = "Pending";
+        let c = this.state;
 
         return(
             <div className="advertisers-campaign">
-                <h2>{c.name}</h2>
-                <p>
-                    <b>{status}</b> Campaign
-                    <b> | {c.provided == 0 ? "0.00" : round(c.requested / c.provided, 2)}% </b>
-                    Complete
-                </p>
+                <h2 className="campaign-name">{c.name}</h2>
+                {!c.ended ? (
+                    <p className="complete">
+                        {c.provided == 0
+                            ? "0.00" : round(c.requested / c.provided, 2)
+                        }% Complete
+                    </p>
+                ) : (
+                    <span className="hidden" />
+                )}
                 
                 <hr />
 
                 <h3>Statistics</h3>
-                <dl className="campaign-statistics">
-                    <dt>Pay Type</dt>
-                    <dd>{c.payType == 1 ? "Pay-Per-Click" : "Pay-Per-View"}</dd>
+                {!c.ended ? (
+                    <dl className="campaign-statistics">
+                        <dt>Pay Type</dt>
+                        <dd>{c.payType == 1 ? "Pay-Per-Click" : "Pay-Per-View"}</dd>
+                        
+                        <dt>Requested {c.payType == 1 ? "Clicks" : "Views"}</dt>
+                        <dd>{c.requested}</dd>
                     
-                    <dt>Requested {c.payType == 1 ? "Clicks" : "Views"}</dt>
-                    <dd>{c.requested}</dd>
-                
-                    <dt>Provided {c.payType == 1 ? "Clicks" : "Views"}</dt>
-                    <dd>{c.provided}</dd>
-                
-                    <dt>{c.autobid ? "Autobid" : "Bid"}</dt>
-                    <dd>{c.autobid ? "Enabled" : '$' + c.cost}</dd>
-                
-                    <dt>Funds Available</dt>
-                    <dd>{'$' + c.funds}</dd>
-                
-                    <dt>Daily Funds Limit</dt>
-                    <dd>{c.dailyFunds > 0 ? (
-                        '$' + c.dailyFundsUsed + ' of $' + c.dailyFunds
-                    ) : (
-                        "No Limit"
-                    )}</dd>
-                </dl>
+                        <dt>Provided {c.payType == 1 ? "Clicks" : "Views"}</dt>
+                        <dd>{c.provided}</dd>
+                    
+                        <dt>{c.autobid ? "Autobid" : "Bid"}</dt>
+                        <dd>{c.autobid ? "Enabled" : '$' + c.cost}</dd>
+                    
+                        <dt>Funds Available</dt>
+                        <dd>{'$' + c.funds}</dd>
+                    
+                        <dt>Daily Funds Limit</dt>
+                        <dd>{c.dailyFunds > 0 ? (
+                            '$' + c.dailyFundsUsed + ' of $' + c.dailyFunds
+                        ) : (
+                            "No Limit"
+                        )}</dd>
+                    </dl>
+                ) : (
+                    <span>Statistics only available for active campaigns.</span>
+                )}
 
                 <hr />
 
