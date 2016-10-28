@@ -15,7 +15,7 @@ module.exports = function(req, res) {
         
     let sql = `
         SELECT id, ad_title as title, ad_description as description
-        FROM ads WHERE approved = 1 AND (
+        FROM ads WHERE approved = 1 AND ended = 0 AND (
             ad_title LIKE ? OR ad_description LIKE ?
         )
     `, vars = [

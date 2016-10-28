@@ -8,7 +8,7 @@ module.exports = (fn) => db(cn => {
 
     let sql = "UPDATE ads "
         + "SET funds = funds - daily_funds_used, daily_funds_used = 0 "
-        + "WHERE daily_funds > 0 AND approved = 1";
+        + "WHERE daily_funds > 0 AND approved = 1 AND ended = 0";
     
     cn.query(sql, (err, result) => {
         cn.release();

@@ -9,7 +9,10 @@ const db = require("lib/db");
 */
 module.exports = function(req, res) {
     
-    db(cn => cn.query("SELECT * FROM ads WHERE id = ? AND approved = 0", [req.params.id], (err, rows) => {
+    let sql = `
+        SELECT * FROM ads WHERE id = ? AND approved = 0 AND ended = 0
+    `;
+    db(cn => cn.query(sql, [req.params.id], (err, rows) => {
         cn.release();
         res.json(rows[0]);
     }));

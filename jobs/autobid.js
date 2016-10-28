@@ -16,23 +16,24 @@ module.exports = (fn) => db(cn => {
         };
 
         // Get id of all ads with autobid enabled
-        cn.query("SELECT id FROM ads WHERE autobid = 1 AND approved = 1")
-            .on("result", row => {
-                cn.pause();
+        cn.query(
+            "SELECT id FROM ads WHERE autobid = 1 AND approved = 1 AND ended = 0"
+        ).on("result", row => {
+            cn.pause();
 
-                autobid(row.id, cn2, err => {
-                    if (err)
-                        onError(true);
-                    else
-                        cn.resume();
-                });
-            })
-            .on("error", onError)
-            .on("end", () => {
-                cn.release();
-                cn2.release();
-                fn(false);
+            autobid(row.id, cn2, err => {
+                if (err)
+                    onError(true);
+                else
+                    cn.resume();
             });
+        })
+        .on("error", onError)
+        .on("end", () => {
+            cn.release();
+            cn2.release();
+            fn(false);
+        });
     });
 
 });
