@@ -16,8 +16,7 @@ export default class AdvertiserAccount extends React.Component {
         super(props);
         
         this.state = {
-            funds: 0, payments: [], purchaseActive: false,
-            error: false, message: "", addFunds: false
+            funds: 0, payments: [], purchaseActive: false, addFunds: false
         };
     }
 
@@ -44,126 +43,106 @@ export default class AdvertiserAccount extends React.Component {
 
         Stripe.setPublishableKey(STRIPE_KEY);
 
-        if (+document.querySelector("#amount").value < 10) {
-            this.setState({
-                purchaseActive: false, error: true,
-                message: "Amount cannot be less than $10.00"
-            }); return;
+        if (+this.refs.amount.value < 10) {
+            swal("Error", "Amount cannot be less than $10.00", "error");
+            this.setState({ purchaseActive: false });
+            return;
         }
 
         Stripe.card.createToken(this.refs.stripeForm, (status, response) => {
             // Error when trying to create charge token
             if (response.error) {
-                this.setState({
-                    error: true, purchaseActive: false, message: response.error.message
-                }); return;
+                swal("Error", response.error.message, "error");
+                this.setState({ purchaseActive: false });
+                return;
             }
 
             // Send token + amount to XAd API to finish purchase
             request({
                 url: "api/advertisers/account/funds",
                 method: "POST", data: {
-                    amount: document.querySelector("#amount").value,
+                    amount: this.refs.amount.value,
                     stripeToken: response.id
                 }, success: (response) => {
-                    response.purchaseActive = false;
-                    response.addFunds = false;
-                    console.log(response);
-                    this.setState(response);
+                    this.setState({ purchaseActive: false, addFunds: false });
+                    
+                    if (response.error)
+                        swal("Error", response.message, "error");
+                    else
+                        swal("Success", response.message, "success");
                 }
             });
         });
     }
 
     render() {
-        let addFunds, alert, payments = [];
-
-        /* Add Funds Button/Form */
-        if (this.state.addFunds) {
-            // Payment form
-            addFunds = (
-              <form ref="stripeForm" className="advertisers-account-addfunds">
-					<label>Card Number</label>
-					<input type="text" data-stripe="number"/>
-	
-					<label>CVC</label>
-					<input type="text" data-stripe="cvc" />
-				
-					<label>Expiration (MM/YYYY)</label>
-                    <div>
-                        <input
-                            type="text"
-                            data-stripe="exp-month"
-                            placeholder="07"
-                            className="card-exp-month"
-                        />
-					    <input
-                            type="text"
-                            data-stripe="exp-year"
-                            placeholder="2020"
-                            className="card-exp-year"
-                        />
-                    </div>
-					
-					<label>Amount</label>
-                    <input type="number" placeholder="10.00" id="amount" />
-					
-					<Button
-                        onClick={() => this.onAddFunds()}
-                        disabled={this.state.purchaseActive}
-                    >
-                        Complete Purchase
-                    </Button>
-				</form>  
-            );
-        }
-        else {
-            addFunds = <Button onClick={() => this.onAddFunds()}>Add Funds</Button>;
-        }
-
-        /* Error/Success Alert */
-        if (this.state.message) {
-            let type, title;
-            
-            if (this.state.error)
-                type = "error", title = "Error!";
-            else
-                type = "info", title = "Success!";
-
-            alert = <Alert type={type} title={title}>{this.state.message}</Alert>
-        }
-
-        /* Previous Payments Array */
-        if (!!this.state.payments.length) {
-            this.state.payments.forEach((payment) => {
-                payments.push(
-                    <tr>
-                        <td>{payment.id}</td>
-                        <td>{'$' + payment.amount}</td>
-                        <td>{payment.tstamp}</td>
-                    </tr>
-                );
-            });
-        }
-
         return (
-          <div className="advertisers-account">
-              <h2>{"$" + this.state.funds} in Account</h2>
+            <div className="advertisers-account">
+                <h2>{"$" + this.state.funds} in Account</h2>
 
-              {alert}
-              {addFunds}
-              
-              <div className="advertisers-account-payments">
-                  <h3>Recent Payments</h3>
-                  <table>
-                      <tr>
-                          <th>ID</th><th>Amount</th><th>Date</th>
-                      </tr>
-                      
-                      {payments}
-                  </table>
-              </div>
-          </div>  
+                {alert}
+
+                {this.state.addFunds ? (
+                    <form ref="stripeForm" className="advertisers-account-addfunds">
+                        <label>Card Number</label>
+                        <input type="text" data-stripe="number"/>
+
+                        <label>CVC</label>
+                        <input type="text" data-stripe="cvc" />
+
+                        <label>Expiration (MM/YYYY)</label>
+                        <div>
+                            <input
+                                type="text"
+                                data-stripe="exp-month"
+                                placeholder="07"
+                                className="card-exp-month"
+                            />
+                            <input
+                                type="text"
+                                data-stripe="exp-year"
+                                placeholder="2020"
+                                className="card-exp-year"
+                            />
+                        </div>
+                        
+                        <label>Amount</label>
+                        <input type="number" placeholder="10.00" ref="amount" />
+                        
+                        <Button
+                            onClick={() => this.onAddFunds()}
+                            disabled={this.state.purchaseActive}
+                        >
+                            Complete Purchase
+                        </Button>
+                    </form>
+                ) : (
+                    <Button onClick={() => this.onAddFunds()}>Add Funds</Button>
+                )}
+                
+                {this.state.payments.length ? (
+                    <div className="advertisers-account-payments">
+                        <h3>Recent Payments</h3>
+                        <table>
+                            <tr>
+                                <th>ID</th><th>Amount</th><th>Date</th>
+                            </tr>
+                            
+                            {this.state.payments.map((payment) => {
+                                return (
+                                    <tr>
+                                        <td>{payment.id}</td>
+                                        <td>{'$' + payment.amount}</td>
+                                        <td>{payment.tstamp}</td>
+                                    </tr>
+                                );
+                            })}
+                        </table>
+                    </div>
+                ) : (
+                    <div className="hidden" />
+                )}
+            </div>  
         );
     }
 
