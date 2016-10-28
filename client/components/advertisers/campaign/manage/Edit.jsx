@@ -14,7 +14,7 @@ export default class EditAdvertiserCampaign extends React.Component {
         super(props);
 
         this.state = {
-            name: "", ended: false, available: "", approved: false, payType: 0,
+            name: "", ended: false, available: "", approved: 0, payType: 0,
             dailyFunds: 0, funds: 0, autobid: false, cost: 0,
             userTargets: {
                 age: "", countries: "", regions: "", genders: "",
@@ -119,10 +119,10 @@ export default class EditAdvertiserCampaign extends React.Component {
         if (this.state.loading) {
             return <div></div>;
         }
-        else if (this.state.ended || !this.state.approved) {
+        else if (this.state.ended || this.state.approved != 1) {
             return (
                 <Alert type="error" title="Error!">
-                    You cannot edit pending or ended campaigns.
+                    You can only edit approved and active campaigns.
                 </Alert>
             );
         }
