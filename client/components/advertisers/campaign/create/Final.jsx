@@ -24,7 +24,7 @@ export default class Final extends React.Component {
         let data = {
             c_name: cd.name, a_type: cd.type, a_paytype: cd.payType, c_availability: cd.available,
             ct_category: cd.category, ct_keywords: cd.keywords,
-            ct_sites: (cd.sites[0] == '' ? '*' : cd.sites.join(',')),
+            ct_sites: (!cd.sites[0] ? '*' : cd.sites.join(',')),
             a_requested: cd.requested, f_allocated: cd.allocated, f_autobid: +cd.autobid,
             f_bid: cd.bid, f_daily: cd.dailyFunds, a_link: cd.link, a_title: cd.title,
             a_description: cd.description, a_media: cd.media, ut_genders: 0,
