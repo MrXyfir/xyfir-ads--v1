@@ -31,8 +31,6 @@ class App extends React.Component {
             });
         };
 
-        this._login = this._login.bind(this);
-
         this._login();
     }
 
@@ -57,12 +55,12 @@ class App extends React.Component {
                 }
             });
         }
-        // User must be logged in if anywhere but home page
-        else if (location.hash) {
+        else {
             request({
                 url: "api/account/status",
                 success: (res) => {
-                    if (!res.loggedIn)
+                    // User must be logged in if anywhere but home page
+                    if (location.hash.length > 1 && !res.loggedIn)
                         location.href = XACC + "login/11";
                     else
                         this.setState({ loading: false });
@@ -72,6 +70,8 @@ class App extends React.Component {
     }
 	
 	render() {
+        if (this.state.loading) return <div />;
+
         let view;
 
 		switch (this.state.hash[1]) {
