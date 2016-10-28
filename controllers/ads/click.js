@@ -135,7 +135,6 @@ module.exports = function(req, res) {
         ];
         cn.query(sql, values, (err, result) => {
             if (err || !result.affectedRows) {
-                console.log(err);
                 finish();
                 return;
             }

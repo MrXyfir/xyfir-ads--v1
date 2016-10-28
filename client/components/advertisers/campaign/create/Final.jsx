@@ -75,8 +75,6 @@ export default class Final extends React.Component {
             data.ut_regions = data.ut_regions.substr(1);
         }
 
-        console.log(data);
-
         // Send campaign to API
         request({
             url: "api/advertisers/campaigns",

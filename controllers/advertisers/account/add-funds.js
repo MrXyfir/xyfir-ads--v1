@@ -26,7 +26,6 @@ module.exports = function(req, res) {
         description: "Xyfir Ads - Add Funds: $" + req.body.amount
     }, (err, charge) => {
         if (err) {
-            console.log(err);
             res.json({ error: true, message: "There was an error processing your card." });
             return;
         }
