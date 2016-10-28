@@ -15,7 +15,7 @@ module.exports = function(req, res) {
     db(cn => cn.query(sql, [req.params.id], (err, rows) => {
         
         let finish = () => {
-            // Set approved bool to true in ads
+            // Set approved in ads
             sql = "UPDATE ads SET approved = 1 WHERE id = ?";
             cn.query(sql, [req.params.id], (e, r) => {
                 cn.release();

@@ -5,8 +5,8 @@ const db = require("lib/db");
     RETURN
         {
             name: string, funds: number, dailyFunds: number, dailyFundsUsed: number,
+            provided: number, available: string, approved: number, ended: bool,
             payType: number, cost: number, autobid: bool, requested: number,
-            provided: number, available: string, approved: bool,
             ad: {
                 type: number, title: string, description: string, link: string, media: string,
             },

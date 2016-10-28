@@ -110,7 +110,7 @@ module.exports = function(req, res) {
                 ad_link: req.body.a_link,
                 ad_title: req.body.a_title,
                 ad_media: req.body.a_media,
-                approved: false,
+                approved: 0,
                 ct_sites: req.body.ct_sites,
                 pay_type: req.body.a_paytype,
                 requested: req.body.a_requested,
