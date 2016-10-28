@@ -27,7 +27,7 @@ export default class AdvertiserCampaignsList extends React.Component {
                 case "denied":
                     return c.approved == 2;
                 case "active":
-                    return c.approved == 1;
+                    return c.approved == 1 && !c.ended;
                 case "pending":
                     return c.approved == 0;
             }
