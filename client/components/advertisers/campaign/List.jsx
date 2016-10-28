@@ -9,9 +9,7 @@ export default class AdvertiserCampaignsList extends React.Component {
     constructor(props) {
         super(props);
         
-        this.state = {
-            campaigns: []
-        };
+        this.state = { campaigns: [], sort: "active" };
     }
 
     componentWillMount() {
@@ -22,71 +20,84 @@ export default class AdvertiserCampaignsList extends React.Component {
     }
 
     render() {
-        let campaigns = [];
-
-        if (!this.state.campaigns.length) {
-            campaigns.push(
-                <div className="advertisers-campaigns-none">
-                    <h3>You do not have any active campaigns!</h3>
-                </div>
-            );
-        }
-        else {
-            let c;
-
-            for (let i = 0; i < this.state.campaigns.length; i++) {
-                c = this.state.campaigns[i];
-
-                c.link = "#/advertisers/campaign/" + c.id;
-                c.payType = c.payType == 1 ? "clicks" : "views";
-                
-                if (c.dailyFunds == 0)
-                    c.allocated = <span>No Limit Set</span>;
-                else
-                    c.allocated = <span><b>{'$' + c.dailyFundsUsed}</b> used of <b>{'$' + c.dailyFunds}</b> daily limit</span>;
-
-                campaigns.push(
-                    <div className="advertisers-campaigns-campaign">
-                        <div className="campaign-top">
-                            <span className="campaign-name">
-                                <a href={c.link}>{c.name}</a>
-                            </span>
-                        </div>
-
-                        <div className="campaign-middle">
-                            {!!c.approved ? (
-                                <span
-                                    title="Approved Campaign"
-                                    className="icon-ok"
-                                >Approved | </span>
-                            ) : (
-                                <span
-                                    title="Campaign Approval Pending"
-                                    className="icon-pending"
-                                >Pending | </span>
-                            )}
-                            <span className="campaign-completed">{c.provided == 0 ? (
-                                "0.00%"
-                            ) : (
-                                round(c.provided / c.requested, 2) + '%'
-                            )} Complete</span>
-                        </div>
-
-                        <div className="campaign-bottom">
-                            <span><b>{"$" + c.funds}</b> in Campaign</span>
-                            {c.allocated}
-                            <span><b>{c.provided}</b> {c.payType} received of <b>{c.requested}</b></span>
-                        </div>
-                    </div>
-                );
+        const campaigns = this.state.campaigns.filter(c => {
+            switch (this.state.sort) {
+                case "ended":
+                    return c.approved == 1 && c.ended;
+                case "denied":
+                    return c.approved == 2;
+                case "active":
+                    return c.approved == 1;
+                case "pending":
+                    return c.approved == 0;
             }
-        }
-
+        });
+        
         return (
             <div className="advertisers-campaigns">
-                {campaigns}
+
+                <label>Sort by Status</label>
+                <select
+                    className="sort"
+                    default="active"
+                    onChange={(e) => this.setState({ sort: e.target.value })}
+                >
+                    <option value="active">Active</option>
+                    <option value="pending">Pending Approval</option>
+                    <option value="ended">Ended/Complete</option>
+                    <option value="denied">Denied</option>
+                </select>
+            
+                {!campaigns.length ? (
+                    <p className="advertisers-campaigns-none">
+                        You do not have any {this.state.sort} campaigns!
+                    </p>
+                ) : campaigns.map(c => {
+                    return (
+                        <div className="advertisers-campaigns-campaign">
+                            <div className="campaign-top">
+                                <span className="campaign-name">
+                                    <a href={"#/advertisers/campaign/" + c.id}>{
+                                        c.name
+                                    }</a>
+                                </span>
+                            </div>
+
+                            <div className="campaign-middle">
+                                <span className="campaign-completed">
+                                    {c.provided == 0
+                                        ? "0.00"
+                                        : round(c.provided / c.requested, 2)
+                                    }% Complete
+                                </span>
+                            </div>
+
+                            <div className="campaign-bottom">
+                                <span>${c.funds} in Campaign</span>
+                                
+                                {c.dailyFunds == 0 ? (
+                                    <span className="daily-limit">
+                                        No Limit Set
+                                    </span>
+                                ) : (
+                                    <span className="daily-limit">
+                                        ${c.dailyFundsUsed} used of ${
+                                            c.dailyFunds
+                                        } daily limit
+                                    </span>
+                                )}
+                                
+                                <span className="provided">
+                                    {c.provided} {
+                                        c.payType == 1 ? "clicks" : "views"
+                                    } received of {c.requested}
+                                </span>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
-        );
+        )
     }
 
 }
