@@ -43,8 +43,8 @@ module.exports = function(req, res) {
                     return;
                 }
 
-                // Mark ad as ended
-                sql = "UPDATE ads SET ended = 1, funds = 0 WHERE id = ?"; 
+                // Mark ad as ended and denied
+                sql = "UPDATE ads SET ended = 1, approved = 2, funds = 0 WHERE id = ?"; 
                 cn.query(sql, [req.params.id], (e, r) => {
                     if (e || !r.affectedRows) {
                         cn.rollback(() => cn.release());
