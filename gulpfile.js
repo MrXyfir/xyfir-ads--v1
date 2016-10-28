@@ -64,17 +64,6 @@ gulp.task("client", function () {
 });
 
 /*
-	copy-libs
-    - get localforage / sweetalert
-    - copy to ./static/js
-*/
-gulp.task("copy-libs", function () {
-    return gulp.src([
-        "./client/lib/crs.js",
-    ]).pipe(gulp.dest("./static/js"));
-});
-
-/*
 	fontello
     - get font and css files from fontello
     - place in ./static/fontello
@@ -83,4 +72,33 @@ gulp.task("fontello", function () {
     return gulp.src("fontello.json")
         .pipe(require("gulp-fontello")())
         .pipe(gulp.dest("./static/fontello"));
+});
+
+/*
+	copy-libs
+    - get sweetalert / crs.js
+    - copy to ./static/js
+*/
+gulp.task("copy-libs", function() {
+    return gulp.src([
+        "./node_modules/sweetalert/dist/sweetalert.min.js",
+        "./client/lib/crs.js"
+    ]).pipe(gulp.dest("./static/js"));
+});
+
+/*
+	copy-css
+    - get sweetalert.css
+    - postcss modifiers
+    - copy to ./static/css
+*/
+gulp.task("copy-css", function() {
+    return gulp.src([
+        "./node_modules/sweetalert/dist/sweetalert.css"
+    ]).pipe(postcss([
+        ap({browsers: "last 1 version, > 10%"}),
+        nano({ autoprefixer: false, zindex: false })
+    ]))
+    //.pipe(!isDev ? gzip() : gutil.noop())
+    .pipe(gulp.dest("./static/css"));
 });
