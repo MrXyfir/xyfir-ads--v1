@@ -19,6 +19,7 @@
     "express-session": "^1.14.1",
     "express-useragent": "^1.0.4",
     "geoip-lite": "^1.1.8",
+    "mailcomposer": "^3.12.0",
     "mailgun-js": "^0.7.13",
     "mysql": "^2.11.1",
     "randomstring": "^1.1.5",
