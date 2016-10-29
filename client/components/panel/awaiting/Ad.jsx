@@ -30,9 +30,9 @@ export default class Ad extends React.Component {
             method: "POST",
             success: (res) => {
                 if (res.error)
-                    alert("An error occured. Try again!");
+                    swal("An error occured. Try again!");
                 else
-                    alert("Approved");
+                    swal("Approved");
             }
         });
     }
@@ -45,9 +45,9 @@ export default class Ad extends React.Component {
             },
             method: "DELETE", success: (res) => {
                 if (res.error)
-                    alert("An error occured. Try again!");
+                    swal("An error occured. Try again!");
                 else
-                    alert("Denied");
+                    swal("Denied");
             }
         });
     }
@@ -64,19 +64,24 @@ export default class Ad extends React.Component {
 
         return (
             <div className="panel-awaiting-ad">
-                <table>{
-                    ad.map(c => {
-                        return(<tr><th>{c[0]}</th><td>{c[1]}</td></tr>);
-                    })
-                }</table>
+                <dl>{ad.map(c => {
+                    return (
+                        <div>
+                            <dt>{c[0]}</dt><dd>{c[1]}</dd>
+                        </div>
+                    );
+                })}</dl>
 
                 <div className="action">
-                    <Button onClick={() => this.onApprove()}>Approve Advert</Button>
+                    <Button onClick={() => this.onApprove()}>
+                        Approve
+                    </Button>
 
-                    <h3>~ or ~</h3>
+                    <Button type="red" onClick={() => this.onDeny()}>
+                        Deny
+                    </Button>
 
-                    <Button onClick={() => this.onDeny()}>Deny Advert</Button>
-
+                    <label>Reason for Denial</label>
                     <textarea ref="denyReason" />
                 </div>
             </div>  
