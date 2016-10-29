@@ -164,24 +164,31 @@ export default class ContentTargeting extends React.Component {
                     <small>
                         List sites in our publishers network that you would like your ad to appear on. Leave blank for all sites.
                     </small>
+                    
                     <input type="text" ref="site" onKeyDown={() => this.onSearchSites()} />
                     <div className="search-results">
                         {siteSearchResults}
                     </div>
-                    <Button type="primary btn-sm" onClick={() => this.onAddSite()}>
+                    
+                    <Button type="secondary btn-sm" onClick={() => this.onAddSite()}>
                         Add Site
                     </Button>
-                    <Button type="primary btn-sm" onClick={() => this.onRemSite()}>
+                    <Button type="red btn-sm" onClick={() => this.onRemSite()}>
                         Remove Site
                     </Button>
+                    
                     <div className="target-sites">
                         {window.campaignData.sites.join(", ")}
                     </div>
                 </div>
 
                 <div className="form-step-nav">
-                    <Button type="secondary" onClick={() => this.onBack()}>Back</Button>
-                    <Button onClick={() => this.onNext()}>Next</Button>
+                    <Button type="secondary" onClick={() => this.onBack()}>
+                        Back
+                    </Button>
+                    <Button onClick={() => this.onNext()}>
+                        Next
+                    </Button>
                 </div>
             </div>
         );
