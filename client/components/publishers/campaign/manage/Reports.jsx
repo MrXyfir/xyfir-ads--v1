@@ -64,7 +64,8 @@ export default class PublisherCampaignReports extends React.Component {
     }
 
     render() {
-        if (this.state.loading) return <div />;
+        if (this.state.loading || typeof this.state.ads == "string")
+            return <div />;
 
         const s = this.state;
 

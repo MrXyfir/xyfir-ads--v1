@@ -65,7 +65,8 @@ export default class AdvertiserCampaignReports extends React.Component {
     }
 
     render() {
-        if (this.state.loading) return <div />;
+        if (this.state.loading || typeof this.state.publishers == "string")
+            return <div />;
 
         let s = this.state, genders = [
                 "Unknown", "Male", "Female", "Other"
