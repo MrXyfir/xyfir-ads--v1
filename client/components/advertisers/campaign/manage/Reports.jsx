@@ -71,33 +71,27 @@ export default class AdvertiserCampaignReports extends React.Component {
     render() {
         if (this.state.loading) return <div />;
 
-        let s = this.state, genders = ["Unknown", "Male", "Female", "Other"], geo = [],
-            ages = ["Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
+        let s = this.state, genders = [
+                "Unknown", "Male", "Female", "Other"
+            ], geo = [], ages = [
+                "Unknown", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"
+            ];
         
         // Convert {CO:{RE:20,RE:20},CO:{...}...}
         // to [{country:"",regions:[{region:"",clicks:0},...]},...]
-        if (s.dem_geo != "") {
-            s.dem_geo = JSON.parse(s.dem_geo);
-            let temp;
+        Object.keys(s.dem_geo).forEach(country => {
+            let temp = {};
 
-            for (let country in s.dem_geo) {
-                if (s.dem_geo.hasOwnProperty(country)) {
-                    temp = {};
+            temp.country = country;
+            
+            temp.regions = Object.keys(s.dem_geo[country]).map(region => {
+                return {
+                    region: region, clicks: s.dem_geo[country][region]
+                };
+            });
 
-                    temp.country = country, temp.regions = [];
-
-                    for (let region in s.dem_geo[country]) {
-                        if (s.dem_geo[country].hasOwnProperty(region)) {
-                            temp.regions.push({
-                                region: region, clicks: s.dem_geo[country][region],
-                            });
-                        }
-                    }
-
-                    geo.push(temp);
-                }
-            }
-        }
+            geo.push(temp);
+        });
 
         return(
             <div className="campaign-reports">
