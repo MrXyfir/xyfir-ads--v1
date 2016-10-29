@@ -23,7 +23,7 @@ module.exports = function(req, res) {
             let response = {};
 
             rows.forEach(row => {
-                response[row] = row;
+                response[row.id] = row;
             })
 
             res.json(response);
