@@ -5,6 +5,7 @@ import Button from "components/forms/Button";
 
 // Module
 import request from "lib/request";
+import round from "lib/../../lib/round";
 
 export default class AdvertiserCampaignReports extends React.Component {
 
@@ -24,7 +25,7 @@ export default class AdvertiserCampaignReports extends React.Component {
 
         request({url, success: (res) => {
             res.loading = false;
-            this.setState(res, () => { this._idToSite(); });
+            this.setState(res, () => { this._buildPublishers(); });
         }});
     }
 
@@ -37,35 +38,30 @@ export default class AdvertiserCampaignReports extends React.Component {
             + "?dates=" + dates;
 
         request({url, success: (res) => {
-            this.setState(res, () => { this._idToSite(); });
+            this.setState(res, () => { this._buildPublishers(); });
         }});
     }
 
-    // Take list of pub campaign ids:clicks and convert id to site address
-    _idToSite() {
-        if (this.state.publishers == "") return;
+    // Convert list of "pub_id:clicks,..." into array of objects
+    // containing { id, site, clicks }
+    _buildPublishers() {
+        let publishers = this.state.publishers.split(',').map(p => {
+            p = p.split(':');
+            return { id: p[0], clicks: p[1] };
+        });
+        const ids = publishers.map(p => p.id).join(',');
 
-        let arr = this.state.publishers.split(',');
+        request({
+            url: "api/pub/info?ids=" + ids,
+            success: (res) => {
+                publishers.forEach((p, i) => {
+                    publishers[i] = p;
+                    publishers[i].site = res[p.id].site;
+                });
 
-        const convert = (i) => {
-            // Looped through all ids, set state.publishers
-            if (arr[i] == undefined) {
-                this.setState({ publishers: arr.join(',') });
-                return;
+                this.setState({ publishers });
             }
-
-            let temp = arr[i].split(':');
-
-            request({
-                url: "api/pub/info?id=" + temp[0],
-                success: (res) => {
-                    arr[i] = res.site + ':' + temp[1];
-                    convert(i++);
-                }
-            });
-        };
-
-        convert(0);
+        });
     }
 
     render() {
@@ -86,14 +82,14 @@ export default class AdvertiserCampaignReports extends React.Component {
             
             temp.regions = Object.keys(s.dem_geo[country]).map(region => {
                 return {
-                    region: region, clicks: s.dem_geo[country][region]
+                    region, clicks: s.dem_geo[country][region]
                 };
             });
 
             geo.push(temp);
         });
 
-        return(
+        return (
             <div className="campaign-reports">
                 <h3>Generate Report</h3>
 
@@ -127,7 +123,12 @@ export default class AdvertiserCampaignReports extends React.Component {
                             <th>Cost</th><td>{s.cost}</td>
                         </tr>
                         <tr>
-                            <th>CTR</th><td>{s.clicks == 0 ? "0.00" : (s.clicks / s.views)}%</td>
+                            <th>CTR</th>
+                            <td>
+                                {s.clicks == 0
+                                    ? "0.00" : round(s.clicks / s.views, 4)
+                                }%
+                            </td>
                         </tr>
                     </table>
 
@@ -136,25 +137,31 @@ export default class AdvertiserCampaignReports extends React.Component {
                     <table className="demographics">
                         <tr>
                             <th>Ages</th>
-                            <td>
-                                {
-                                    s.dem_age.split(',').map((age) => {
-                                        let temp = age.split(':');
-                                        return(<span><b>{ages[temp[0]]}:</b> {temp[1]}</span>);
-                                    })
-                                }
-                            </td>
+                            <td><dl>{
+                                s.dem_age.split(',').map((age) => {
+                                    let temp = age.split(':');
+                                    return (
+                                        <div>
+                                            <dt>{ages[temp[0]]}</dt>
+                                            <dd>{temp[1]}</dd>
+                                        </div>
+                                    );
+                                })
+                            }</dl></td>
                         </tr>
                         <tr>
                             <th>Genders</th>
-                            <td>
-                                {
-                                    s.dem_gender.split(',').map((gender) => {
-                                        let temp = gender.split(':');
-                                        return(<span><b>{genders[temp[0]]}:</b> {temp[1]}</span>);
-                                    })
-                                }
-                            </td>
+                            <td><dl>{
+                                s.dem_gender.split(',').map((gender) => {
+                                    let temp = gender.split(':');
+                                    return (
+                                        <div>
+                                            <dt>{genders[temp[0]]}</dt>
+                                            <dd>{temp[1]}</dd>
+                                        </div>
+                                    );
+                                })
+                            }</dl></td>
                         </tr>
                     </table>
 
@@ -162,16 +169,19 @@ export default class AdvertiserCampaignReports extends React.Component {
                     <p>Geographic demographics are <em>only</em> for clicks received.</p>
                     <table className="geo">{
                         geo.map(c => {
-                            return(
-                                <tr>
+                            return (
+                                <tr className="country">
                                     <th>{c.country}</th>
-                                    <td>{
+                                    <td><dl className="regions">{
                                         c.regions.map(r => {
-                                            return(
-                                                <span>{r.name}({r.clicks})</span>
+                                            return (
+                                                <div>
+                                                    <dt>{r.region}</dt>
+                                                    <dd>{r.clicks}</dd>
+                                                </div>
                                             );
                                         })
-                                    }</td>
+                                    }</dl></td>
                                 </tr>
                             );
                         })
@@ -179,18 +189,16 @@ export default class AdvertiserCampaignReports extends React.Component {
 
                     <h3>Top Publishers</h3>
                     <p>Publishers who are serving your ad the most.</p>
-                    <table>
-                        {
-                            s.publishers.split(',').map(publisher => {
-                                return(
-                                    <tr>
-                                        <th>{publisher.split(':')[0]}</th>
-                                        <td>{publisher.split(':')[1]}</td>
-                                    </tr>
-                                );
-                            })
-                        }
-                    </table>
+                    <table className="top-publishers">{
+                        s.publishers.map(publisher => {
+                            return (
+                                <tr className="publisher">
+                                    <th>{publisher.site}</th>
+                                    <td>{publisher.clicks}</td>
+                                </tr>
+                            );
+                        })
+                    }</table>
                 </div>
             </div>
         );

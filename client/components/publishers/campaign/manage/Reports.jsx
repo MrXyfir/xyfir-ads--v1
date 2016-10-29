@@ -5,6 +5,7 @@ import Button from "components/forms/Button";
 
 // Module
 import request from "lib/request";
+import round from "lib/../../lib/round";
 
 export default class PublisherCampaignReports extends React.Component {
 
@@ -23,7 +24,7 @@ export default class PublisherCampaignReports extends React.Component {
 
         request({url, success: (res) => {
             res.loading = false;
-            this.setState(res, () => this._idToSite());
+            this.setState(res, () => this._buildAds());
         }});
     }
 
@@ -36,36 +37,30 @@ export default class PublisherCampaignReports extends React.Component {
             + "?dates=" + dates;
 
         request({url, success: res => {
-            this.setState(res, () => this._idToSite());
+            this.setState(res, () => this._buildAds());
         }});
     }
 
-    // Take list of ad campaign ids:clicks and convert id to ad's title
-    _idToSite() {
-        if (this.state.ads == "")
-            return;
+    // Convert list of "ad_id:clicks,..." into array of objects
+    // containing { id, title, clicks }
+    _buildAds() {
+        let ads = this.state.ads.split(',').map(a => {
+            a = a.split(':');
+            return { id: a[0], clicks: a[1] };
+        });
+        const ids = ads.map(a => a.id).join(',');
 
-        let arr = this.ads.publishers.split(',');
+        request({
+            url: "api/ad/info?ids=" + ids,
+            success: (res) => {
+                ads.forEach((a, i) => {
+                    ads[i] = a;
+                    ads[i].title = res[a.id].title;
+                });
 
-        const convert = (i) => {
-            // Looped through all ids, set state.ads
-            if (arr[i] == undefined) {
-                this.setState({ ads: arr.join(',') });
-                return;
+                this.setState({ ads });
             }
-
-            let temp = arr[i].split(':');
-
-            request({
-                url: "api/ad/info?id=" + temp[0],
-                success: (res) => {
-                    arr[i] = res.title + ':' + temp[1];
-                    convert(i++);
-                }
-            });
-        };
-
-        convert(0);
+        });
     }
 
     render() {
@@ -97,7 +92,12 @@ export default class PublisherCampaignReports extends React.Component {
                             <th>Views</th><td>{s.views}</td>
                         </tr>
                         <tr>
-                            <th>CTR</th><td>{s.clicks == 0 ? "0.00" : (s.clicks / s.views)}%</td>
+                            <th>CTR</th>
+                            <td>
+                                {s.clicks == 0
+                                    ? "0.00" : round(s.clicks / s.views, 4)
+                                }%
+                            </td>
                         </tr>
                     </table>
 
@@ -113,12 +113,12 @@ export default class PublisherCampaignReports extends React.Component {
 
                     <h3>Top Advertisements</h3>
                     <p>Advertisements your users are clicking most.</p>
-                    <table className="top-advertisers">{
-                        s.ads.split(',').map(ad => {
-                            return(
-                                <tr>
-                                    <th>{ad.split(':')[0]}</th>
-                                    <td>{ad.split(':')[1]}</td>
+                    <table className="top-advertisements">{
+                        s.ads.map(ad => {
+                            return (
+                                <tr className="advertisement">
+                                    <th>{ad.title}</th>
+                                    <td>{ad.clicks}</td>
                                 </tr>
                             );
                         })
