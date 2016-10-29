@@ -48,10 +48,18 @@ module.exports = function(req, res) {
             report.cost += row.cost;
 
             // Merge lists / objects
-            report.publishers = mergeList(report.publishers.split(','), row.publishers.split(','));
-            report.dem_gender = mergeList(report.dem_gender.split(','), row.dem_gender.split(','));
-            report.dem_age = mergeList(report.dem_age.split(','), row.dem_age.split(','));
-            report.dem_geo = mergeObject(report.dem_geo, JSON.parse(row.dem_geo));
+            report.publishers = mergeList(
+                report.publishers.split(','), row.publishers.split(',')
+            );
+            report.dem_gender = mergeList(
+                report.dem_gender.split(','), row.dem_gender.split(',')
+            );
+            report.dem_age = mergeList(
+                report.dem_age.split(','), row.dem_age.split(',')
+            );
+            report.dem_geo = mergeObject(
+                report.dem_geo, row.dem_geo ? JSON.parse(row.dem_geo) : {}
+            );
 
             cn.resume();
         })
