@@ -7,6 +7,9 @@ import Account from "components/advertisers/Account";
 // Modules
 import request from "lib/request";
 
+// Constants
+import { XACC } from "constants/config";
+
 export default class Advertisers extends React.Component {
 
     constructor(props) {

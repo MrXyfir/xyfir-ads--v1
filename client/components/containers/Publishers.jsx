@@ -7,6 +7,9 @@ import Account from "components/publishers/Account";
 // Modules
 import request from "lib/request";
 
+// Constants
+import { XACC } from "constants/config";
+
 export default class Publishers extends React.Component {
 
     constructor(props) {

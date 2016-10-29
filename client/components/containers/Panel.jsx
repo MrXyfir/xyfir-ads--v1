@@ -6,6 +6,9 @@ import Awaiting from "components/panel/awaiting/Index";
 // Modules
 import request from "lib/request";
 
+// Constants
+import { XACC } from "constants/config";
+
 export default class Panel extends React.Component {
 
     constructor(props) {
