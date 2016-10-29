@@ -59,7 +59,7 @@ export default class Home extends React.Component {
                 <h2>Dashboards</h2>
                 {!this.state.account.loggedIn ? (
                     <a className="link-lg" href={XACC + "login/11"}>
-                        LOGIN WITH XYFIR ACCOUNT
+                        Login with Xyfir Account
                     </a>
                 ) : (
                     <div>
