@@ -1,72 +1,92 @@
 /* ADVERTISERS DASHBORD */
 .advertisers-campaigns-campaign {
-    margin: 1.5em;
+    
+    border-bottom: solid 0.2em $llgray;
+    margin: 1.5em auto;
+    width: 80%;
+
+    h2 {
+        margin-bottom: -0.5em;
+    }
+
+    .campaign-top {
+        
+        span {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+    }
+
+    .campaign-bottom {
+        
+        display: table;
+        margin: auto;
+        
+        span {
+            display: table-cell;
+            padding: 0.3em;
+        }
+
+    }
+
 }
-.advertisers-campaign > h2, .campaign-reports > .report > h3 {
-    margin-bottom: -0.5em;
-}
-table.demographics > tbody > tr > td > span {
-    margin: 0.2em;
-}
-table.demographics > tbody > tr > td > span > b,
-table.geo > tbody > tr > td > b {
-    color: #777;
-}
-.campaign-user-targeting > tbody > .geo > td > span > b {
-    color: #777;
-}
-.campaign-content-targeting > tbody > .keywords > td > span,
-.campaign-content-targeting > tbody > .sites > td > span {
-    margin: 0.2em;
-    font-size: 90%;
-}
-.campaign-user-targeting > tbody > .age-ranges > td > span,
-.campaign-user-targeting > tbody > .genders > td > span {
-    margin: 0.2em;
-}
+
 .advertisers-account-payments {
+    
     margin-top: 2em;
+
+    table {
+        margin: auto;
+    }
+
 }
-.advertisers-account-payments > table {
-    margin: auto;
-}
+
 .advertisers-account-addfunds {
-    background-color: #f7f7f7;
+
+    background-color: $lllgray;
     padding: 1em;
-    border: 1px solid #f0f0f0;
+    border: 1px solid $llgray;
     width: 50%;
     margin: auto;
+
+    .card-exp-month {
+        display: inline-block;
+        width: 2em;
+        margin-right: 1em;
+    }
+
+    .card-exp-year {
+        display: inline-block;
+        width: 4em;
+    }
+
+    .btn-primary {
+        margin-top: 1em;
+    }
+
 }
-.advertisers-account-addfunds > .btn-primary {
-    margin-top: 1em;
+
+.panel {
+
+    display: inline-block;
+    border: 1px solid $blue;
+    width: 10em;
+    margin: 1em;
+
+    .panel-title {
+        background-color: $blue;
+        color: #FFF;
+        font-size: 115%;
+    }
+    
+    .panel-body {
+        padding: 1em;
+        font-size: 110%;
+    }
+
 }
-.advertisers-account-addfunds > div > .card-exp-month {
-    display: inline;
-    width: 2em;
-    margin-right: 1em;
-}
-.advertisers-account-addfunds > div > .card-exp-year {
-    display: inline;
-    width: 4em;
-}
-.country-region-selector {
-    margin-bottom: 2em;
-}
-.country-region-selector > .link-sm {
-    margin: 0.5em;
-}
-.target-sites {    
-    margin-top: 1em;
-    font-size: 90%;
-}
-.ad-pricing-info {    
-    max-width: 36em;
-    margin: auto;
-    margin-top: -1.3em;
-}
-.manage-media > table {
-    margin: auto;
-}
+
 .advertisers-campaign-manage {
 
     .campaign-edit {
@@ -81,41 +101,109 @@ table.geo > tbody > tr > td > b {
 
     }
 
+    .campaign-reports > .report > h3 {
+        margin-bottom: -0.5em;
+    }
+
 }
 
-/* SHARED */
-.keywords > span, .sites > span, .media > span {
+table.demographics {
+
+    tbody > tr > td > span {
+        
+        margin: 0.2em;
+
+        b {
+            color: $dgray;
+        }
+
+    }
+
+}
+
+table.geo > tbody > tr > td > b {
+    color: $dgray;
+}
+
+.campaign-user-targeting {
+
+    tbody {
+
+        .geo > td > span > b {
+            color: $dgray;
+        }
+
+        .age-ranges > td > span, .genders > td > span {
+            margin: 0.2em;
+        }
+
+    }
+
+}
+
+.campaign-content-targeting > tbody > .keywords > td > span,
+.campaign-content-targeting > tbody > .sites > td > span {
     margin: 0.2em;
     font-size: 90%;
 }
 
+.country-region-selector {
+    
+    margin-bottom: 2em;
+
+    .link-sm {
+        margin: 0.5em;
+    }
+
+}
+
+.target-sites {    
+    margin-top: 1em;
+    font-size: 90%;
+}
+
+.ad-pricing-info {
+    max-width: 36em;
+    margin: auto;
+    margin-top: -1.3em;
+}
+
+.manage-media > table {
+    margin: auto;
+}
+
 
 /* PUBLISHERS DASHBORD */
-.publishers-account-payments {
-    margin-bottom: 3em;
-}
-.category-selected > span {
-    margin: 0.2em;
-}
 .publishers-campaigns {    
+    
     margin: auto;
     margin-top: 3em;
     border-spacing: 0.5em;
     border-collapse: separate;
     font-size: 125%;
+
+    .campaign {
+
+        .name {
+            font-weight: bold;
+        }
+
+        .site {
+            color: $dgray;
+        }
+
+    }
+
+    h3 {
+        margin-bottom: 0em;
+    }
+
+    h4 {
+        margin-bottom: 0.3em;
+    }
+
 }
-.publishers-campaigns > .campaign > .name {
-    font-weight: bold;
-}
-.publishers-campaigns > .campaign > .site {
-    color: #777;
-}
-.publishers-campaign > h3 {
-    margin-bottom: 0em;
-}
-.publishers-campaign > h4 {
-    margin-bottom: 0.3em;
-}
+
 .publishers-campaign-manage {
 
     .campaign-reports > .report > h3 {
@@ -150,82 +238,80 @@ table.geo > tbody > tr > td > b {
 
 }
 
-/* PANEL - AWAITING */
-.panel-awaiting-publisher > table, .panel-awaiting-ad > table,
-.panel-awaiting-ads, .panel-awaiting-publishers {
-    margin: 2em auto;
+.publishers-account-payments {
+    margin-bottom: 3em;
 }
-.panel-awaiting-publisher > table > tbody > tr > td,
-.panel-awaiting-ad > table > tbody > tr > td {
-    max-width: 45em;
+.category-selected > span {
+    margin: 0.2em;
 }
 
-/* ADVERTISERS / PUBLISHERS DASHBORD */
-.search-results {
-    max-width: 50em;
-    margin: 1em auto;
+/* PANEL - AWAITING */
+.panel-awaiting-publisher, .panel-awaiting-ad {
+    
+    table {
+        
+        margin: 2em auto;
+
+        td {
+            max-width: 45em;
+        }
+
+    }
+
 }
-.search-results > .search-result {
-    margin: 0.5em;
-    color: #707070;
-    font-size: 90%;
-}
+
+/* SHARED */
 .advertisers-nav, .advertisers-nav-sub, .nav,
 .publishers-nav, .publishers-nav-sub {
+    
     padding: 1em;
     background-color: #f7f7f7;
     margin: 1em auto;
     border: 1px solid #f0f0f0;
+
+    .link-lg {
+        margin: 1em;
+    }
+
 }
-.advertisers-nav > .link-lg, .advertisers-nav-sub > .link-lg, .nav > .link-lg,
-.publishers-nav > .link-lg, .publishers-nav-sub > .link-lg {
-    margin: 1em;
-}
+
 .advertisers-nav, .publishers-nav, .nav {
     width: 75%;
 }
+
 .advertisers-nav-sub, .publishers-nav-sub, .nav-sub {
     width: 60%;
 }
-.advertisers-campaign > table, .report > table,
-.publishers-account-payments > table,
-.publishers-campaign > table {
-    margin: auto;
-    border-spacing: 0.2em;
-    border-collapse: separate;
-}
-.panel {
-    display: inline-block;
-    border: 1px solid $blue;
-    width: 10em;
-    margin: 1em;
-}
-.panel > .panel-title {
-    background-color: $blue;
-    color: #FFF;
-    font-size: 115%;
-}
-.panel > .panel-body {
-    padding: 1em;
-    font-size: 110%;
+
+.keywords, .sites, .media {
+
+    span {
+        margin: 0.2em;
+        font-size: 90%;
+    }
+
 }
 
-.campaign-top {
-    display: table;
-    margin-bottom: 0.4em;
-    margin: auto;
+.search-results {
+    
+    max-width: 50em;
+    margin: 1em auto;
+
+    .search-result {
+        margin: 0.5em;
+        color: $gray;
+        font-size: 90%;
+    }
+
 }
-.campaign-top > span {
-    font-size: 1.5em;
-    font-weight: bold;
-    display: table-cell;
-    padding: 0.4em;
-}
-.campaign-bottom {
-    display: table;
-    margin: auto;
-}
-.campaign-bottom > span {
-    display: table-cell;
-    padding: 0.3em;
+
+.advertisers-campaign, .report, .publishers-account-payments,
+.publishers-campaign {
+    
+    table {
+        margin: auto;
+        border-spacing: 0.2em;
+        border-collapse: separate;
+    }
+
 }
