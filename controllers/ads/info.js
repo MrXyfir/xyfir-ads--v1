@@ -3,23 +3,33 @@ const db = require("lib/db");
 /*
     GET api/ad/info
     REQUIRED
-        id: number
+        ids: number
     DESCRIPTION
-        Return public info regarding ad campaign
+        Return public info regarding ad campaigns
     RETURN
-        { title: string }
+        { "id": { title: string } }
 */
 module.exports = function(req, res) {
         
-        const sql = "SELECT ad_title FROM ads WHERE id = ?";
+        let sql = `
+            SELECT id, ad_title as title FROM ads WHERE id IN (?)
+        `;
 
-        db(cn => cn.query(sql, [req.query.id], (err, rows) => {
+        db(cn => cn.query(sql, [req.query.ids.split(',')], (err, rows) => {
             cn.release();
 
-            if (err || !rows.length)
-                res.json({ title: "Unknown" });
-            else
-                res.json({ title: rows[0].site });
+            if (err || !rows.length) {
+                res.json({});
+            }
+            else {
+                let response = {};
+
+                rows.forEach(row => {
+                    response[row] = row;
+                })
+
+                res.json(response);
+            }
         }));
 
 };
