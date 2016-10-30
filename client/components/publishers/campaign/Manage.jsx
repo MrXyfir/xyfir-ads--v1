@@ -31,7 +31,7 @@ export default class ManagePublisherCampaign extends React.Component {
 
         return (
             <div className="publishers-campaign-manage">
-                <nav className="publishers-nav-sub">
+                <nav className="publishers-nav">
                     <a href={hash + "/view"} className="link-lg">View</a>
                     <a href={hash + "/reports"} className="link-lg">Reports</a>
                     <a href={hash + "/edit"} className="link-lg">Edit</a>

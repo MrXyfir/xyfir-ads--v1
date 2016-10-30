@@ -28,7 +28,7 @@ export default class ManageAdvertiserCampaign extends React.Component {
 
         return (
             <div className="advertisers-campaign-manage">
-                <nav className="advertisers-nav-sub">
+                <nav className="advertisers-nav">
                     <a href={hash + "/view"} className="link-lg">View</a>
                     <a href={hash + "/reports"} className="link-lg">Reports</a>
                     <a href={hash + "/edit"} className="link-lg">Edit</a>
