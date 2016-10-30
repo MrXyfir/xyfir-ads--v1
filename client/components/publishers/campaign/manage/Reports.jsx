@@ -44,6 +44,11 @@ export default class PublisherCampaignReports extends React.Component {
     // Convert list of "ad_id:clicks,..." into array of objects
     // containing { id, title, clicks }
     _buildAds() {
+        if (!this.state.ads) {
+            this.setState({ ads: [] });
+            return;
+        }
+
         let ads = this.state.ads.split(',').map(a => {
             a = a.split(':');
             return { id: a[0], clicks: a[1] };

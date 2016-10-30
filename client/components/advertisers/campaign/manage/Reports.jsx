@@ -45,6 +45,11 @@ export default class AdvertiserCampaignReports extends React.Component {
     // Convert list of "pub_id:clicks,..." into array of objects
     // containing { id, site, clicks }
     _buildPublishers() {
+        if (!this.state.publishers) {
+            this.setState({ publishers: [] });
+            return;
+        }
+
         let publishers = this.state.publishers.split(',').map(p => {
             p = p.split(':');
             return { id: p[0], clicks: p[1] };
@@ -134,7 +139,7 @@ export default class AdvertiserCampaignReports extends React.Component {
                     </table>
 
                     <h3>User Demographics</h3>
-                    <p>Demographics are <em>only</em> for clicks received.</p>
+                    <p>Demographics are only for clicks received.</p>
                     <table className="demographics">
                         <tr>
                             <th>Ages</th>
@@ -167,7 +172,7 @@ export default class AdvertiserCampaignReports extends React.Component {
                     </table>
 
                     <h3>Countries / Regions</h3>
-                    <p>Geographic demographics are <em>only</em> for clicks received.</p>
+                    <p>Geographic demographics are only for clicks received.</p>
                     <table className="geo">{
                         geo.map(c => {
                             return (
