@@ -82,9 +82,9 @@ export default class PublisherCampaignAdBlacklist extends React.Component {
                         placeholder="Search"
                     />
                     
-                    <p>
-                        <strong>Note:</strong> Some ads in this list may not be eligible for output to your campaign due to targeting incompatibilities.
-                    </p>
+                    <span className="note">
+                        Some ads in this list may not be eligible for output to your campaign due to targeting incompatibilities.
+                    </span>
                     <div className="search-ads">{
                         this.state.search.map(ad => {
                             return (

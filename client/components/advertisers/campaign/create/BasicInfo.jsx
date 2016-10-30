@@ -52,7 +52,9 @@ export default class BasicInfo extends React.Component {
                     <p>
                         Tell us what type of ad you want and then give your ad campaign a name.
                         <br />
-                        <strong>Note:</strong> Image and video ads are currently disabled until further notice.
+                        <span className="note">
+                            Image and video ads are currently disabled until further notice.
+                        </span>
                     </p>
                 </div>
 
