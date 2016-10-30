@@ -13,8 +13,7 @@ export default class PublisherAccount extends React.Component {
         super(props);
         
         this.state = {
-            error: false, message: "", paymentMethod: 1,
-            payment: {
+            loading: true, paymentMethod: 1, payment: {
                 method: 0, info: ""
             },
             earnings: {
@@ -31,14 +30,21 @@ export default class PublisherAccount extends React.Component {
         request({
             url: "api/publishers/account",
             success: (response) => {
-                if (response.payment.info != "")
+                if (response.payment.info != "") {
                     response.payment.info = JSON.parse(response.payment.info);
+                    response.paymentMethod = response.payment.method;
+                }
+                
+                response.loading = false;
+
                 this.setState(response);
             }
         });
     }
 
-    onUpdatePaymentInfo() {
+    onUpdatePaymentInfo(e) {
+        e.preventDefault();
+        
         request({
             url: "api/publishers/account",
             data: {
@@ -47,11 +53,18 @@ export default class PublisherAccount extends React.Component {
                     name: this.refs.name.value,
                     address: this.refs.address.value,
                     address2: this.refs.address2.value,
+                    city: this.refs.city.value,
+                    state: this.refs.state.value,
                     zip: +this.refs.zip.value,
-                    country: this.refs.country.value
+                    phone: this.refs.phone.value,
                 })
             },
-            method: "PUT", success: (res) => this.setState(res)
+            method: "PUT", success: (res) => {
+                if (res.error)
+                    swal("Error", res.message, "error");
+                else
+                    swal("Success", res.message, "success");
+            }
         });
     }
 
@@ -60,93 +73,100 @@ export default class PublisherAccount extends React.Component {
     }
 
     render() {
-        let alert, payments = [], paymentInfoForm, s = this.state;
+        if (this.state.loading) return <div />;
 
-        /* Error/Success Alert */
-        if (this.state.message) {
-            let type, title;
-
-            if (this.state.error)
-                type = "error", title = "Error!";
-            else
-                type = "info", title = "Success!";
-
-            alert = <Alert type={type} title={title}>{this.state.message}</Alert>
-        }
-
-        /* Previous Payments Array */
-        if (!!this.state.payments.length) {
-            this.state.payments.forEach(payment => {
-                if (payment.id != "") {
-                    payments.push(
-                        <tr>
-                            <td>{payment.id}</td><td>{'$' + payment.amount}</td><td>{payment.tstamp}</td>
-                        </tr>
-                    );
-                }
-            });
-        }
-
-        /* Build Payment Info Form */
-        if (this.state.paymentMethod == 1) {
-            // For some reason React is completely incapable of accepting
-            // variables for value of defaultValue={} attributes ONLY here
-            paymentInfoForm = (
-                <div className="payment-info-check">
-                    <label>Full Name</label>
-                    <input type="text" ref="name" />
-
-                    <label>Address</label>
-                    <input type="text" ref="address" />
-                    <input type="text" ref="address2" />
-
-                    <label>ZIP Code</label>
-                    <input type="text" ref="zip" />
-
-                    <label>Country</label>
-                    <select ref="country">
-                        <option value="US">United States</option>
-                    </select>
-                </div>  
-            );
-        }
-        else {
-            paymentInfoForm = (
-                <div className="payment-info-bank">
-                    <p>This payment method is currently not supported yet.</p>
-                </div>  
-            );
-        }
+        let s = this.state;
 
         return (
             <div className="publishers-account">
-                <h3>Earnings</h3>
-                <span>
-                    <b>{'$' + this.state.earnings.confirmed}</b> Confirmed
-                    <b> | {'$' + this.state.earnings.pending}</b> Pending
-                </span>
-              
-                <h3>Recent Payments</h3>
-                <div className="publishers-account-payments">
-                    <table>
-                        <tr>
-                            <th>ID</th><th>Amount</th><th>Date</th>
-                        </tr>
-                      
-                        {payments}
-                    </table>
-                </div>
+                <section className="earnings">
+                    <h3>Earnings</h3>
+                    
+                    <dl>
+                        <dt>Confirmed</dt>
+                        <dd>{'$' + this.state.earnings.confirmed}</dd>
+                        
+                        <dt>Pending</dt>
+                        <dd>{'$' + this.state.earnings.pending}</dd>
+                    </dl>
+                </section>
 
-                {alert}
+                <section className="payment-information">
+                    <h3>Payment Information</h3>
+                    <p>Payments are sent out on the first of every month.</p>
+                    
+                    <label>Payment Method</label>
+                    <select
+                        ref="paymentMethod"
+                        onChange={() => this.onUpdatePaymentInfoForm()}
+                        defaultValue={this.state.paymentMethod}
+                    >
+                        <option value="1">Check</option>
+                        <option value="2" disabled>Bank Wire</option>
+                    </select>
+                    
+                    {this.state.paymentMethod == 1 ? (
+                        <form
+                            className="check"
+                            onSubmit={(e) => this.onUpdatePaymentInfo(e)}
+                        >
+                            <span className="note">
+                                We can currently only send checks to addresses within the United States.
+                            </span>
 
-                <h3>Payment Information</h3>
-                <select ref="paymentMethod" onChange={() => this.onUpdatePaymentInfoForm()}>
-                    <option value="1">Check (US ONLY)</option>
-                    <option value="2">Bank Wire</option>
-                </select>
-                {paymentInfoForm}
+                            <label>Full Name</label>
+                            <input
+                                defaultValue={this.state.payment.info.name}
+                                type="text"
+                                ref="name"
+                            />
 
-                <Button onClick={() => this.onUpdatePaymentInfo()}>Update</Button>
+                            <label>Address</label>
+                            <input
+                                defaultValue={this.state.payment.info.address}
+                                type="text"
+                                ref="address"
+                            />
+                            <input
+                                defaultValue={this.state.payment.info.address2}
+                                type="text"
+                                ref="address2"
+                            />
+
+                            <label>City</label>
+                            <input
+                                defaultValue={this.state.payment.info.city}
+                                type="text"
+                                ref="city"
+                            />
+
+                            <label>State</label>
+                            <input
+                                defaultValue={this.state.payment.info.state}
+                                type="text"
+                                ref="state"
+                            />
+
+                            <label>ZIP Code</label>
+                            <input
+                                defaultValue={this.state.payment.info.zip}
+                                type="number"
+                                ref="zip"
+                            />
+
+                            <label>Phone #</label>
+                            <input
+                                defaultValue={this.state.payment.info.phone}
+                                type="tel"
+                                ref="phone"
+                            />
+
+                            <Button>Set Payment Information</Button>
+                        </form>  
+                    ) : (
+                        <div />
+                    )}
+                </section>
             </div>
         );
     }
