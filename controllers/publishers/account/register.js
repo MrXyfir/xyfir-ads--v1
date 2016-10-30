@@ -5,21 +5,27 @@ const db = require("lib/db");
     REQUIRED
         name: string, email: string, application: string
     RETURN
-        { message: string }
+        { error: boolean, message: string }
     DESCRIPTION
         Allows a user to submit a publisher application
 */module.exports = function(req, res) {
+
+    let error = "";
     
     if (!req.session.uid)
-        res.json({ message: "You must login to Xyfir Ads with your Xyfir Account." });
+        error = "You must login to Xyfir Ads with your Xyfir account.";
     else if (req.session.publisher)
-        res.json({ message: "You are already a publisher." });
+        error = "You are already a publisher.";
     else if (req.body.name.length > 25)
-        res.json({ message: "Name cannot be more than 25 characters long." });
+        error = "Name cannot be more than 25 characters long.";
     else if (req.body.email.length > 50)
-        res.json({ message: "Email cannot be more than 50 characters long." });
+        error = "Email cannot be more than 50 characters long.";
     else if (req.body.application.length > 1500)
-        res.json({ message: "Application cannot be more than 1500 characters long." });
+        error = "Application cannot be more than 1500 characters long.";
+
+    if (error) {
+        res.json({ error: true, message: error });
+    }
     else {
         db(cn => {
             let sql;
@@ -27,8 +33,11 @@ const db = require("lib/db");
             sql = "SELECT * FROM awaiting_publishers WHERE user_id = ?";
             cn.query(sql, [req.session.uid], (err, rows) => {
                 if (rows.length > 0) {
-                    res.json({ message: "You already have an application awaiting review." });
                     cn.release();
+                    res.json({
+                        error: true,
+                        message: "You already have an application awaiting review."
+                    });
                 }
                 else {
                     // Add application to awaiting_publishers
@@ -41,10 +50,17 @@ const db = require("lib/db");
                     cn.query(sql, data, (err, result) => {
                         cn.release();
 
-                        if (err)
-                            res.json({ message: "An unknown error occured. Please try again." });
-                        else
-                            res.json({ message: "Your application has been submit successfully." });
+                        if (err || !result.affectedRows) {
+                            res.json({
+                                error: true, message: "An unknown error occured."
+                            });
+                        }
+                        else {
+                            res.json({
+                                error: true,
+                                message: "Your application is now awaiting review."
+                            });
+                        }
                     });
                 }
             });
