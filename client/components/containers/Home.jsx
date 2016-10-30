@@ -49,7 +49,7 @@ export default class Home extends React.Component {
                 <h1>Xyfir Ads</h1>
                 <p className="subtitle">Advertising for the modern web.</p>
                 <p>
-                    We've done away with everything that's given online advertising a bad name: intrusive tracking, high bandwidth usage, high resource usage, flashy and distractive ads, and more. Our advertisers and publishers are all hand picked and approved by an actual human to ensure quality. Xyfir Ads has the ability to seamlessly integrate with content due to our 'native ad' system. In other words: we give the ad content to the publisher, and they decide how to implement it into their site, app, etc.
+                    We've attempted to do away with everything that's given online advertising a bad name: intrusive tracking, high bandwidth usage, high resource usage, flashy and distractive ads, and more. Our advertisers and publishers are all hand picked and approved by an actual human to ensure quality. Xyfir Ads has the ability to seamlessly integrate with content due to our 'native ad' system.
                 </p>
             </section>
 
@@ -86,19 +86,19 @@ export default class Home extends React.Component {
 	            <h2>For Advertisers</h2>
 	            <p className="subtitle">Capture a wider audience with native ads.</p>
 	            <p>
-	                Many users today are growing tired of the current state of online advertising. They have to worry about ads eating into their bandwidth caps, slowing down their browser, distracting them from the content they want to see, or even distributing malware. Due to this, users are blocking ads more than ever before and this hurts publishers and advertisers alike. It's time we change the way people feel about online advertising. How do we do that? Native ads.
+	                Many web-users today are tired of the current state of online advertising. They have to worry about ads eating into their bandwidth caps, slowing down their browser, distracting them from the content they want to see, or even distributing malware. Users are blocking ads more than ever before and this hurts publishers and advertisers alike. These problems are all solvable with native ads.
 	            </p>
 
 	            <h3>What are native ads?</h3>
 	            <p>
-	                Native ads are simply put: ads that are <em>built</em> into the content that the user is viewing. A publisher requests for example, a text ad: instead of us building our own text ad and then forcing that version upon the publisher, we send the information of the text ad (link, title, description, etc) to the publisher and <b>they</b> can decide how to <em>build</em> the ad into their content. The result is a much cleaner ad that looks like it belongs within the content it is being displayed alongside.
+	                Native advertisements are simply put: ads that are <em>built</em> into the content that the user is viewing. A publisher requests for example, a text ad: instead of us building our own text ad and then forcing that version upon the publisher, we send the information of the text ad (link, title, description, etc) to the publisher and <b>they</b> can decide how to <em>build</em> the ad into their content. The result is a much cleaner ad that looks like it belongs within the content it is being displayed alongside.
 	            </p>
 
 	            <h3>What are the benefits to native advertising?</h3>
 	            <p>
 	                Users are more likely to pay attention to an ad that becomes part of the content.
 		            <br />
-	                Another benefit to native advertising is that they are much less likely to be blocked by ad-blocking plugins, and for multiple reasons. Ad-blockers work by finding a common method of displaying ads utilized by ad networks; since the actual ad displaying is determined by the publishers the chances of someone blocking that specific method is much lower. In addition to this, ads that aren't annoying and obtrusive simply won't be blocked in most cases.
+	                Another benefit to native advertising is that ads are much less likely to be blocked by ad blocking plugins for multiple reasons. Ad blockers work by finding a common method of displaying ads utilized by ad networks; since the actual ad displaying is determined by the publishers the chances of someone blocking that specific method is much lower. In addition to this, ads that aren't annoying and obtrusive simply won't be blocked in most cases.
 	            </p>
 
                 {this.state.account.advertiser ? (
@@ -125,11 +125,11 @@ export default class Home extends React.Component {
 
             <section className="home-section-publishers">
 	            <h2>For Publishers</h2>
-	            <p className="subtitle">Increase your ad revenue while keeping your users happy.</p>
+	            <p className="subtitle">Monetize with ads your users won't hate.</p>
 
 	            <h3>How?</h3>
 	            <p>
-	                Native ads allow you to integrate advertising any way you want. Control exactly where, what, and how ads display. You tell us what kind of ads you want and we find ads relevant to your content and return not the ad itself, but the ad information. We give you the link, title, description, image, etc and let you (or your developers) decide how to display that content. The result is a multitude of benefits for both you <b>and</b> your users: cleaner site, faster page loads, no intrusive user tracking, more personalized ads, less blocked ads, and more!
+	                Native ads allow you to integrate advertising any way you want. Control exactly where, what, and how ads display. You tell us what kind of ads you want and we find ads relevant to your content and return not the ad itself, but the ad information. We give you the link, title, description, image, etc and let you (or your developers) decide how to display that content. The result is a multitude of benefits for both you <b>and</b> your users: cleaner site, faster page loads, no intrusive user tracking, less blocked ads, and more!
 	            </p>
 
                 {this.state.account.publisher ? (
