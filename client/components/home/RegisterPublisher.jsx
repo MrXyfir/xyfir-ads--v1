@@ -20,16 +20,19 @@ export default class RegisterPublisher extends React.Component {
         };
 
         if (data.name.length > 25)
-            alert("Name cannot be over 25 characters.");
+            swal("Error", "Name cannot be over 25 characters.", "error");
         else if (data.email.length > 50)
-            alert("Email cannot be over 50 characters.");
+            swal("Error", "Email cannot be over 50 characters.", "error");
         else if (data.application.length > 1500)
-            alert("Application cannot be over 1,500 characters.");
+            swal("Error", "Application cannot be over 1,500 characters.", "error");
         else {
             request({
                 url: "api/publishers/account/register",
                 method: "POST", data, success: (response) => {
-                    alert(response.message);
+                    if (response.error)
+                        swal("Error", response.message, "error");
+                    else
+                        swal("Success", response.message, "success");
                 }
             });
         }
@@ -55,7 +58,7 @@ export default class RegisterPublisher extends React.Component {
                 </p>
 
                 <input type="text" placeholder="Name or Business" ref="name" />
-                <input type="text" placeholder="Contanct Email" ref="email" />
+                <input type="text" placeholder="Contact Email" ref="email" />
                 <textarea ref="info" defaultValue="Publisher application" />
 
                 <Button type="primary" onClick={() => this.onRegister()}>Register</Button>
