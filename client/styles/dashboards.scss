@@ -95,10 +95,6 @@
 
     }
 
-    .campaign-reports > .report > h3 {
-        margin-bottom: -0.5em;
-    }
-
 }
 
 .campaign-user-targeting {
@@ -177,10 +173,6 @@
 }
 
 .publishers-campaign-manage {
-
-    .campaign-reports > .report > h3 {
-        margin-bottom: 0em;
-    }
 
     .ad-blacklist {
 
@@ -290,4 +282,8 @@
         border-collapse: separate;
     }
 
+}
+
+.campaign-reports > .report > h3 {
+    margin-bottom: -0.5em;
 }
