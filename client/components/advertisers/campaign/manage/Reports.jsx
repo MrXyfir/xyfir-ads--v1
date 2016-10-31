@@ -97,114 +97,136 @@ export default class AdvertiserCampaignReports extends React.Component {
 
         return (
             <div className="campaign-reports">
-                <h3>Generate Report</h3>
+                <section className="generate-report">
+                    <h3>Generate Report</h3>
 
-                <label>Start Date</label>
-                <input
-                    type="text"
-                    ref="start"
-                    defaultValue={
-                        new Date().toISOString().substr(0, 10)
-                    }
-                />
-                
-                <label>End Date</label>
-                <input type="text" ref="end" />
+                    <label>Start Date</label>
+                    <input
+                        type="text"
+                        ref="start"
+                        defaultValue={
+                            new Date().toISOString().substr(0, 10)
+                        }
+                    />
+                    
+                    <label>End Date</label>
+                    <input type="text" ref="end" />
 
-                <Button onClick={() => this.onGenerateReport()}>Generate</Button>
-
-                <hr />
+                    <Button onClick={() => this.onGenerateReport()}>
+                        Generate
+                    </Button>
+                </section>
 
                 <div className="report">
-                    <h3>Statistics</h3>
-                    <p>Statistics generated over the given time period.</p>
-                    <table className="statistics">
-                        <tr>
-                            <th>Clicks</th><td>{s.clicks}</td>
-                        </tr>
-                        <tr>
-                            <th>Views</th><td>{s.views}</td>
-                        </tr>
-                        <tr>
-                            <th>Cost</th><td>{s.cost}</td>
-                        </tr>
-                        <tr>
-                            <th>CTR</th>
-                            <td>
-                                {s.clicks == 0
-                                    ? "0.00" : round(s.clicks / s.views, 4)
-                                }%
-                            </td>
-                        </tr>
-                    </table>
+                    <section className="statistics">
+                        <h3>Statistics</h3>
+                        <span>
+                            Statistics generated over the given time period.
+                        </span>
+                        
+                        <table className="statistics">
+                            <tr>
+                                <th>Clicks</th><td>{s.clicks}</td>
+                            </tr>
+                            <tr>
+                                <th>Views</th><td>{s.views}</td>
+                            </tr>
+                            <tr>
+                                <th>Cost</th><td>{s.cost}</td>
+                            </tr>
+                            <tr>
+                                <th>CTR</th>
+                                <td>
+                                    {s.clicks == 0
+                                        ? "0.00" : round(s.clicks / s.views, 4)
+                                    }%
+                                </td>
+                            </tr>
+                        </table>
+                    </section>
 
-                    <h3>User Demographics</h3>
-                    <p>Demographics are only for clicks received.</p>
-                    <table className="demographics">
-                        <tr>
-                            <th>Ages</th>
-                            <td><dl>{
-                                s.dem_age.split(',').map((age) => {
-                                    let temp = age.split(':');
-                                    return (
-                                        <div>
-                                            <dt>{ages[temp[0]]}</dt>
-                                            <dd>{temp[1]}</dd>
-                                        </div>
-                                    );
-                                })
-                            }</dl></td>
-                        </tr>
-                        <tr>
-                            <th>Genders</th>
-                            <td><dl>{
-                                s.dem_gender.split(',').map((gender) => {
-                                    let temp = gender.split(':');
-                                    return (
-                                        <div>
-                                            <dt>{genders[temp[0]]}</dt>
-                                            <dd>{temp[1]}</dd>
-                                        </div>
-                                    );
-                                })
-                            }</dl></td>
-                        </tr>
-                    </table>
+                    <section className="user-demographics">
+                        <h3>User Demographics</h3>
+                        <span>
+                            Demographics are only for clicks received.
+                        </span>
+                        
+                        <table className="demographics">
+                            <tr>
+                                <th>Ages</th>
+                                <td><dl>{
+                                    s.dem_age.split(',').map((age) => {
+                                        let temp = age.split(':');
+                                        return (
+                                            <div>
+                                                <dt>{ages[temp[0]]}</dt>
+                                                <dd>{temp[1]}</dd>
+                                            </div>
+                                        );
+                                    })
+                                }</dl></td>
+                            </tr>
+                            <tr>
+                                <th>Genders</th>
+                                <td><dl>{
+                                    s.dem_gender.split(',').map((gender) => {
+                                        let temp = gender.split(':');
+                                        return (
+                                            <div>
+                                                <dt>{genders[temp[0]]}</dt>
+                                                <dd>{temp[1]}</dd>
+                                            </div>
+                                        );
+                                    })
+                                }</dl></td>
+                            </tr>
+                        </table>
+                    </section>
 
-                    <h3>Countries / Regions</h3>
-                    <p>Geographic demographics are only for clicks received.</p>
-                    <table className="geo">{
-                        geo.map(c => {
-                            return (
-                                <tr className="country">
-                                    <th>{c.country}</th>
-                                    <td><dl className="regions">{
-                                        c.regions.map(r => {
-                                            return (
-                                                <div>
-                                                    <dt>{r.region}</dt>
-                                                    <dd>{r.clicks}</dd>
-                                                </div>
-                                            );
-                                        })
-                                    }</dl></td>
-                                </tr>
-                            );
-                        })
-                    }</table>
+                    <section className="countries-regions">
+                        <h3>Countries / Regions</h3>
+                        <span>
+                            Geographic demographics are only for clicks received.
+                        </span>
+                        
+                        <table className="geo">{
+                            geo.map(c => {
+                                return (
+                                    <tr className="country">
+                                        <th>{c.country}</th>
+                                        <td><dl className="regions">{
+                                            c.regions.map(r => {
+                                                return (
+                                                    <div>
+                                                        <dt>{r.region}</dt>
+                                                        <dd>{r.clicks}</dd>
+                                                    </div>
+                                                );
+                                            })
+                                        }</dl></td>
+                                    </tr>
+                                );
+                            })
+                        }</table>
+                    </section>
 
-                    <h3>Top Publishers</h3>
-                    <p>Publishers who are serving your ad the most.</p>
-                    <table className="top-publishers">{
-                        s.publishers.map(publisher => {
-                            return (
-                                <tr className="publisher">
-                                    <th>{publisher.site}</th>
-                                    <td>{publisher.clicks}</td>
-                                </tr>
-                            );
-                        })
-                    }</table>
+                    <section className="top-publishers">
+                        <h3>Top Publishers</h3>
+                        <span>
+                            Publishers who are serving your ad the most.
+                        </span>
+                        
+                        <table className="top-publishers">{
+                            s.publishers.map(publisher => {
+                                return (
+                                    <tr className="publisher">
+                                        <th>{publisher.site}</th>
+                                        <td>{publisher.clicks}</td>
+                                    </tr>
+                                );
+                            })
+                        }</table>
+                    </section>
                 </div>
             </div>
         );

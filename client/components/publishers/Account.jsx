@@ -2,7 +2,6 @@
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 // Modules
 import request from "lib/request";
@@ -18,10 +17,7 @@ export default class PublisherAccount extends React.Component {
             },
             earnings: {
                 confirmed: 0, pending: 0
-            },
-            payments: [
-                { id: "", amount: 0, tstamp: "" }
-            ]
+            }
         };
     }
 

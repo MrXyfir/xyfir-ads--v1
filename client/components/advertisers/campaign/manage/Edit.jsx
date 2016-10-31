@@ -2,7 +2,6 @@
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 // Module
 import request from "lib/request";
@@ -28,7 +27,7 @@ export default class EditAdvertiserCampaign extends React.Component {
             ad: {
                 type: 0
             },
-            error: false, message: "", loading: true
+            loading: true
         };
     }
 
@@ -61,13 +60,15 @@ export default class EditAdvertiserCampaign extends React.Component {
     }
 
     // Add or remove funds from campaign
-    onModifyFunds() {
+    onModifyFunds(e) {
+        e.preventDefault();
+
         request({
             url: "api/advertisers/campaigns/" + this.props.id + "/funds",
             data: {
                 action: this.refs.addFundsAction.value,
                 amount: this.refs.addFundsAmount.value
-            }, method: "PUT", success: (res) => this.setState(res)
+            }, method: "PUT", success: (res) => this._alert(res)
         });
     }
 
@@ -76,7 +77,7 @@ export default class EditAdvertiserCampaign extends React.Component {
         request({
             url: "api/advertisers/campaigns/" + this.props.id + "/budget",
             data: { dailyBudget: +this.refs.dailyBudget.value },
-            method: "PUT", success: (res) => this.setState(res)
+            method: "PUT", success: (res) => this._alert(res)
         });
     }
 
@@ -95,7 +96,7 @@ export default class EditAdvertiserCampaign extends React.Component {
 
         request({
             url: "api/advertisers/campaigns/" + this.props.id + "/bid",
-            data, method: "PUT", success: (res) => this.setState(res)
+            data, method: "PUT", success: (res) => this._alert(res)
         });
     }
 
@@ -111,91 +112,72 @@ export default class EditAdvertiserCampaign extends React.Component {
 
         request({
             url: "api/advertisers/campaigns/" + this.props.id,
-            data, method: "PUT", success: (res) => this.setState(res)
+            data, method: "PUT", success: (res) => this._alert(res)
         });
+    }
+
+    _alert(alert) {
+        if (alert.error)
+            swal("Error", alert.message, "error");
+        else
+            swal("Success", alert.message, "success");
     }
 
     render() {
         if (this.state.loading) {
-            return <div></div>;
+            return <div />;
         }
-        else if (this.state.ended || this.state.approved != 1) {
+        
+        if (this.state.ended || this.state.approved != 1) {
             return (
-                <Alert type="error" title="Error!">
-                    You can only edit approved and active campaigns.
-                </Alert>
+                <p>You can only edit approved and active campaigns.</p>
             );
         }
 
-        let c = this.state, alert, bidding;
-
-        // Alert
-        if (c.error || c.message != "") {
-            alert = (
-                <Alert type={c.error ? "error" : "success"} title={c.error ? "Error!" : "Success!"}>{c.message}</Alert>
-            );
-        }
-
-        // Build 'bidding' based on bid type
-        if (c.autobid) {
-            bidding = (
-                <div>
-                    <h4>Automatic Bidding Enabled</h4>
-                    <p>
-                        <b>Lowest Possible Bid:</b> {'$' + c.pricing.base}
-                        <br />
-                        <b>Average Bid:</b> {'$' + c.pricing.average}
-                    </p>
-                </div>
-            );
-        }
-        else {
-            bidding = (
-                <div>
-                    <label>Bid</label>
-                    <span className="input-description">Cannot be lower than category's base price.</span>
-                    <input type="number" step="0.001" ref="bid" min={c.pricing.base} defaultValue={c.cost} />
-                </div>
-            );
-        }
+        let c = this.state;
 
         return(
             <div className="campaign-edit">
-                {alert}
-
-                <div className="form-group basic-info">
+                <section className="basic-info">
                     <label>Campaign Name</label>
                     <input type="text" ref="name" defaultValue={c.name} />
 
                     <label>Requested</label>
-                    <span className="input-description">Add amount to requested {c.payType == 1 ? "clicks" : "views"}.</span>
+                    <span className="input-description">
+                        Add amount to requested {
+                            c.payType == 1 ? "clicks" : "views"
+                        }.
+                    </span>
                     <input type="number" ref="requested" step="1000" />
 
                     <label>Keywords</label>
-                    <textarea ref="keywords" defaultValue={c.contentTargets.keywords}></textarea>
+                    <textarea
+                        ref="keywords"
+                        defaultValue={c.contentTargets.keywords}
+                    />
 
                     <Button onClick={() => this.onUpdate()}>Update</Button>
-                </div>
+                </section>
                 
-                <hr />
-
-                <label>Funds</label>
-                <div className="form-group add-funds">
+                <section className="add-funds">
+                    <label>Funds</label>
                     <select ref="addFundsAction">
                         <option value="add">Add Funds to Campaign</option>
                         <option value="rem">Remove Funds From Campaign</option>
                     </select>
                     <input ref="addFundsAmount" type="number" step="5.00" />
-                    <Button onClick={() => this.onModifyFunds()}>Update Funds</Button>
-                </div>
+                    
+                    <Button onClick={() => this.onModifyFunds()}>
+                        Update Funds
+                    </Button>
+                </section>
 
-                <hr />
+                <section className="daily-budget">
+                    <label>Daily Budget</label>
+                    <span className="input-description">
+                        Set a limit on how much you can be charged per day. Leave at $0.00 for no limit.
+                    </span>
 
-                <label>Daily Budget</label>
-                <span className="input-description">
-                    Set a limit on how much you can be charged per day. Leave at $0.00 for no limit.
-                </span>
-                <div className="form-group daily-budget">
                     <input
                         type="number"
                         ref="dailyBudget"
@@ -204,15 +186,16 @@ export default class EditAdvertiserCampaign extends React.Component {
                         step="1.00"
                     />
                     <Button onClick={() => this.onDailyBudget()}>Set Daily Budget</Button>
-                </div>
+                </section>
 
-                <hr />
+                <section className="bid-cost">
+                    <label>Bid Cost</label>
+                    <span className="input-description">
+                        Determine how much you'll pay per {
+                            c.payType == 1 ? "click" : "view"
+                        }.
+                    </span>
 
-                <label>Bid Cost</label>
-                <span className="input-description">
-                    Determine how much you'll pay per {c.payType == 1 ? "click" : "view"}.
-                </span>
-                <div className="form-group bid-cost">
                     <div className="panels ad-pricing-info">
                         <div className="panel">
                             <div className="panel-title">Base Price</div>
@@ -236,10 +219,33 @@ export default class EditAdvertiserCampaign extends React.Component {
                         Switch to {c.autobid ? "Manual" : "Automatic"} Bidding
                     </a>
                     
-                    {bidding}
+                    {c.autobid ? (
+                        <div className="auto-bidding">
+                            <h4>Automatic Bidding Enabled</h4>
+                            <p>
+                                <b>Lowest Possible Bid:</b> {'$' + c.pricing.base}
+                                <br />
+                                <b>Average Bid:</b> {'$' + c.pricing.average}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="manual-bidding">
+                            <label>Bid</label>
+                            <span className="input-description">
+                                Cannot be lower than category's base price.
+                            </span>
+                            <input
+                                type="number"
+                                step="0.001"
+                                ref="bid"
+                                min={c.pricing.base}
+                                defaultValue={c.cost}
+                            />
+                        </div>
+                    )}
                     
                     <Button onClick={() => this.updateBid()}>Update Bid</Button>
-                </div>
+                </section>
             </div>
         );
     }

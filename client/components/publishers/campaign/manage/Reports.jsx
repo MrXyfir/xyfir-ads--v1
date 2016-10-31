@@ -76,59 +76,65 @@ export default class PublisherCampaignReports extends React.Component {
 
         return(
             <div className="campaign-reports">
-                <h3>Generate Report</h3>
+                <section className="generate-report">
+                    <h3>Generate Report</h3>
 
-                <label>Start Date</label>
-                <input type="text" ref="start" defaultValue={new Date().toISOString().substr(0, 10)} />
-                
-                <label>End Date</label>
-                <input type="text" ref="end" />
+                    <label>Start Date</label>
+                    <input type="text" ref="start" defaultValue={new Date().toISOString().substr(0, 10)} />
+                    
+                    <label>End Date</label>
+                    <input type="text" ref="end" />
 
-                <Button onClick={() => this.onGenerateReport()}>Generate</Button>
-
-                <hr />
+                    <Button onClick={() => this.onGenerateReport()}>Generate</Button>
+                </section>
 
                 <div className="report">
-                    <h3>Statistics</h3>
-                    <table className="statistics">
-                        <tr>
-                            <th>Clicks</th><td>{s.clicks}</td>
-                        </tr>
-                        <tr>
-                            <th>Views</th><td>{s.views}</td>
-                        </tr>
-                        <tr>
-                            <th>CTR</th>
-                            <td>
-                                {s.clicks == 0
-                                    ? "0.00" : round(s.clicks / s.views, 4)
-                                }%
-                            </td>
-                        </tr>
-                    </table>
+                    <section className="statistics">
+                        <h3>Statistics</h3>
+                        <table className="statistics">
+                            <tr>
+                                <th>Clicks</th><td>{s.clicks}</td>
+                            </tr>
+                            <tr>
+                                <th>Views</th><td>{s.views}</td>
+                            </tr>
+                            <tr>
+                                <th>CTR</th>
+                                <td>
+                                    {s.clicks == 0
+                                        ? "0.00" : round(s.clicks / s.views, 4)
+                                    }%
+                                </td>
+                            </tr>
+                        </table>
+                    </section>
 
-                    <h3>Earnings</h3>
-                    <table className="earnings">
-                        <tr>
-                            <th>Pending</th><td>{'$' + s.pending}</td>
-                        </tr>
-                        <tr>
-                            <th>Confirmed</th><td>{'$' + s.earnings}</td>
-                        </tr>
-                    </table>
+                    <section className="earnings">
+                        <h3>Earnings</h3>
+                        <table className="earnings">
+                            <tr>
+                                <th>Pending</th><td>{'$' + s.pending}</td>
+                            </tr>
+                            <tr>
+                                <th>Confirmed</th><td>{'$' + s.earnings}</td>
+                            </tr>
+                        </table>
+                    </section>
 
-                    <h3>Top Advertisements</h3>
-                    <p>Advertisements your users are clicking most.</p>
-                    <table className="top-advertisements">{
-                        s.ads.map(ad => {
-                            return (
-                                <tr className="advertisement">
-                                    <th>{ad.title}</th>
-                                    <td>{ad.clicks}</td>
-                                </tr>
-                            );
-                        })
-                    }</table>
+                    <section className="top-advertisements">
+                        <h3>Top Advertisements</h3>
+                        <p>Advertisements your users are clicking most.</p>
+                        <table className="top-advertisements">{
+                            s.ads.map(ad => {
+                                return (
+                                    <tr className="advertisement">
+                                        <th>{ad.title}</th>
+                                        <td>{ad.clicks}</td>
+                                    </tr>
+                                );
+                            })
+                        }</table>
+                    </section>
                 </div>
             </div>
         );

@@ -73,8 +73,9 @@ export default class PublisherCampaignAdBlacklist extends React.Component {
                     Ads in your blacklist will not be available to your campaign.
                 </p>
 
-                <h3>Search Advertisements</h3>
                 <section className="add-to">
+                    <h3>Search Advertisements</h3>
+
                     <input
                         ref="search"
                         type="text"
@@ -101,23 +102,23 @@ export default class PublisherCampaignAdBlacklist extends React.Component {
                     }</div>
                 </section>
 
-                <hr />
-
-                <h3>Blacklisted Ads</h3>
-                <section className="blacklisted-ads">{
-                    this.state.blacklisted.map(ad => {
-                        return (
-                            <div className="ad">
-                                <span className="title">{ad.title}</span>
-                                <span className="description">{ad.description}</span>
-                                <a
-                                    onClick={() => this.onRemove(ad.id)}
-                                    className="icon-delete"
-                                >Remove From Blacklist</a>
-                            </div>
-                        )
-                    })
-                }</section>
+                <section className="blacklisted-ads">
+                    <h3>Blacklisted Ads</h3>
+                    <div className="blacklisted-ads">{
+                        this.state.blacklisted.map(ad => {
+                            return (
+                                <div className="ad">
+                                    <span className="title">{ad.title}</span>
+                                    <span className="description">{ad.description}</span>
+                                    <a
+                                        onClick={() => this.onRemove(ad.id)}
+                                        className="icon-delete"
+                                    >Remove From Blacklist</a>
+                                </div>
+                            )
+                        })
+                    }</div>
+                </section>
             </div>
         );
     }

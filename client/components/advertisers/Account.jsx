@@ -2,7 +2,6 @@
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 // Modules
 import request from "lib/request";
@@ -16,7 +15,7 @@ export default class AdvertiserAccount extends React.Component {
         super(props);
         
         this.state = {
-            funds: 0, payments: [], purchaseActive: false, addFunds: false
+            funds: 0, purchaseActive: false
         };
     }
 
@@ -34,11 +33,6 @@ export default class AdvertiserAccount extends React.Component {
     }
 
     onAddFunds() {
-        if (!this.state.addFunds) {
-            this.setState({ addFunds: true });
-            return;
-        }
-
         this.setState({ purchaseActive: true });
 
         Stripe.setPublishableKey(STRIPE_KEY);
@@ -64,7 +58,7 @@ export default class AdvertiserAccount extends React.Component {
                     amount: this.refs.amount.value,
                     stripeToken: response.id
                 }, success: (response) => {
-                    this.setState({ purchaseActive: false, addFunds: false });
+                    this.setState({ purchaseActive: false });
                     
                     if (response.error)
                         swal("Error", response.message, "error");
@@ -78,12 +72,16 @@ export default class AdvertiserAccount extends React.Component {
     render() {
         return (
             <div className="advertisers-account">
-                <h2>{"$" + this.state.funds} in Account</h2>
+                <section className="info">
+                    <dl>
+                        <dt>Account Balance</dt>
+                        <dd>{"$" + this.state.funds}</dd>
+                    </dl>
+                </section>
 
-                {alert}
-
-                {this.state.addFunds ? (
-                    <form ref="stripeForm" className="advertisers-account-addfunds">
+                <section className="add-funds">
+                    <h3>Add Funds to Account</h3>
+                    <form ref="stripeForm" className="stripe-form">
                         <label>Card Number</label>
                         <input type="text" data-stripe="number"/>
 
@@ -116,32 +114,7 @@ export default class AdvertiserAccount extends React.Component {
                             Complete Purchase
                         </Button>
                     </form>
-                ) : (
-                    <Button onClick={() => this.onAddFunds()}>Add Funds</Button>
-                )}
-                
-                {this.state.payments.length ? (
-                    <div className="advertisers-account-payments">
-                        <h3>Recent Payments</h3>
-                        <table>
-                            <tr>
-                                <th>ID</th><th>Amount</th><th>Date</th>
-                            </tr>
-                            
-                            {this.state.payments.map((payment) => {
-                                return (
-                                    <tr>
-                                        <td>{payment.id}</td>
-                                        <td>{'$' + payment.amount}</td>
-                                        <td>{payment.tstamp}</td>
-                                    </tr>
-                                );
-                            })}
-                        </table>
-                    </div>
-                ) : (
-                    <div className="hidden" />
-                )}
+                </section>
             </div>  
         );
     }

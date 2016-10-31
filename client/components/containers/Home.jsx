@@ -47,13 +47,11 @@ export default class Home extends React.Component {
         <div className="home">
             <section className="home-section-main">
                 <h1>Xyfir Ads</h1>
-                <p className="subtitle">Advertising for the modern web.</p>
+                <span className="subtitle">Advertising for the modern web.</span>
                 <p>
                     We've attempted to do away with everything that's given online advertising a bad name: intrusive tracking, high bandwidth usage, high resource usage, flashy and distractive ads, and more. Our advertisers and publishers are all hand picked and approved by an actual human to ensure quality. Xyfir Ads has the ability to seamlessly integrate with content due to our 'native ad' system.
                 </p>
             </section>
-
-            <hr />
 
             <section className="home-section-dashboards">
                 <h2>Dashboards</h2>
@@ -80,11 +78,9 @@ export default class Home extends React.Component {
                 )}
             </section>
 
-            <hr />
-
             <section className="home-section-advertisers">
 	            <h2>For Advertisers</h2>
-	            <p className="subtitle">Capture a wider audience with native ads.</p>
+	            <span className="subtitle">Capture a wider audience with native ads.</span>
 	            <p>
 	                Many web-users today are tired of the current state of online advertising. They have to worry about ads eating into their bandwidth caps, slowing down their browser, distracting them from the content they want to see, or even distributing malware. Users are blocking ads more than ever before and this hurts publishers and advertisers alike. These problems are all solvable with native ads.
 	            </p>
@@ -121,11 +117,9 @@ export default class Home extends React.Component {
 	            <a href="https://xyfir.com/#/documentation/xyfir-ads/advertisers" target="_blank" className="link-lg">https://xyfir.com/#/documentation/xyfir-ads/advertisers</a>
             </section>
 
-            <hr />
-
             <section className="home-section-publishers">
 	            <h2>For Publishers</h2>
-	            <p className="subtitle">Monetize with ads your users won't hate.</p>
+	            <span className="subtitle">Monetize with ads your users won't hate.</span>
 
 	            <h3>How?</h3>
 	            <p>
@@ -152,11 +146,11 @@ export default class Home extends React.Component {
 	            <a className="link-lg" target="_blank" href="https://xyfir.com/#/documentation/xyfir-ads/publishers">https://xyfir.com/#/documentation/xyfir-ads/publishers</a>
             </section>
 
-            <hr />
-
             <section className="home-section-developers">
 	            <h2>For Developers</h2>
-	            <p className="subtitle">A simple-to-use API built with developers in mind.</p>
+	            <span className="subtitle">
+                    A simple-to-use API built with developers in mind.
+                </span>
 
 	            <h3 className="header-doc-resources">Documentation / Resources</h3>
 	            <a className="link-lg" target="_blank" href="https://xyfir.com/#/documentation/xyfir-ads/developers">https://xyfir.com/#/documentation/xyfir-ads/developers</a>
