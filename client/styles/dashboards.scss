@@ -1,7 +1,7 @@
 /* ADVERTISERS DASHBORD */
 .advertisers-campaigns-campaign {
     
-    border-bottom: solid 0.2em $llgray;
+    border-bottom: solid 0.2em $lgray;
     margin: 1.5em auto;
     width: 80%;
 
@@ -95,18 +95,10 @@
 
 }
 
-.campaign-user-targeting {
+dl.campaign-user-targeting {
 
-    tbody {
-
-        .geo > td > span > b {
-            color: $dgray;
-        }
-
-        .age-ranges > td > span, .genders > td > span {
-            margin: 0.2em;
-        }
-
+    .age-ranges > dd > span, .genders > dd > span {
+        margin: 0.2em;
     }
 
 }
@@ -139,10 +131,8 @@
 
 
 /* PUBLISHERS DASHBORD */
-.publishers-campaigns {    
+table.publishers-campaigns {    
     
-    margin: auto;
-    margin-top: 3em;
     border-spacing: 0.5em;
     border-collapse: separate;
     font-size: 125%;
