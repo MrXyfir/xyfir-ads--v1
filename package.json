@@ -16,7 +16,7 @@
     "cron": "^1.1.1",
     "express": "^4.14.0",
     "express-mysql-session": "^1.2.0",
-    "express-session": "^1.14.1",
+    "express-session": "^1.14.2",
     "express-useragent": "^1.0.4",
     "geoip-lite": "^1.1.8",
     "mailcomposer": "^3.12.0",
