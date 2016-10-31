@@ -9,9 +9,9 @@ export default class PublisherCampaignsList extends React.Component {
         super(props);
         
         this.state = {
-            campaigns: [
-                /* { id: number, name: string, site: string, type: number } */
-            ]
+            campaigns: [/* {
+                id: number, name: string, site: string, type: number
+            } */]
         };
     }
 
@@ -23,35 +23,30 @@ export default class PublisherCampaignsList extends React.Component {
     }
 
     render() {
-        let campaigns = [];
-
-        if (!this.state.campaigns.length) {
-            return(
-                <div className="publishers-campaigns-none">
-                    <h3>You do not have any active campaigns!</h3>
-                </div>
-            );
-        }
-        else {
-            campaigns = this.state.campaigns.map(c => {
-                c.link = "#/publishers/campaign/" + c.id;
-                
-                return(
-                    <tr className="campaign">
-                        <td className="name">
-                            <a href={c.link}>{c.name}</a>
-                        </td>
-                        <td className="site">{c.site}</td>
-                        <td className="type">{c.type == 1 ? "Site" : "App"}</td>
-                    </tr>
-                ); 
-            });
-        }
-
         return (
-            <table className="publishers-campaigns">
-                {campaigns}
-            </table>
+            <section>
+                <table className="publishers-campaigns">{
+                    !this.state.campaigns.length ? (
+                        <div className="publishers-campaigns-none">
+                            <h3>You do not have any active campaigns!</h3>
+                        </div>
+                    ) : this.state.campaigns.map(c => {
+                        c.link = "#/publishers/campaign/" + c.id;
+                        
+                        return (
+                            <tr className="campaign">
+                                <td className="name">
+                                    <a href={c.link}>{c.name}</a>
+                                </td>
+                                <td className="site">{c.site}</td>
+                                <td className="type">{
+                                    c.type == 1 ? "Site" : "App"
+                                }</td>
+                            </tr>
+                        ); 
+                    })
+                }</table>
+            </section>
         );
     }
 
