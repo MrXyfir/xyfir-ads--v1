@@ -2,14 +2,11 @@
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 export default class BasicInfo extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.state = { error: false, message: '' };
     }
 
     onNext() {
@@ -25,29 +22,27 @@ export default class BasicInfo extends React.Component {
             (new Date().getTime() - (86400 * 1000)) / 1000
         ) + '-';
 
+        let error = "";
+
         // Validate data
         if (!name.match(/^[\w\d -]{3,25}$/))
-            this.setState({ error: true, message: "Invalid campaign name: 3-25 characters, letters/numbers/spaces/hyphens only" });
+            error = "Invalid campaign name length / characters";
         else if (type <= 0 || type > 4)
-            this.setState({ error: true, message: "Invalid ad type chosen" });
+            error = "Invalid ad type chosen";
         else if (payType <= 0 || payType > 2)
-            this.setState({ error: true, message: "Invalid paytype chosen" });
+            error = "Invalid paytype chosen";
         else if (payType == 1 && type == 4)
-            this.setState({ error: true, message: "Video ads cannot be pay per click" });
+            error = "Video ads cannot be pay per click";
         else // Next step if data is valid
             this.props.step('+');
+
+        if (error) swal("Error", error, "error");
     }
 
-    // ** Implement ability for user to choose ad availability
     render() {
-        let alert;
-        if (this.state.error) {
-            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>
-        };
-
         return (
             <div className="form-step">
-                <div className="form-step-head">
+                <section className="form-step-head">
                     <h2>Basic Information</h2>
                     <p>
                         Tell us what type of ad you want and then give your ad campaign a name.
@@ -56,13 +51,15 @@ export default class BasicInfo extends React.Component {
                             Image and video ads are currently disabled until further notice.
                         </span>
                     </p>
-                </div>
+                </section>
 
-                <div className="form-step-body">
-                    {alert}
-
+                <section className="form-step-body">
                     <label>Campaign Name</label>
-                    <input type="text" ref="name" defaultValue={window.campaignData.name} />
+                    <input
+                        type="text"
+                        ref="name"
+                        defaultValue={window.campaignData.name}
+                    />
 
                     <label>Ad Type</label>
                     <select ref="type" defaultValue={window.campaignData.type}>
@@ -80,11 +77,11 @@ export default class BasicInfo extends React.Component {
                         <option value="1">Pay Per Click</option>
                         <option value="2">Pay Per View</option>
                     </select>
-                </div>
+                </section>
 
-                <div className="form-step-nav">
+                <section className="form-step-nav">
                     <Button onClick={() => this.onNext()}>Next</Button>
-                </div>
+                </section>
             </div>
         );
     }

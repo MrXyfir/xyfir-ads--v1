@@ -12,9 +12,7 @@ export default class Final extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            loading: true, error: false, message: ''
-        };
+        this.state = { loading: true, error: false, message: '' };
     }
 
     componentWillMount() {
@@ -85,34 +83,29 @@ export default class Final extends React.Component {
         });
     }
 
-    onBack() {
-        this.props.step('-');
-    }
-
     render() {
-        if (!this.state.loading) {
-            let back, type, title;
-
-            if (this.state.error) {
-                type = "error", title = "Error!";
-                back = <Button onClick={() => this.onBack()}>Back</Button>
-            }
-            else {
-                type = "success", title = "Success!";
-            }
-
+        if (this.state.loading) {
+            return <p>Creating campaign...</p>;
+        }
+        else if (this.state.error) {
             return (
-                <div>
-                    <Alert type={type} title={title}>{this.state.message}</Alert>
-
-                    {back}
-                </div>
-            );
+                <section>
+                    <Alert type="error" title="Error">{
+                        this.state.message
+                    }</Alert>
+                    
+                    <Button onClick={() => this.props.step('-')}>
+                        Back
+                    </Button>
+                </section>
+            )
         }
         else {
             return (
-                <h2>Creating campaign...</h2> 
-            );
+                <Alert type="success" title="Success">{
+                    this.state.message
+                }</Alert>
+            )
         }
     }
 

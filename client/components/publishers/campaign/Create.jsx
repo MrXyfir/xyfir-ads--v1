@@ -2,7 +2,6 @@
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 // Modules
 import request from "lib/request";
@@ -13,8 +12,7 @@ export default class CreatePublisherCampaign extends React.Component {
         super(props);
         
         this.state = {
-            categories: [], categorySearchResults: [], selectedCategories: [],
-            error: false, message: ""
+            categories: [], categorySearchResults: [], selectedCategories: []
         };
     }
 
@@ -30,28 +28,18 @@ export default class CreatePublisherCampaign extends React.Component {
     }
 
     onCategorySearch() {
-        // Save first 5 matches
-        let categorySearchResults = [];
-        
-        this.state.categories.forEach(category => {
-            if (
-                category.indexOf(this.refs.category.value) != -1 &&
-                categorySearchResults.length < 6
-            ) {
-                categorySearchResults.push(
-                    <span className="search-result">{category}</span>
-                );
-            }
-        })
-
-        this.setState({ categorySearchResults });
+        this.setState({
+            categorySearchResults: this.state.categories.filter(category => {
+                return category.indexOf(this.refs.category.value) > -1
+            }).slice(0, 5)
+        });
     }
 
     onAddCategory() {
         // Add category if it doesn't exist in selected categories
         if (
-            this.state.selectedCategories.indexOf(this.refs.category.value) == -1 && 
-            this.state.selectedCategories.length < 3
+            this.state.selectedCategories.indexOf(this.refs.category.value) == -1
+            && this.state.selectedCategories.length < 3
         ) {
             this.setState({
                 selectedCategories: this.state.selectedCategories.concat(
@@ -67,14 +55,17 @@ export default class CreatePublisherCampaign extends React.Component {
         // Validate that all selected categories exists
         this.state.selectedCategories.map((category) => {
             if (this.state.categories.indexOf(category) == -1) {
-                this.setState({ error: true, message: "Invalid category provided" });
+                swal("Error", "Invalid category provided", "error");
                 create = false;
             }
         });
 
         // User must select at least one but no more than 3 categories
-        if (this.state.selectedCategories.length == 0 || this.state.selectedCategories.length > 3) {
-            this.setState({ error: true, message: "You must select 1-3 categories" });
+        if (
+            this.state.selectedCategories.length == 0
+            || this.state.selectedCategories.length > 3
+        ) {
+            swal("Error", "You must select 1-3 categories", "error");
             create = false;
         }
 
@@ -89,28 +80,23 @@ export default class CreatePublisherCampaign extends React.Component {
                 keywords: this.refs.keywords.value,
                 categories: this.state.selectedCategories.join(',')
             },
-            method: "POST",
-            success: (res) =>this.setState(res)
+            method: "POST", success: (res) => {
+                if (res.error)
+                    swal("Error", res.message, "error");
+                else
+                    swal("Success", res.message, "success");
+            }
         });
     }
 
     render() {
-        let alert;
-
-        if (this.state.error)
-            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>
-        else if (this.state.message != "")
-            alert = <Alert type="success" title="Success!">{this.state.message}</Alert>
-
         return (
             <div className="publishers-campaign-create form-step">
-                <div className="form-step-head">
+                <section className="form-step-head">
                     <h2>Create Campaign</h2>
-                </div>
+                </section>
 
-                <div className="form-step-body">
-                    {alert}
-
+                <section className="form-step-body">
                     <label>Campaign Name</label>
                     <input type="text" ref="name" />
 
@@ -129,7 +115,10 @@ export default class CreatePublisherCampaign extends React.Component {
                         <br />
                         List is comma delimited.
                     </small>
-                    <textarea ref="keywords" defaultValue="keyword1,keyword2,keyword phrase,keyword4"></textarea>
+                    <textarea
+                        ref="keywords"
+                        defaultValue="keyword1,keyword2,keyword phrase,keyword4"
+                    />
                     
                     <label>Category</label>
                     <input
@@ -146,20 +135,24 @@ export default class CreatePublisherCampaign extends React.Component {
 
                     <div className="search-results">{
                         this.state.categorySearchResults.map(category => {
-                            return(<span className="search-result">{category}</span>);
+                            return(
+                                <span className="search-result">{category}</span>
+                            );
                         })
                     }</div>
 
                     <div className="category-selected">{
                         this.state.selectedCategories.map(category => {
-                            return(<span>{category}</span>);
+                            return <span>{category}</span>;
                         })
                     }</div>
-                </div>
+                </section>
 
-                <div className="form-step-nav">
-                    <Button onClick={() => this.onCreateCampaign()}>Create Campaign</Button>
-                </div>
+                <section className="form-step-nav">
+                    <Button onClick={() => this.onCreateCampaign()}>
+                        Create Campaign
+                    </Button>
+                </section>
             </div>
         );
     }

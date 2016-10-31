@@ -2,7 +2,6 @@
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 export default class UserTargeting extends React.Component {
 
@@ -10,17 +9,8 @@ export default class UserTargeting extends React.Component {
         super(props);
 
         this.state = {
-            error: false, message: '',
             countriesRegions: window.campaignData.countriesRegions
         };
-    }
-
-    onBack() {
-        this._step('-');
-    }
-
-    onNext() {
-        this._step('+');
     }
 
     componentWillMount() {
@@ -94,37 +84,16 @@ export default class UserTargeting extends React.Component {
     }
 
     render() {
-        let alert;
-        if (this.state.error) {
-            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
-        }
-
-        // Build crList
-        let crList = [];
-        if (this.state.countriesRegions != '') {
-
-            this.state.countriesRegions.split('|').forEach(cr => {
-                const temp = cr.split(':');
-
-                crList.push(
-                    <span>
-                        <br /><b>{temp[0].replace('*', "All Countries")}:</b>
-                        <br /> {temp[1].replace('*', "All Regions")}
-                    </span>
-                );
-            });
-        }
-
         return (
             <div className="form-step">
-                <div className="form-step-head">
+                <section className="form-step-head">
                     <h2>User Targeting</h2>
-                    <p>Determine the user demographics you would like your ad targeted to.</p>
-                </div>
+                    <p>
+                        Determine the user demographics you would like your ad targeted to.
+                    </p>
+                </section>
 
-                <div className="form-step-body">
-                    {alert}
-
+                <section className="form-step-body">
                     <label>Genders</label>
                     <input
                         type="checkbox"
@@ -193,19 +162,41 @@ export default class UserTargeting extends React.Component {
                             data-value="shortcode"
                         />
                         
-                        <a className="link-sm" onClick={() => this.onCrAdd()}>Add to List</a>
-                        <a className="link-sm" onClick={() => this.onCrReset()}>Reset List</a>
+                        <a className="link-sm" onClick={() => this.onCrAdd()}>
+                            Add to List
+                        </a>
+                        <a className="link-sm" onClick={() => this.onCrReset()}>
+                            Reset List
+                        </a>
 
-                        <div className="country-region-list">
-                            {crList}
-                        </div>
+                        <div className="country-region-list">{
+                            !this.state.countriesRegions ? (
+                                <div />
+                            ) : this.state.countriesRegions.split('|').map(cr => {
+                                const temp = cr.split(':');
+
+                                return (
+                                    <span>
+                                        <br />
+                                        <b>{
+                                            temp[0].replace('*', "All Countries")
+                                        }:</b>
+                                        <br /> {temp[1].replace('*', "All Regions")}
+                                    </span>
+                                );
+                            })
+                        }</div>
                     </div>
-                </div>
+                </section>
 
-                <div className="form-step-nav">
-                    <Button type="secondary" onClick={() => this.onBack()}>Back</Button>
-                    <Button onClick={() => this.onNext()}>Next</Button>
-                </div>
+                <section className="form-step-nav">
+                    <Button type="secondary" onClick={() => this._step('-')}>
+                        Back
+                    </Button>
+                    <Button onClick={() => this._step('+')}>
+                        Next
+                    </Button>
+                </section>
             </div>
         );
     }

@@ -1,52 +1,37 @@
-﻿var categorySearchResults = [], siteSearchResults = [];
-
-import React from "react";
+﻿import React from "react";
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 // Modules
 import request from "lib/request";
 
-// ** Replace category textbox with scrollable selector
 export default class ContentTargeting extends React.Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            error: false, message: '', trigger: false,
-            sites: [], categories: []
+            sites: [], categories: [], categorySearch: [], siteSearch: []
         };
     }
 
     componentWillMount() {
         // Load categories
         request({
-            url: "api/pub/categories",
-            success: (res) => this.setState(res)
+            url: "api/pub/categories", success: (res) => this.setState(res)
         });
 
         // Load sites
         request({
-            url: "api/pub/sites",
-            success: (res) => this.setState(res)
+            url: "api/pub/sites", success: (res) => this.setState(res)
         });
-    }
-
-    onNext() {
-        this._step('+');
-    }
-
-    onBack() {
-        this._step('-');
     }
 
     _step(action) {
         // Ensure user provided a valid category
         if (this.state.categories.indexOf(this.refs.category.value) == -1) {
-            this.setState({ error: true, message: "Invalid category provided" });
+            swal("Error", "Invalid category provided", "error");
             return;
         }
 
@@ -54,22 +39,23 @@ export default class ContentTargeting extends React.Component {
         if (!!window.campaignData.sites.length) {
             for (let i = 0; i < window.campaignData.sites.length; i++) {
                 if (this.state.sites.indexOf(window.campaignData.sites[i]) == -1) {
-                    this.setState({
-                        error: true, message: "Invalid website(s) provided"
-                    }); return;
+                    swal("Error", "Invalid website(s) provided", "error");
+                    return;
                 }
             }
         }
 
         // Validate keywords length
         if (this.refs.keywords.value.length > 1500) {
-            this.setState({
-                error: true,
-                message: "Too many keywords provided! Limit 1,500 characters"
-            }); return;
+            swal(
+                "Error",
+                "Too many keywords provided! Limit 1,500 characters",
+                "error"
+            ); return;
         }
 
-        window.campaignData.category = this.refs.category.value, window.campaignData.keywords = this.refs.keywords.value;
+        window.campaignData.category = this.refs.category.value,
+        window.campaignData.keywords = this.refs.keywords.value;
 
         this.props.step(action);
     }
@@ -79,7 +65,7 @@ export default class ContentTargeting extends React.Component {
         if (window.campaignData.sites.indexOf(this.refs.site.value) == -1)
             window.campaignData.sites.push(this.refs.site.value);
 
-        this.setState({ trigger: !this.state.trigger });
+        this.forceUpdate();
     }
 
     onRemSite() {
@@ -88,58 +74,36 @@ export default class ContentTargeting extends React.Component {
 
         if (i != -1) window.campaignData.sites.splice(i, 1);
 
-        this.setState({ trigger: !this.state.trigger });
+        this.forceUpdate();
     }
 
     onSearchSites() {
-        // Save first 5 matches
-        siteSearchResults = [];
-        this.state.sites.forEach(site => {
-            if (site.indexOf(this.refs.site.value) != -1 && siteSearchResults.length < 6) {
-                siteSearchResults.push(
-                    <span className="search-result">{site}</span>
-                );
-            }
+        this.setState({
+            siteSearch: this.state.sites.filter(site => {
+                return site.indexOf(this.refs.site.value) > -1;
+            }).slice(0, 5)
         });
-
-        this.setState({ trigger: !this.state.trigger });
     }
 
     onSearchCategories() {
-        // Save first 5 matches
-        categorySearchResults = [];
-        this.state.categories.forEach(category => {
-            if (
-                category.indexOf(this.refs.category.value) != -1 &&
-                categorySearchResults.length < 6
-            ) {
-                categorySearchResults.push(
-                    <span className="search-result">{category}</span>
-                    );
-            }
+        this.setState({
+            categorySearch: this.state.categories.filter(category => {
+                return category.indexOf(this.refs.category.value) > -1
+            }).slice(0, 5)
         });
-
-        this.setState({ trigger: !this.state.trigger });
     }
 
     render() {
-        let alert;
-        if (this.state.error) {
-            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
-        }
-
         return (
-            <div className="form-step">
-                <div className="form-step-head">
+            <div className="form-step content-targeting">
+                <section className="form-step-head">
                     <h2>Content Targeting</h2>
                     <p>
                         Describe the content of your advertisement and the content you would like your ad to appear alongside.
                     </p>
-                </div>
+                </section>
 
-                <div className="form-step-body">
-                    {alert}
-
+                <section className="form-step-body">
                     <label>Keywords</label>
                     <small>
                         A comma delimited list of keywords that describe your advertisement and its targets.
@@ -153,22 +117,34 @@ export default class ContentTargeting extends React.Component {
                     <input
                         type="text"
                         ref="category"
-                        onKeyDown={() => this.onSearchCategories()}
+                        onChange={() => this.onSearchCategories()}
                         defaultValue={window.campaignData.category}
                     />
-                    <div className="search-results">
-                        {categorySearchResults}
-                    </div>
+                    <div className="search-results">{
+                        this.state.categorySearch.map(category => {
+                            return (
+                                <span className="search-result">{category}</span>
+                            );
+                        })
+                    }</div>
 
                     <label>Sites</label>
                     <small>
                         List sites in our publishers network that you would like your ad to appear on. Leave blank for all sites.
                     </small>
                     
-                    <input type="text" ref="site" onKeyDown={() => this.onSearchSites()} />
-                    <div className="search-results">
-                        {siteSearchResults}
-                    </div>
+                    <input
+                        type="text"
+                        ref="site"
+                        onChange={() => this.onSearchSites()}
+                    />
+                    <div className="search-results">{
+                        this.state.siteSearch.map(site => {
+                            return (
+                                <span className="search-result">{site}</span>
+                            );
+                        })
+                    }</div>
                     
                     <Button type="secondary btn-sm" onClick={() => this.onAddSite()}>
                         Add Site
@@ -180,16 +156,16 @@ export default class ContentTargeting extends React.Component {
                     <div className="target-sites">
                         {window.campaignData.sites.join(", ")}
                     </div>
-                </div>
+                </section>
 
-                <div className="form-step-nav">
-                    <Button type="secondary" onClick={() => this.onBack()}>
+                <section className="form-step-nav">
+                    <Button type="secondary" onClick={() => this._step('-')}>
                         Back
                     </Button>
-                    <Button onClick={() => this.onNext()}>
+                    <Button onClick={() => this._step('+')}>
                         Next
                     </Button>
-                </div>
+                </section>
             </div>
         );
     }

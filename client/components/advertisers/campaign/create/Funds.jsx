@@ -2,7 +2,6 @@
 
 // Components
 import Button from "components/forms/Button";
-import Alert from "components/forms/Alert";
 
 // Modules
 import request from "lib/request";
@@ -13,7 +12,6 @@ export default class Funds extends React.Component {
         super(props);
 
         this.state = {
-            error: false, message: '',
             autobid: window.campaignData.autobid,
             pricing: {
                 base: 0, competitors: 0, average: 0, highest: 0
@@ -41,14 +39,6 @@ export default class Funds extends React.Component {
         });
     }
 
-    onNext() {
-        this._step('+');
-    }
-
-    onBack() {
-        this._step('-');
-    }
-
     _step(action) {
         let funds = +this.refs.funds.value,
             dailyFunds = +this.refs.dailyFunds.value,
@@ -58,38 +48,43 @@ export default class Funds extends React.Component {
         request({url: "api/advertisers/account", success: (res) => {
             // Check if user has enough funds in account
             if (funds > res.funds) {
-                this.setState({
-                    error: true,
-                    message: "You do not have enough funds in your account"
-                }); return;
+                swal(
+                    "Error",
+                    "You do not have enough funds in your account",
+                    "error"
+                ); return;
             }
 
             // Check if bid is valid
             if (!this.state.autobid && +this.refs.bid.value < this.state.pricing.base) {
-                this.setState({
-                    error: true,
-                    message: "Your bid cannot be lower than the category's base price"
-                }); return;
+                swal(
+                    "Error",
+                    "Your bid cannot be lower than the category's base price",
+                    "error"
+                ); return;
             }
 
-            let bid = this.state.autobid ? this.state.pricing.base : this.refs.bid.value;
+            let bid = this.state.autobid
+                ? this.state.pricing.base : this.refs.bid.value;
 
             // Check if user can pay for requested at bid price
             if ((bid * requested) > funds) {
-                this.setState({
-                    error: true,
-                    message: "Not enough allocated funds to pay for requested "
+                swal(
+                    "Error",
+                    "Not enough allocated funds to pay for requested "
                         + (window.campaignData.payType == 1 ? "clicks" : "views")
-                        + " at bid price of $" + bid
-                }); return;
+                        + " at bid price of $" + bid,
+                    "error"
+                ); return;
             }
 
             if (dailyFunds > 0 && (dailyFunds > funds || dailyFunds < 0.50)) {
-                this.setState({
-                    error: true,
-                    message: "Daily funds cannot be greater than allocated funds"
-                        + " or less than $0.50"
-                }); return;
+                swal(
+                    "Error",
+                    "Daily funds cannot be greater than allocated funds"
+                        + " or less than $0.50",
+                    "error"
+                ); return;
             }
 
             // Save data to window.campaignData
@@ -108,52 +103,19 @@ export default class Funds extends React.Component {
     }
 
     render() {
-        let alert, bidding;
-        
-        if (this.state.error) {
-            alert = <Alert type="error" title="Error!">{this.state.message}</Alert>;
-        }
-
-        // Build 'bidding' based on bid type
-        if (this.state.autobid) {
-            bidding = (
-                <div>
-                    <h4>Automatic Bidding Enabled</h4>
-                    <p>
-                        <b>Lowest Possible Bid:</b> {'$' + this.state.pricing.base}
-                        <br />
-                        <b>Average Bid:</b> {'$' + this.state.pricing.average}
-                    </p>
-                </div>
-            );
-        }
-        else {
-            bidding = (
-                <div className="form-step-body">
-                    <label>Bid</label>
-                    <small>Cannot be lower than category's base price.</small>
-                    <input
-                        type="number"
-                        step="0.001"
-                        ref="bid"
-                        min={this.state.pricing.base}
-                        defaultValue={window.campaignData.bid}
-                    />
-                </div>
-            );
-        }
-
         return (
             <div className="form-step">
-                <div className="form-step-head">
+                <section className="form-step-head">
                     <h2>Funding</h2>
-                    <p>Add funds to your campaign and determine how much you'll pay.</p>
-                </div>
+                    <p>
+                        Add funds to your campaign and determine how much you'll pay.
+                    </p>
+                </section>
 
-                <div className="form-step-body">
-                    {alert}
-
-                    <label>Requested {window.campaignData.payType == 1 ? "Clicks" : "Views"}</label>
+                <section className="form-step-body">
+                    <label>Requested {
+                        window.campaignData.payType == 1 ? "Clicks" : "Views"
+                    }</label>
                     <input
                         type="number"
                         step="1000"
@@ -211,16 +173,48 @@ export default class Funds extends React.Component {
                     </div>
 
                     <a onClick={() => this.onToggleBidType()}>
-                        Switch to {this.state.autobid ? "Manual" : "Automatic"} Bidding
+                        Switch to {
+                            this.state.autobid ? "Manual" : "Automatic"
+                        } Bidding
                     </a>                    
                     
-                    {bidding}
-                </div>
+                    {this.state.autobid ? (
+                        <div className="auto-bid">
+                            <h4>Automatic Bidding Enabled</h4>
+                            <p>
+                                <b>Lowest Possible Bid:</b>{
+                                    '$' + this.state.pricing.base
+                                }<br />
+                                <b>Average Bid:</b> {
+                                    '$' + this.state.pricing.average
+                                }
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="manual-bid">
+                            <label>Bid</label>
+                            <small>
+                                Cannot be lower than category's base price.
+                            </small>
+                            <input
+                                type="number"
+                                step="0.001"
+                                ref="bid"
+                                min={this.state.pricing.base}
+                                defaultValue={window.campaignData.bid}
+                            />
+                        </div>
+                    )}
+                </section>
 
-                <div className="form-step-nav">
-                    <Button type="secondary" onClick={() => this.onBack()}>Back</Button>
-                    <Button onClick={() => this.onNext()}>Next</Button>
-                </div>
+                <section className="form-step-nav">
+                    <Button type="secondary" onClick={() => this._step('-')}>
+                        Back
+                    </Button>
+                    <Button onClick={() => this._step('+')}>
+                        Next
+                    </Button>
+                </section>
             </div>
         );
     }
