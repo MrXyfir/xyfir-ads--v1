@@ -68,25 +68,25 @@ export default class ViewPublisherCampaign extends React.Component {
                     <h3>Keywords</h3>
                     <div className="keywords">{
                         c.keywords.split(',').map(kw => {
-                            return(<span>{kw}</span>);
+                            return <span>{kw}</span>;
                         })
                     }</div>
                 </section>
 
-                <section className="keywords">
+                <section className="categories">
                     <h3>Categories</h3>
-                    <div className="category-selected">{
+                    <div className="categories">{
                         c.categories.split(',').map(cat => {
-                            return(<span>{cat}</span>);
+                            return <span>{cat}</span>;
                         })
                     }</div>
                 </section>
 
                 <section className="test-mode-key">
                     <h3>Test Mode Key</h3>
-                    <p>
+                    <span>
                         Read more about Test Mode in our <a href="https://xyfir.com/#/documentation/xyfir-ads/advertisers" target="_blank">developer documentation</a>.
-                    </p>
+                    </span>
                     <input
                         type="text"
                         onFocus={(e) => e.target.select()}
