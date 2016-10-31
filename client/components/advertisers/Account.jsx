@@ -25,48 +25,52 @@ export default class AdvertiserAccount extends React.Component {
             url: "api/advertisers/account",
             success: (response) => this.setState(response)
         });
-
-        // Add Stripe.js to page
-        let stripe = document.createElement("script");
-        stripe.setAttribute("src", "https://js.stripe.com/v2/");
-        document.head.appendChild(stripe);
     }
 
     onAddFunds() {
         this.setState({ purchaseActive: true });
 
-        Stripe.setPublishableKey(STRIPE_KEY);
+        const doPayment = () => {
+            Stripe.setPublishableKey(STRIPE_KEY);
 
-        if (+this.refs.amount.value < 10) {
-            swal("Error", "Amount cannot be less than $10.00", "error");
-            this.setState({ purchaseActive: false });
-            return;
-        }
-
-        Stripe.card.createToken(this.refs.stripeForm, (status, response) => {
-            // Error when trying to create charge token
-            if (response.error) {
-                swal("Error", response.error.message, "error");
+            if (+this.refs.amount.value < 10) {
+                swal("Error", "Amount cannot be less than $10.00", "error");
                 this.setState({ purchaseActive: false });
                 return;
             }
 
-            // Send token + amount to XAd API to finish purchase
-            request({
-                url: "api/advertisers/account/funds",
-                method: "POST", data: {
-                    amount: this.refs.amount.value,
-                    stripeToken: response.id
-                }, success: (response) => {
+            Stripe.card.createToken(this.refs.stripeForm, (status, response) => {
+                // Error when trying to create charge token
+                if (response.error) {
+                    swal("Error", response.error.message, "error");
                     this.setState({ purchaseActive: false });
-                    
-                    if (response.error)
-                        swal("Error", response.message, "error");
-                    else
-                        swal("Success", response.message, "success");
+                    return;
                 }
+
+                // Send token + amount to XAd API to finish purchase
+                request({
+                    url: "api/advertisers/account/funds",
+                    method: "POST", data: {
+                        amount: this.refs.amount.value,
+                        stripeToken: response.id
+                    }, success: (response) => {
+                        this.setState({ purchaseActive: false });
+                        
+                        if (response.error)
+                            swal("Error", response.message, "error");
+                        else
+                            swal("Success", response.message, "success");
+                    }
+                });
             });
-        });
+        };
+
+        // Dynamically load Stripe.js
+        let element = document.createElement("script");
+        element.src = "https://js.stripe.com/v2/";
+        element.type = "text/javascript";
+        element.onload = doPayment;
+        document.body.appendChild(element);
     }
 
     render() {
