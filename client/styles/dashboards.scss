@@ -103,10 +103,14 @@ dl.campaign-user-targeting {
 
 }
 
-.campaign-content-targeting > tbody > .keywords > td > span,
-.campaign-content-targeting > tbody > .sites > td > span {
-    margin: 0.2em;
-    font-size: 90%;
+.campaign-content-targeting {
+    
+    dd.keywords > span, dd.sites > span {
+        display: inline-block;
+        margin: 0.2em;
+        font-size: 90%;
+    }
+    
 }
 
 .country-region-selector {
@@ -209,8 +213,14 @@ table.publishers-campaigns {
 
 }
 
-.category-selected > span {
-    margin: 0.2em;
+.publishers-campaign {
+
+    div.keywords > span, div.categories > span {
+        display: inline-block;
+        margin: 0.2em;
+        font-size: 90%;
+    }
+
 }
 
 /* PANEL - AWAITING */
