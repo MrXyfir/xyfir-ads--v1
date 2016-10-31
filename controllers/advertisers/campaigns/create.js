@@ -1,3 +1,6 @@
+const isCategoryValid = require("lib/category/validator");
+const getAdPrice = require("lib/ad/price");
+const sendEmail = require("lib/email");
 const db = require("lib/db");
 
 /*
@@ -14,49 +17,49 @@ const db = require("lib/db");
         { error: boolean, message: string }
 */
 module.exports = function(req, res) {
-    
-    let response = { error: false, message: "" };
+
+    let error = "";
 
     // Validate data
     if (!req.body.c_name.match(/^[\w\d -]{3,25}$/))
-        response = { error: true, message: "Invalid campaign name" };
+        error = "Invalid campaign name";
     else if (['1', '2', '3', '4'].indexOf(req.body.a_type) == -1)
-        response = { error: true, message: "Invalid ad type selection" };
+        error = "Invalid ad type selection";
     else if (['1', '2'].indexOf(req.body.a_paytype) == -1)
-        response = { error: true, message: "Invalid pay-per-action selected" };
+        error = "Invalid pay-per-action selected";
     else if (req.body.a_type == 4 && req.body.a_paytype == 1)
-        response = { error: true, message: "Video ads cannot be pay-per-click" };
+        error = "Video ads cannot be pay-per-click";
     else if (!req.body.a_link.match(/^https?:\/\//))
-        response = { error: true, message: "Link must begin with https:// or http://" };
+        error = "Link must begin with https:// or http://";
     else if (!req.body.c_availability.match(/^(\d{10}-(\d{10})?,?){1,10}$/))
-        response = { error: true, message: "Invalid availability ranges" };
+        error = "Invalid availability ranges";
     else if (!req.body.ut_genders.match(/^[0123,]{1,5}$/))
-        response = { error: true, message: "Invalid targeted user genders" };
+        error = "Invalid targeted user genders";
     else if (!req.body.ut_age.match(/^[0123456,]{1,11}$/))
-        response = { error: true, message: "Invalid targeted user age ranges" };
+        error = "Invalid targeted user age ranges";
     else if (!req.body.ct_keywords.match(/^[\w\d ,-]{0,1500}$/))
-        response = { error: true, message: "Invalid keyword(s) length or character" };
+        error = "Invalid keyword(s) length or character";
     else if (!req.body.ut_countries.match(/^([A-Z]{2},?){1,50}|\*$/))
-        response = { error: true, message: "Invalid target countries list (limit 50 countries)" };
+        error = "Invalid target countries list (limit 50 countries)";
     else if (!req.body.ut_regions.match(/^([A-Z*,]{1,3}\|?){1,250}$/))
-        response = { error: true, message: "Invalid target regions (limit 1,000 characters)" };
-    else if (!require("lib/category/validator")(req.body.ct_category, true))
-        response = { error: true, message: "Invalid category selected" };
+        error = "Invalid target regions (limit 1,000 characters)";
+    else if (!isCategoryValid(req.body.ct_category, true))
+        error = "Invalid category selected";
     else if (!req.body.ct_sites.match(/^([\w\d.,-]){5,225}|\*$/))
-        response = { error: true, message: "Invalid target sites format / length (limit 225 characters)" };
+        error = "Invalid target sites format / length (limit 225 characters)";
     else if (req.body.f_allocated < 10.00)
-        response = { error: true, message: "You must allocate at least $10.00 for campaign" };
+        error = "You must allocate at least $10.00 for campaign";
     else if (!req.body.a_title.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{3,25}$/))
-        response = { error: true, message: "Invalid ad title characters or length" };
+        error = "Invalid ad title characters or length";
     else if (!req.body.a_description.match(/^[\w\d .:;'"!@#$%&()\-+=,/]{5,150}$/))
-        response = { error: true, message: "Invalid ad description characters or length" };
+        error = "Invalid ad description characters or length";
 
     // Short text ads verification
     if (req.body.a_type == 2) {
         if (req.body.a_title.length > 15)
-            response = { error: true, message: "Short text ad titles cannot be longer than 15 characters" };
+            error = "Short text ad titles cannot be longer than 15 characters";
         else if (req.body.a_description.length > 40)
-            response = { error: true, message: "Short text ad descriptions cannot be longer than 40 characters" };
+            error = "Short text ad descriptions cannot be longer than 40 characters";
     }
     // Image / video ads verification
     else if (req.body.a_type == 3 || req.body.a_type == 4) {
@@ -64,21 +67,21 @@ module.exports = function(req, res) {
         // ** Validate file is in our Cloudinary 'cloud'
         for (let i = 0; i < temp.length; i++) {
             if (temp[i].indexOf("https://res.cloudinary.com/") != 2) {
-                response = { error: true, message: "Invalid image / video sources" };
+                error = "Invalid image / video sources";
                 break;
             }
         }
 
         if (temp.length > 5 || req.body.a_media.length > 450)
-            response = { error: true, message: "Invalid image / video source length" };
+            error = "Invalid image / video source length";
     }
 
     // Validate daily allocated funds
     if (req.body.f_daily > 0) {
         if (req.body.f_daily > req.body.f_allocated)
-            response = { error: true, message: "Daily allocated funds limit cannot be greater than total allocated" };
+            error = "Daily allocated funds limit cannot be greater than total allocated";
         if (req.body.f_daily < 0.50)
-            response = { error: true, message: "Daily allocated funds limit cannot be less than $0.50" };
+            error = "Daily allocated funds limit cannot be less than $0.50";
     }
 
     /* Create Campaign */
@@ -87,14 +90,14 @@ module.exports = function(req, res) {
         cn.query(sql, [req.session.uid], (err, rows) => {
             // Check if user has enough funds
             if (err || rows.length == 0)
-                response = { error: true, message: "An unknown error occured" };
+                error = "An unknown error occured";
             else if (rows[0].funds < req.body.f_allocated)
-                response = { error: true, message: "You do not have enough funds in your account" };
+                error = "You do not have enough funds in your account";
 
             // Cancel if an error occured in any of the above validation
-            if (response.error) {
+            if (error) {
                 cn.release();
-                res.json(response);
+                res.json({ error: true, message: error });
                 return;
             }
 
@@ -124,14 +127,14 @@ module.exports = function(req, res) {
                 ct_categories: req.body.ct_category,
                 ad_description: req.body.a_description
             };
-            req.body = null, response = null;
 
             // Finalize campaign creation process
             cn.beginTransaction(err => {
                 if (err) {
                     cn.release();
-                    res.json({ error: true, message: "An unknown error occured-" });
-                    return;
+                    res.json({
+                        error: true, message: "An unknown error occured-"
+                    }); return;
                 }
 
                 // Remove allocated funds from advertiser's account
@@ -139,8 +142,9 @@ module.exports = function(req, res) {
                 cn.query(sql, [data.funds, data.owner], (e, r) => {
                     if (e || !r.affectedRows) {
                         cn.rollback(() => cn.release());
-                        res.json({ error: true, message: "An unknown error occured--" });
-                        return;
+                        res.json({
+                            error: true, message: "An unknown error occured--"
+                        }); return;
                     }
 
                     // Create row in database for ad
@@ -150,20 +154,28 @@ module.exports = function(req, res) {
 
                         if (e) {
                             cn.rollback(() => cn.release());
-                            res.json({ error: true, message: "An unknown error occured---" });
+                            res.json({
+                                error: true, message: "An unknown error occured---"
+                            });
                             return;
                         }
 
                         let ad = r.insertId;
 
                         // Create blank ad_report for current date and tomorrow's date
-                        sql = "INSERT INTO ad_reports (id, day) VALUES (?, CURDATE()), (?, DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
+                        sql = `
+                            INSERT INTO ad_reports (id, day) VALUES (
+                                ?, CURDATE()), (?, DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+                            )
+                        `;
                         cn.query(sql, [ad], (e, r) => {
                             cn.commit(err => {
                                 if (err) {
                                     cn.rollback(() => cn.release());
-                                    res.json({ error: true, message: "An unknown error occured----" });
-                                    return;
+                                    res.json({
+                                        error: true,
+                                        message: "An unknown error occured----"
+                                    }); return;
                                 }
 
                                 sql = "SELECT email FROM users WHERE user_id = ?";
@@ -171,7 +183,7 @@ module.exports = function(req, res) {
                                     cn.release();
 
                                     // Email user about campaign creation
-                                    require("lib/email")(rows[0].email, "Ad Campaign Created",
+                                    sendEmail(rows[0].email, "Ad Campaign Created",
                                         "You have successfully created a new ad campaign."
                                         + "<br /><br />"
                                         + "<a href='https://ads.xyfir.com/#/advertisers/campaign/" + ad + "'>View Details</a>"
@@ -179,7 +191,9 @@ module.exports = function(req, res) {
                                         + "You will receive an email when your campaign is approved or denied."
                                     );
 
-                                    res.json({ error: false, message: "Campaign created successfully" });
+                                    res.json({
+                                        error: false, message: "Campaign created"
+                                    });
                                 }); // grab user's email
                             }); // commit transaction
                         }); // create blank ad_report
@@ -194,17 +208,20 @@ module.exports = function(req, res) {
         next();
     }
     else {
-        require("lib/ad/price")(req.body.a_type, req.body.f_type, req.body.ct_category, info => {
-            // Ensure user's bid price >= category's base price
-            if (req.body.f_bid < info.base)
-                response = { error: true, message: "Bid price is lower than category's base price" };
+        getAdPrice(
+            req.body.a_type, req.body.f_type, req.body.ct_category,
+            info => {
+                // Ensure user's bid price >= category's base price
+                if (req.body.f_bid < info.base)
+                    error = "Bid price is lower than category's base price";
 
-            // Ensure their allocated funds can pay for requested clicks and 
-            if (req.body.f_bid * req.body.a_requested > req.body.f_allocated)
-                response = { error: true, message: "Not enough allocated funds to pay for requested actions on ad" };
+                // Ensure their allocated funds can pay for requested clicks and 
+                if (req.body.f_bid * req.body.a_requested > req.body.f_allocated)
+                    error = "Not enough allocated funds to pay for requested actions on ad";
 
-            next();
-        });
+                next();
+            }
+        );
     }
 
 }
