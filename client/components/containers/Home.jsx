@@ -56,9 +56,14 @@ export default class Home extends React.Component {
             <section className="home-section-dashboards">
                 <h2>Dashboards</h2>
                 {!this.state.account.loggedIn ? (
-                    <a className="link-lg" href={XACC + "login/11"}>
-                        Login with Xyfir Account
-                    </a>
+                    <div>
+                        <a className="link-lg" href={XACC + "login/11"}>
+                            Login
+                        </a>
+                        <a className="link-lg" href={XACC + "register/11"}>
+                            Register
+                        </a>
+                    </div>
                 ) : (
                     <div>
                         {this.state.account.advertiser ? (
