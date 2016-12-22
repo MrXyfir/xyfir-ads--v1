@@ -4,7 +4,7 @@
         color: $gray;
     }
 
-    .home-section-dashboards {
+    section.dashboards {
 
         .link-lg {
             margin: 1em;
@@ -12,7 +12,7 @@
 
     }
 
-    .home-section-advertisers, .home-section-publishers, .home-section-developers {
+    section.advertisers, section.publishers, section.developers {
 
         h3 {
             margin-bottom: -0.6em;
@@ -25,9 +25,12 @@
     }
 
     .home-register-publisher, .home-register-advertiser {
-        background-color: #f7f7f7;
+        background-color: white;
         padding: 1em;
-        border: 1px solid #f0f0f0
+    }
+
+    button.register {
+        margin-bottom: 1em;
     }
 
 }
