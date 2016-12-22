@@ -12,17 +12,15 @@ const config = require("config");
     REQUIRED
         pubid: number, type: number OR types: string
     OPTIONAL
-        xadid: string, count: number, speed: number,
+        xadid: string, count: number, speed: number, xyfir: boolean,
         ip: string, age: number, gender: number,
         categories: string, keywords: string,
         test: string
     RETURN
-        {ads: [
-            {
-                type: number, link: string, title: string,
-                description: string, media?: string
-            }, ...
-        ]}
+        {ads: [{
+            type: number, link: string, title: string,
+            description: string, media?: string
+        }] }
     DESCRIPTION
         Attempts to find and return relevant ads
 */
@@ -96,24 +94,6 @@ module.exports = function(req, res) {
 
     /* Build Initial SQL Query */
     const buildQuery = () => {
-        // Select approved ads where advertiser wants more views or clicks,
-        // has enough funds to pay cost, daily funds hasn't reached limit,
-        // targetted sites are empty or pub's site is listed,
-        // and is not in publisher's blacklisted ads
-        sql = `
-            SELECT
-                id, pay_type, cost, available, ad_type, ad_title, ad_description, ad_media,
-                pay_modifier, ut_age, ut_countries, ut_regions, ut_genders, ct_categories, ct_keywords
-            FROM ads WHERE
-                approved = 1 AND ended = 0
-                AND requested > provided AND funds > cost
-                AND IF(ct_sites = '*', 1, INSTR(ct_sites, '" + pub.site + "') > 0)
-                AND id NOT IN (
-                    SELECT ad_id FROM ads_blacklisted WHERE pub_id = ${+req.query.pubid}
-                )
-                AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used) AND ad_type
-        `;
-
         // Validate types if multiple provided
         if (!q.type) {
             if (!q.types || !q.types.match(/^[0-9,]{3,7}$/)) {
@@ -125,11 +105,31 @@ module.exports = function(req, res) {
             q.types = q.types.replace(',', ", ");
         }
 
-        // Make sure ad is of type that publisher is requesting
-        sql += q.type ? ("= " + q.type) : ("IN (" + q.types + ")");
-
-        // Ads with higher bids will be checked first
-        sql += " ORDER BY cost DESC";
+        // Select approved ads where advertiser wants more views or clicks,
+        // has enough funds to pay cost, daily funds hasn't reached limit,
+        // targetted sites are empty or pub's site is listed,
+        // and is not in publisher's blacklisted ads
+        sql = `
+            SELECT
+                id, pay_type, cost, available, pay_modifier,
+                ad_type, ad_title, ad_description, ad_media,
+                ut_age, ut_countries, ut_regions, ut_genders,
+                ct_categories, ct_keywords
+            FROM ads WHERE
+                approved = 1 AND ended = 0
+                AND requested > provided AND funds > cost
+                AND IF(
+                    ct_sites = '*', 1, INSTR(ct_sites, '" + pub.site + "') > 0
+                )
+                AND id NOT IN (
+                    SELECT ad_id FROM ads_blacklisted
+                    WHERE pub_id = ${+req.query.pubid}
+                )
+                AND IF(daily_funds = 0, 1, daily_funds > daily_funds_used)
+                AND ad_type ${q.type ? (`= ${+q.type}`) : (`IN (${q.types})`)}
+                ${q.xyfir == 1 ? "AND owner < 1001" : ""}
+                ORDER BY cost DESC
+        `;
 
         filterAds();
     };
@@ -137,7 +137,7 @@ module.exports = function(req, res) {
     /* Filter Out Irrelevant Ads */
     const filterAds = () => {
         // Variables needed for each row
-        let time = Math.round(new Date().getTime() / 1000), score;
+        const time = Math.round(new Date().getTime() / 1000), score;
         let age, gender, countries, regions;
         let available, avail, isAvailable;
         let pubKeywords, adKeywords;
@@ -189,7 +189,10 @@ module.exports = function(req, res) {
                 if (+ad.ut_age == 0)
                     score++;
                 // Ad accepts a list of age ranges, user is in range: +2
-                else if (ad.ut_age.indexOf(',') > -1 && ad.ut_age.split(',').indexOf(String(age)) > -1)
+                else if (
+                    ad.ut_age.indexOf(',') > -1
+                    && ad.ut_age.split(',').indexOf(String(age)) > -1
+                )
                     score += 2;
                 // Ad requests a single age range, user matches: +2
                 else if (age == +ad.ut_age)
@@ -202,7 +205,10 @@ module.exports = function(req, res) {
                 
                 if (+ad.ut_genders == 0)
                     score++;
-                else if (ad.ut_genders.indexOf(',') > -1 && ad.ut_genders.split(',').indexOf(String(gender)) > -1)
+                else if (
+                    ad.ut_genders.indexOf(',') > -1
+                    && ad.ut_genders.split(',').indexOf(String(gender)) > -1
+                )
                     score += 2;
                 else if (gender == +ad.ut_genders)
                     score += 2;
@@ -244,7 +250,9 @@ module.exports = function(req, res) {
             if (q.speed == 0) {
                 // Score how well ad's category target matches publisher's categories
                 // +1 for each category level matched
-                score += categoryMatch(pub.categories.split(','), ad.ct_categories);
+                score += categoryMatch(
+                    pub.categories.split(','), ad.ct_categories
+                );
 
                 adKeywords = ad.ct_keywords.split(',');
                 pubKeywords = pub.keywords.split(',');
@@ -273,7 +281,7 @@ module.exports = function(req, res) {
             // Build an IAd object and push it to ads[]
             const addAd = () => {
                 tAd = {
-                    type: ad.ad_type, link: "", title: ad.ad_title, score: score,
+                    type: ad.ad_type, link: "", title: ad.ad_title, score,
                     description: ad.ad_description, id: ad.id,
                     cost: ad.cost, payType: ad.pay_type
                 };
@@ -324,8 +332,7 @@ module.exports = function(req, res) {
             cn.resume();
         };
 
-        let query = cn.query(sql);
-        query // Loop through each row
+        cn.query(sql)
             .on("error", err => {
                 cn.release();
                 res.json({ ads: ['----'] });
@@ -432,7 +439,9 @@ module.exports = function(req, res) {
                 // Update pub report: views / earnings
                 sql = `
                     UPDATE pub_reports SET views = views + 1,
-                        earnings = earnings ${chargeView ? `+ ${ads[i].cost}` : ""}
+                        earnings = earnings ${
+                            chargeView ? `+ ${ads[i].cost}` : ""
+                        }
                     WHERE id = ? AND day = CURDATE()
                 `;
 
