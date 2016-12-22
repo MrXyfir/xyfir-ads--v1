@@ -26,11 +26,8 @@ export default class Home extends React.Component {
     }
 
     componentWillMount() {
-        request({
-            url: "api/account/status",
-            success: (res) => {
-                this.setState({ account: res });
-            }
+        request("api/account/status", (res) => {
+            this.setState({ account: res });
         });
     }
 
@@ -45,7 +42,7 @@ export default class Home extends React.Component {
     render() {
         return (
         <div className="home">
-            <section className="home-section-main">
+            <section className="main">
                 <h1>Xyfir Ads</h1>
                 <span className="subtitle">Advertising for the modern web.</span>
                 <p>
@@ -53,7 +50,7 @@ export default class Home extends React.Component {
                 </p>
             </section>
 
-            <section className="home-section-dashboards">
+            <section className="dashboards">
                 <h2>Dashboards</h2>
                 {!this.state.account.loggedIn ? (
                     <div>
@@ -83,7 +80,7 @@ export default class Home extends React.Component {
                 )}
             </section>
 
-            <section className="home-section-advertisers">
+            <section className="advertisers">
 	            <h2>For Advertisers</h2>
 	            <span className="subtitle">Capture a wider audience with native ads.</span>
 	            <p>
@@ -112,9 +109,10 @@ export default class Home extends React.Component {
                         <p>
                             While anyone can become an advertiser, all advertisement campaigns will be verified before going live.
                         </p>
-                        <Button type="primary" onClick={() => this.onRegisterAdv()}>
-                            Register
-                        </Button>
+                        <Button
+                            type="primary register"
+                            onClick={() => this.onRegisterAdv()}
+                        >Register</Button>
                     </div>
                 )}
 
@@ -122,7 +120,7 @@ export default class Home extends React.Component {
 	            <a href="https://xyfir.com/#/documentation/xyfir-ads/advertisers" target="_blank" className="link-lg">https://xyfir.com/#/documentation/xyfir-ads/advertisers</a>
             </section>
 
-            <section className="home-section-publishers">
+            <section className="publishers">
 	            <h2>For Publishers</h2>
 	            <span className="subtitle">Monetize with ads your users won't hate.</span>
 
@@ -141,9 +139,10 @@ export default class Home extends React.Component {
                         <p>
                             Registration does not come with guaranteed acceptance. All publishers must be verified prior to being able to use our services.
                         </p>
-                        <Button type="primary" onClick={() => this.onRegisterPub()}>
-                            Register
-                        </Button>
+                        <Button
+                            type="primary register"
+                            onClick={() => this.onRegisterPub()}
+                        >Register</Button>
                     </div>
                 )}
 
@@ -151,7 +150,7 @@ export default class Home extends React.Component {
 	            <a className="link-lg" target="_blank" href="https://xyfir.com/#/documentation/xyfir-ads/publishers">https://xyfir.com/#/documentation/xyfir-ads/publishers</a>
             </section>
 
-            <section className="home-section-developers">
+            <section className="developers">
 	            <h2>For Developers</h2>
 	            <span className="subtitle">
                     A simple-to-use API built with developers in mind.
