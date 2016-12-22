@@ -137,11 +137,12 @@ module.exports = function(req, res) {
     /* Filter Out Irrelevant Ads */
     const filterAds = () => {
         // Variables needed for each row
-        const time = Math.round(new Date().getTime() / 1000), score;
-        let age, gender, countries, regions;
-        let available, avail, isAvailable;
-        let pubKeywords, adKeywords;
-        let tAd, lowestScore;
+        const time = Math.round(new Date().getTime() / 1000);
+        let age, gender, countries, regions,
+            available, avail, isAvailable,
+            pubKeywords, adKeywords,
+            tAd, lowestScore,
+            score;
 
         // Determine if ad at row has chance of being returned
         const handleRow = (ad) => {
