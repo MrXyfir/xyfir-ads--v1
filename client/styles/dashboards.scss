@@ -1,7 +1,8 @@
 /* ADVERTISERS DASHBORD */
 .advertisers-campaigns-campaign {
     
-    border-bottom: solid 0.2em $lgray;
+    background-color: white;
+    border-bottom: solid 0.1em $lgray;
     margin: 1.5em auto;
     width: 80%;
 
@@ -167,13 +168,14 @@ table.publishers-campaigns {
 
     .ad-blacklist {
 
-        search-ads, div.blacklisted-ads {
+        .search-ads, div.blacklisted-ads {
             
             max-height: 15em;
             overflow-y: auto;
 
             .ad {
 
+                background-color: white;
                 margin: 1em;
 
                 .title {
