@@ -15,12 +15,12 @@ export default class RegisterAdvertiser extends React.Component {
     componentDidMount() {
         request({
             url: "api/advertisers/account/register",
-            method: "POST", success: (response) => {
-                if (response.error)
-                    alert(response.message);
-                else
-                    location.hash = "/advertisers";
-            }
+            method: "POST"
+        }, (response) => {
+            if (response.error)
+                swal("Error", response.message || "", "error");
+            else
+                location.hash = "#/advertisers";
         });
     }
 

@@ -32,9 +32,9 @@ export default class Publisher extends React.Component {
             data: { email: this.state.email },
             method: "POST", success: (res) => {
                 if (res.error)
-                    alert("An error occured. Try again!");
+                    swal("Error", "An error occured. Try again!", "error");
                 else
-                    alert("Approved");
+                    swal("Success", "Approved", "success");
             }
         });
     }
@@ -48,9 +48,9 @@ export default class Publisher extends React.Component {
             },
             method: "DELETE", success: (res) => {
                 if (res.error)
-                    alert("An error occured. Try again!");
+                    swal("Error", "An error occured. Try again!", "error");
                 else
-                    alert("Denied");
+                    swal("Success", "Denied", "success");
             }
         });
     }
