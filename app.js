@@ -41,18 +41,24 @@ app.use(
   })
 );
 
-/* Middleware */
+/* Auth Middleware */
 app.use('/api/panel', (req, res, next) => {
-  if (req.session.uid <= 1000) next();
-  else res.json({ error: true }); 
+  if (req.session.uid <= 1000)
+    next();
+  else
+    res.json({ error: true, message: '' }); 
 });
 app.use('/api/advertisers', (req, res, next) => {
-  if (req.session.advertiser) next();
-  else res.json({ error: true }); 
+  if (req.session.advertiser || req.path.indexOf('register'))
+    next();
+  else
+    res.json({ error: true, message: 'You are not an advertiser' });
 });
 app.use('/api/publishers', (req, res, next) => {
-  if (req.session.publisher) next();
-  else res.json({ error: true }); 
+  if (req.session.publisher || req.path.indexOf('register'))
+    next();
+  else
+    res.json({ error: true, message: 'You are not a publisher' });
 });
 
 /* Routes */
