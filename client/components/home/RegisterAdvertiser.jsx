@@ -1,31 +1,24 @@
-import React from "react";
-
-// Components
-import Button from "components/forms/Button";
-
-// Modules
-import request from "lib/request";
+import request from 'superagent';
+import React from 'react';
 
 export default class RegisterAdvertiser extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
+  constructor(props) {
+    super(props);
+  }
 
-    componentDidMount() {
-        request({
-            url: "api/advertisers/account/register",
-            method: "POST"
-        }, (response) => {
-            if (response.error)
-                swal("Error", response.message || "", "error");
-            else
-                location.hash = "#/advertisers";
-        });
-    }
+  componentDidMount() {
+    request
+      .post('api/advertisers/account/register')
+      .end((err, res) =>
+        err || res.body.error
+          ? this.props.alert(res.body.message)
+          : location.hash = '#/advertisers'
+      )
+  }
 
-    render() {
-        return <div />;
-    }
+  render() {
+    return <div />;
+  }
 
 }
