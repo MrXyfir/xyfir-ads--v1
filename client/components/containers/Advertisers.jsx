@@ -39,7 +39,7 @@ export default class Advertisers extends React.Component {
         }
 
         return (
-            <div className="advertisers">
+            <div className="advertisers old">
                 <nav className="advertisers-nav">
                     <a href="#/advertisers/campaign/create" className="link-lg">Create Campaign</a>
                     <a href="#/advertisers/campaigns" className="link-lg">View Campaigns</a>

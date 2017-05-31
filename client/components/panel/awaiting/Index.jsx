@@ -26,7 +26,7 @@ export default class PanelAwaiting extends React.Component {
         }
 
         return (
-            <div className="panel-waiting">
+            <div className="panel-waiting old">
                 <nav className="nav">
                     <a href="#/panel/awaiting/ads" className="link-lg">Advertisements</a>
                     <a href="#/panel/awaiting/publishers" className="link-lg">Publishers</a>
