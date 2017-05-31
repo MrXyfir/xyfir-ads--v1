@@ -1,255 +1,241 @@
-/* MISC */
-* {
-	line-height: 142%;
-	font-family: "Source Sans Pro",Calibri,Candara,sans-serif;
-	text-align: center;
-}
-ol {
-	width: 12em;
-	margin: 2em auto;
-}
-a {
-	cursor: pointer;
-}
 body {
-	margin: 0;
-	display: flex;
-	min-height: 100vh;
-	flex-direction: column;
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  flex-direction: column;
 }
+
 main#content {
-	padding: 1em;
-	flex: 1;
-}
-table {
-	margin: auto;
-}
-section {
-	
-	background-color: $lllgray;
-	padding: 0.5em;
-	margin: 1em auto;
-	width: 80%;
-
-	h3, h2, h1 {
-		margin: 0em;
-	}
-
+  flex: 1;
+  padding-bottom: 1em;
 }
 
-/* DEFINITION LISTS */
-dl {
-
-	dt {
-		font-weight: bold;
-	}
-
-	dd {
-		margin: 0em;
-		font-size: 90%;
-	}
-
-	dl {
-		margin: 0em;
-	}
-
+ol {
+  width: 12em;
+  margin: 2em auto;
 }
 
-/* FOOTER */
 footer {
-	
-	background-color: $llgray;
-	padding: 0.2em;
-	border-top: solid 0.1em $lgray;
+  padding: 0.2em;
 
-	a {
-		display: inline-block;
-		margin: 0em 0.5em;
-	}
-
+  >a {
+    display: inline-block;
+    margin: 0em 0.5em;
+  }
 }
 
-/* HEADER */
-header {
-
-	nav {
-		
-		position: fixed;
-		top: 0%;
-		left: 0%;
-		right: 0%;
-		background-color: $llgray;
-		padding-top: 0.8em;
-		z-index: 2;
-		border-bottom: solid 0.1em $lgray;
-
-		a {
-			margin: 0.5em;
-		}
-
-		.logo {
-		
-			font-size: 125%;
-			margin: 0em;
-
-			.xyfir {
-				font-weight: 700;
-				color: $lblack;
-			}
-			
-			.ads {
-				color: $blue;
-			}
-
-		}
-
-	}
-
-}
-
-/* ALERTS */
-.alert {
-	display: block;
-	margin: 2em auto;
-	padding: 0.5em;
-	width: 80%;
-	color: #fff;
-}
-.alert-info {
-	background-color: #e5f3fb;
-	color: $black;
-}
-.alert-success {
-	background-color: $lblue;
-}
-.alert-error {
-	background-color: $red;
-}
-.alert-warning {
-	background-color: #fa6800;
-}
-
-
-/* LINKS */
 a {
-	color: $blue;
-	text-decoration: none;
-}
-a:hover {
-	color: #0099ff;
-}
-a:focus {
-	color: $lblack;
-}
-.link-lg {
-	font-size: 125%;
+  color: $md-primary-color;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $md-secondary-color;
+  }
 }
 
-/* BUTTONS */
-input[type=submit], button, .btn {
-	height: 3.142em;
-	min-width: 7em;
-	color:#fff;
-	border: 0;
-	text-transform: uppercase;
-	margin: 0em 0.5em;
-}
-.btn-sm {
-	height: 2.142em;
-	min-width: 5em;
-}
-.btn-lg {
-	font-size: 140%;
-}
-.btn-primary {
-	background-color: #2652ec;
-}
-.btn-primary:hover {
-	background-color: #5a94f1;
-	color: #fff;
-}
-.btn-secondary {
-	background-color: $gray;
-}
-.btn-secondary:hover {
-	background-color: $lgray;
-}
-.btn-red {
-	background-color: $red;
-}
-.btn-red:hover {
-	background-color: $lred;
-}
-input[type=submit]:focus, button:focus {
-	background-color: $lblack;
+.flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-/* FORMS */
-input[type=text], input[type=password], input[type=email], input[type=number], input[type=tel] {
-	height: 1.571em;
-}
-input[type=text], input[type=password], input[type=email], input[type=tel] {
-	width: 16em;
-}
-input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=number]:focus, input[type=tel]:focus, textarea:focus, select:focus {
-	border-color: $gray;
-	outline: none;
-}
-input[type=text], input[type=password], input[type=email], input[type=number], input[type=tel], textarea, select {
-	padding: 4px 8px;
-	color: $lblack;
-	border: 1px solid $llgray;
-	background-color: rgba(255,255,255,.8);
-	display: block;
-	margin: 1em auto;
-}
-input[type=text].input-error, input[type=password].input-error, input[type=email].input-error, input[type=number].input-error, input[type=tel].input-error, input[type=search].input-error, textarea.input-error {
-	border-color: $dred;
-}
-p.input-error {
-	color: $dred;
-}
-textarea {
-	width: 20em;
-	height: 7em;
-}
-label {
-	display: block;
-	font-weight: bold;
-}
-.input-description {
+.old {
+  table {
+    margin: auto;
+  }
+
+  section {
+    background-color: $lllgray;
+    padding: 0.5em;
+    margin: 1em auto;
+    width: 80%;
+
+    h3, h2, h1 {
+      margin: 0em;
+    }
+  }
+
+  /* DEFINITION LISTS */
+  dl {
+    dt {
+      font-weight: bold;
+    }
+
+    dd {
+      margin: 0em;
+      font-size: 90%;
+    }
+
+    dl {
+      margin: 0em;
+    }
+  }
+
+  /* HEADER */
+  header {
+    nav {
+      position: fixed;
+      top: 0%;
+      left: 0%;
+      right: 0%;
+      background-color: $llgray;
+      padding-top: 0.8em;
+      z-index: 2;
+      border-bottom: solid 0.1em $lgray;
+
+      a {
+        margin: 0.5em;
+      }
+
+      .logo {
+        font-size: 125%;
+        margin: 0em;
+
+        .xyfir {
+          font-weight: 700;
+          color: $lblack;
+        }
+        
+        .ads {
+          color: $blue;
+        }
+      }
+    }
+  }
+
+  /* ALERTS */
+  .alert {
+    display: block;
+    margin: 2em auto;
+    padding: 0.5em;
+    width: 80%;
+    color: #fff;
+  }
+  .alert-info {
+    background-color: #e5f3fb;
+    color: $black;
+  }
+  .alert-success {
+    background-color: $lblue;
+  }
+  .alert-error {
+    background-color: $red;
+  }
+  .alert-warning {
+    background-color: #fa6800;
+  }
+
+  .link-lg {
+    font-size: 125%;
+  }
+
+  /* BUTTONS */
+  input[type=submit], button, .btn {
+    height: 3.142em;
+    min-width: 7em;
+    color:#fff;
+    border: 0;
+    text-transform: uppercase;
+    margin: 0em 0.5em;
+  }
+  .btn-sm {
+    height: 2.142em;
+    min-width: 5em;
+  }
+  .btn-lg {
+    font-size: 140%;
+  }
+  .btn-primary {
+    background-color: #2652ec;
+  }
+  .btn-primary:hover {
+    background-color: #5a94f1;
+    color: #fff;
+  }
+  .btn-secondary {
+    background-color: $gray;
+  }
+  .btn-secondary:hover {
+    background-color: $lgray;
+  }
+  .btn-red {
+    background-color: $red;
+  }
+  .btn-red:hover {
+    background-color: $lred;
+  }
+  input[type=submit]:focus, button:focus {
+    background-color: $lblack;
+  }
+
+  /* FORMS */
+  input[type=text], input[type=password], input[type=email], input[type=number], input[type=tel] {
+    height: 1.571em;
+  }
+  input[type=text], input[type=password], input[type=email], input[type=tel] {
+    width: 16em;
+  }
+  input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=number]:focus, input[type=tel]:focus, textarea:focus, select:focus {
+    border-color: $gray;
+    outline: none;
+  }
+  input[type=text], input[type=password], input[type=email], input[type=number], input[type=tel], textarea, select {
+    padding: 4px 8px;
+    color: $lblack;
+    border: 1px solid $llgray;
+    background-color: rgba(255,255,255,.8);
+    display: block;
+    margin: 1em auto;
+  }
+  input[type=text].input-error, input[type=password].input-error, input[type=email].input-error, input[type=number].input-error, input[type=tel].input-error, input[type=search].input-error, textarea.input-error {
+    border-color: $red;
+  }
+  p.input-error {
+    color: $red;
+  }
+  textarea {
+    width: 20em;
+    height: 7em;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+  }
+  .input-description {
     font-size: 90%;
     color: $dgray;
     display: block;
     width: 80%;
     margin: auto;
-} 
+  } 
 
-/* STEP FORMS */
-.form-step-body {
+  /* STEP FORMS */
+  .form-step-body {
+    input[type=text], input[type=password], input[type=email], input[type=tel] {
+      height: 1.5em;
+      width: 18em;
+      font-size: 125%;
+      margin: 1em auto;
+    }
+    select {
+      height: 2em;
+      width: 12em;
+      font-size: 125%;
+      margin: 1em auto;
+    }
 
-	input[type=text], input[type=password], input[type=email], input[type=tel] {
-		height: 1.5em;
-		width: 18em;
-		font-size: 125%;
-		margin: 1em auto;
-	}
+    label {
+      display: block;
+      margin: auto;
+      font-weight: bold;
+    }
 
-	select {
-		height: 2em;
-		width: 12em;
-		font-size: 125%;
-		margin: 1em auto;
-	}
-
-	label {
-		display: block;
-		margin: auto;
-		font-weight: bold;
-	}
-
-	input[type=checkbox] {
-		margin-bottom: 2em;
-	}
-
+    input[type=checkbox] {
+      margin-bottom: 2em;
+    }
+  }
 }
