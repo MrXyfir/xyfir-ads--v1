@@ -141,6 +141,12 @@ class App extends React.Component {
           }
           autoclose={true}
           navItems={[
+            <a href='api/account/logout'>
+              <ListItem primaryText='Logout' />
+            </a>,
+
+            <Divider />,
+
             <Subheader primary primaryText='Advertisers' />,
             <a href='#/advertisers/account'>
               <ListItem primaryText='Account' />
