@@ -61,20 +61,6 @@ module.exports = function(req, res) {
         else if (req.body.a_description.length > 40)
             error = "Short text ad descriptions cannot be longer than 40 characters";
     }
-    // Image / video ads verification
-    else if (req.body.a_type == 3 || req.body.a_type == 4) {
-        let temp = req.body.a_media.split(',');
-        // ** Validate file is in our Cloudinary 'cloud'
-        for (let i = 0; i < temp.length; i++) {
-            if (temp[i].indexOf("https://res.cloudinary.com/") != 2) {
-                error = "Invalid image / video sources";
-                break;
-            }
-        }
-
-        if (temp.length > 5 || req.body.a_media.length > 450)
-            error = "Invalid image / video source length";
-    }
 
     // Validate daily allocated funds
     if (req.body.f_daily > 0) {

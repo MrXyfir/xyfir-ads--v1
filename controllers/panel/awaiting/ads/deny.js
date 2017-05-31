@@ -12,7 +12,6 @@ const db = require("lib/db");
         Mark ad as ended
         Deletes advertisement from ads table
         Notifies advertiser of denial via email
-        Deletes media from Cloudinary if available
 */
 module.exports = function(req, res) {
     
@@ -67,21 +66,6 @@ module.exports = function(req, res) {
                                 "Your campaign was denied for the following reason: " + req.body.reason
                             );
                             res.json({ error: false });
-
-                            // Check if we need to delete content from Cloudinary
-                            if (!!media[0]) {
-                                let ids = [], temp;
-
-                                for (let i = 0; i < media.length; i++) {
-                                    // Grab id + .ext
-                                    temp = media[i].substr(media[i].lastIndexOf('/') + 1);
-                                    // Cut off .ext and leave id
-                                    temp = temp.substr(0, temp.length - 4);
-                                    ids.push(temp);
-                                }
-
-                                require("lib/file/delete")(ids);
-                            };
                         };
 
                         sql = "SELECT email FROM users WHERE user_id = ?";
