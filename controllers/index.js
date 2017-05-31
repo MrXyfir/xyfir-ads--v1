@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 /* Account */
 router.post('/account/login', require('./account/login'));
+router.get('/account/logout', require('./account/logout'));
 router.get('/account/status', require('./account/status'));
 
 /* Ads */
