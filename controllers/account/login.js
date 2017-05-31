@@ -1,94 +1,83 @@
+const request = require('superagent');
+const mysql = require('lib/mysql');
+
+const config = require('config');
+
 /*
-	POST api/login
-	REQUIRED
-        xid: string, auth: string
-	RETURN
-		{ error: bool }
-    DESCRIPTION
-        Attempt to login / register user
+  POST api/login
+  REQUIRED
+    xid: string, auth: string
+  RETURN
+    { error: bool }
+  DESCRIPTION
+    Attempt to login / register user
 */
+module.exports = async function(req, res) {
 
-const request = require("request");
-const db = require("lib/db");
+  const db = new mysql;
 
-const config = require("config");
+  try {
+    if (req.session.uid) throw 'Already logged in';
 
-module.exports = function(req, res) {
+    const xyAcc = await request
+      .get(config.addresses.xyAccounts + 'api/service/11/user')
+      .query({
+        key: config.keys.xyAccounts,
+        xid: req.body.xid, token: req.body.auth
+      });
+    
+    if (xyAcc.body.error) throw 'xyAccounts error: ' + xyAcc.body.message;
 
-    // User already logged in
-    if (!!req.session.uid) {
-        res.json({ error: false });
-        return;
+    await db.getConnection();
+
+    let result,
+    sql = `
+      SELECT * FROM users WHERE xid = ?
+    `,
+    vars = [
+      req.body.xid
+    ],
+    rows = await db.query(sql, vars);
+
+    // Register user
+    if (!rows.length) {
+      const insert = {
+        xid: req.body.xid,
+        email: xyAcc.body.email
+      };
+      sql = `
+        INSERT INTO users SET ?
+      `,
+      result = await db.query(sql, insert);
+
+      if (!result.insertId) throw 'Could not create account';
+
+      req.session.uid = result.insertId;
+    }
+    // Update / login user
+    else {
+      sql = `
+        UPDATE users SET email = ? WHERE user_id = ?
+      `,
+      vars = [
+        xyAcc.body.email, rows[0].user_id
+      ],
+      result = await db.query(sql, vars);
+
+      if (!result.affectedRows) throw 'Could not update account';
+      
+      // Set session variables
+      req.session.uid = rows[0].user_id;
+      req.session.publisher = !!rows[0].publisher;
+      req.session.advertiser = !!rows[0].advertiser;
     }
 
-    let url = config.addresses.xacc
-        + "api/service/11/" + config.keys.xacc
-        + "/" + req.body.xid
-        + "/" + req.body.auth;
-
-
-    request(url, (err, response, body) => {
-        // Error with actual request
-        if (err) {
-            res.json({ error: true });
-            return;
-        }
-
-        body = JSON.parse(body);
-
-        // Error from Xyfir Accounts
-        // Most likely invalid auth/xid combo
-        if (body.error) {
-            res.json({ error: true });
-            return;
-        }
-
-        db(cn => {
-            let sql = "SELECT * FROM users WHERE xid = ?";
-            cn.query(sql, [req.body.xid], (err, rows) => {
-				
-                if (err) {
-                    cn.release();
-                    res.json({ error: true });
-                }
-                // First login (registration)
-                else if (rows.length == 0) {
-                    let insert = {
-                        xid: req.body.xid,
-                        email: body.email
-                    };
-					
-                    // Create a new row for user
-                    sql = "INSERT INTO users SET ?";
-                    cn.query(sql, insert, (err, result) => {
-                        cn.release();
-
-                        if (err || !result.insertId) {
-                            res.json({ error: true });
-                        }
-                        else {
-                            req.session.uid = result.insertId;
-                            res.json({ error: false });
-                        }
-                    });
-                }
-                // Normal login
-                else {
-                    // Update user data
-                    sql = "UPDATE users SET email = ? WHERE user_id = ?";
-                    cn.query(sql, [body.email, rows[0].user_id], (err, result) => {
-                        cn.release();
-
-                        // Set session variables
-                        req.session.uid = rows[0].user_id;
-                        req.session.publisher = !!rows[0].publisher;
-                        req.session.advertiser = !!rows[0].advertiser;
-
-                        res.json({ error: false });
-                    });
-                }
-            });
-        });
-    });
+    db.release();
+    res.json({ error: false });
+  }
+  catch (err) {
+    db.release();
+    res.json({ error: true, message: err });
+  }
 
 };
