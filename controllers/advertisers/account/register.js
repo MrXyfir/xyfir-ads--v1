@@ -1,36 +1,50 @@
-const db = require("lib/db");
+const mysql = require('lib/mysql');
 
 /*
-    POST api/advertisers/account/register
-    RETURN
-        { error: bool, message: string }
+  POST api/advertisers/account/register
+  RETURN
+    { error: bool, message: string }
 */
-module.exports = function(req, res) {
-    
+module.exports = async function(req, res) {
+  
+  const db = new mysql;
+
+  try {
     if (!req.session.uid)
-        res.json({ error: true, message: "You must login to Xyfir Ads with your Xyfir Account." });
+      throw 'You must login first with your Xyfir Account';
     else if (req.session.advertiser)
-        res.json({ error: true, message: "You are already a advertiser." });
-    else {
-        // Set advertiser boolean to true
-        db(cn => {
-            cn.query("INSERT INTO advertisers SET ?", { user_id: req.session.uid }, (e, r) => {
-                if (e) {
-                    cn.release();
-                    res.json({ error: true, message: "An unknown error occured. Please try again." });
-                    return;
-                }
-
-                cn.query("UPDATE users SET advertiser = 1 WHERE user_id = ?", [req.session.uid], (e, r) => {
-                    cn.release();
-
-                    if (e)
-                        res.json({ error: true, message: "An unknown error occured. Please try again." });
-                    else
-                        res.json({ error: false, message: "" });
-                });
-            });
-        });
-    }
+      throw 'You are already an advertiser';
     
+    await db.getConnection();
+
+    let sql = `
+      INSERT INTO advertisers (user_id) VALUES (?)
+    `,
+    vars = [
+      req.session.uid
+    ],
+    result = await db.query(sql, vars);
+
+    if (!result.affectedRows) throw 'Could not create advertiser account';
+
+    sql = `
+      UPDATE users SET advertiser = 1 WHERE user_id = ?
+    `,
+    vars = [
+      req.session.uid
+    ],
+    result = await db.query(sql, vars);
+
+    db.release();
+
+    if (!result.affectedRows) throw 'Could not update user';
+
+    req.session.advertiser = true;
+    res.json({ error: false });
+  }
+  catch (err) {
+    db.release();
+    res.json({ error: true, message: err });
+  }
+  
 }
